@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function () {
+        try {
+          var originalFetch = window.fetch;
+          var customFetch = originalFetch;
+          Object.defineProperty(window, 'fetch', {
+            get: function () {
+              return customFetch;
+            },
+            set: function (fn) {
+              customFetch = fn;
+            },
+            configurable: true,
+            enumerable: true,
+          });
+        } catch (_) {}
+
+        window.addEventListener('error', function (event) {
+          if (
+            event.filename &&
+            event.filename.indexOf('chrome-extension://') !== -1
+          ) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        });
+      })();
+    </script>
+    <title>Antova | Technical Bid Evaluation for Electrical Tenders</title>
+    <meta
+      name="description"
+      content="Find what vendors left out. See the real price. Lock in the right deal before you sign."
+    />
+    <meta property="og:title" content="Antova | Technical Bid Evaluation for Electrical Tenders" />
+    <meta
+      property="og:description"
+      content="Audit tenders before you sign the contract."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Antova | Technical Bid Evaluation for Electrical Tenders" />
+    <meta
+      name="twitter:description"
+      content="Find what vendors left out. See the real price. Lock in the right deal before you sign."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-background text-foreground antialiased selection:bg-[#FFE98A] selection:text-[#15120F]">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

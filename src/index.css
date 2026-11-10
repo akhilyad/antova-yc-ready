@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F6F2EA;
+  --foreground: #15120F;
+  --card: #FDFBF7;
+  --card-foreground: #15120F;
+  --popover: #FDFBF7;
+  --popover-foreground: #15120F;
+  --primary: #15120F;
+  --primary-foreground: #F6F2EA;
+  --secondary: #EDE8DE;
+  --secondary-foreground: #15120F;
+  --muted: #EDE8DE;
+  --muted-foreground: rgba(21, 18, 15, 0.7);
+  --accent: #FFE98A;
+  --accent-foreground: #15120F;
+  --destructive: #D4400F;
+  --border: rgba(21, 18, 15, 0.15);
+  --input: rgba(21, 18, 15, 0.15);
+  --ring: #15120F;
+
+  --radius: 8px;
+
+  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, Cambria, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --bg-canvas: #F6F2EA;
+  --bg-surface: #FDFBF7;
+  --bg-secondary: #EDE8DE;
+  --text-ink: #15120F;
+  --text-muted: rgba(21, 18, 15, 0.7);
+  --border-hairline: rgba(21, 18, 15, 0.12);
+  --color-accent: #D4400F;
+  --color-highlighter: #FFE98A;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+  @media (width >= 1400px) {
+    max-width: 1220px;
+  }
+}
+
+@layer base {
+  * {
+    border-color: rgba(21, 18, 15, 0.12);
+  }
+  html {
+    scroll-behavior: smooth;
+    background-color: #F6F2EA;
+    color: #15120F;
+    font-family: var(--font-sans);
+  }
+  body {
+    background-color: #F6F2EA;
+    color: #15120F;
+    font-family: var(--font-sans);
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  .font-serif,
+  .font-serif-editorial {
+    font-family: 'Instrument Serif', Georgia, Cambria, serif;
+  }
+  .font-sans,
+  .font-text,
+  .font-sans-body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  .font-mono,
+  .font-mono-cite {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  }
+}
+
+.hatched-penalty {
+  background-color: rgba(212, 64, 15, 0.14);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    #D4400F,
+    #D4400F 2px,
+    transparent 2px,
+    transparent 7px
+  );
+}
+
+.hatched-penalty:hover,
+.hatched-penalty:focus-visible {
+  background-color: rgba(212, 64, 15, 0.28);
+}
