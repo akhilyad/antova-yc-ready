@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420" role="img" aria-labelledby="antb-title antb-desc">
+  <title id="antb-title">Antova</title>
+  <desc id="antb-desc">Technical bid evaluation for electrical tenders: interactive bid leveling, spec deviation citations, and pushback modeling.</desc>
+  <defs>
+    <clipPath id="antb-frame">
+      <rect width="1280" height="420" rx="28"/>
+    </clipPath>
+    <radialGradient id="antb-glow-hi" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FFE98A" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#FFE98A" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="antb-glow-pen" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#D4400F" stop-opacity="0.44"/>
+      <stop offset="1" stop-color="#D4400F" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="antb-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#F6F2EA" stroke-opacity="0.05" stroke-width="1"/>
+    </pattern>
+    <radialGradient id="antb-grid-fade" cx="0.42" cy="0.48" r="0.65">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="antb-grid-mask">
+      <rect width="1280" height="420" fill="url(#antb-grid-fade)"/>
+    </mask>
+    <pattern id="antb-hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#15120F" stroke-opacity="0.28" stroke-width="3"/>
+    </pattern>
+    <linearGradient id="antb-wordmark" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FDFBF7"/>
+      <stop offset="0.65" stop-color="#FFE98A"/>
+      <stop offset="1" stop-color="#F6D55C"/>
+    </linearGradient>
+    <linearGradient id="antb-top-line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#D4400F" stop-opacity="0"/>
+      <stop offset="0.35" stop-color="#D4400F" stop-opacity="0.95"/>
+      <stop offset="0.7" stop-color="#FFE98A" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#FFE98A" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="antb-card-border" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFE98A" stop-opacity="0.75"/>
+      <stop offset="0.5" stop-color="#F6F2EA" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#D4400F" stop-opacity="0.78"/>
+    </linearGradient>
+    <linearGradient id="antb-card-fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#221D18" stop-opacity="0.88"/>
+      <stop offset="1" stop-color="#15120F" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="antb-card-sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <g clip-path="url(#antb-frame)">
+    <rect width="1280" height="420" fill="#15120F"/>
+    <ellipse cx="220" cy="40" rx="520" ry="300" fill="url(#antb-glow-pen)"/>
+    <ellipse cx="1010" cy="110" rx="480" ry="300" fill="url(#antb-glow-hi)"/>
+    <rect width="1280" height="420" fill="url(#antb-grid)" mask="url(#antb-grid-mask)"/>
+
+    <text x="530" y="425" font-family="Georgia, serif" font-size="330" font-weight="700" fill="#F6F2EA" fill-opacity="0.03">Δ</text>
+
+    <rect x="0" y="0" width="1280" height="2" fill="url(#antb-top-line)"/>
+
+    <!-- Eyebrow pill -->
+    <g font-family="'Inter', system-ui, sans-serif">
+      <rect x="80" y="68" width="322" height="32" rx="16" fill="#F6F2EA" fill-opacity="0.06" stroke="#FFE98A" stroke-opacity="0.38"/>
+      <circle cx="101" cy="84" r="8" fill="#D4400F" fill-opacity="0.3"/>
+      <circle cx="101" cy="84" r="4" fill="#FFE98A"/>
+      <text x="118" y="89" font-size="12" font-weight="700" letter-spacing="1.6" fill="#FDFBF7">ELECTRICAL TENDER BID LEVELING</text>
+    </g>
+
+    <!-- Editorial serif + bold wordmark -->
+    <text x="76" y="196" font-family="Georgia, 'Instrument Serif', serif" font-size="96" font-weight="700" letter-spacing="4" fill="url(#antb-wordmark)">ANTOVA</text>
+
+    <!-- Tagline -->
+    <text x="80" y="244" font-family="'Inter', system-ui, sans-serif" font-size="24" font-weight="500" fill="#DDD6CA">Reveal hidden scope exclusions and true leveled tender cost</text>
+
+    <!-- Chips -->
+    <g font-family="'Inter', system-ui, sans-serif" font-size="14.5" font-weight="700" text-anchor="middle">
+      <rect x="80" y="280" width="136" height="36" rx="18" fill="#FFE98A" fill-opacity="0.16" stroke="#FFE98A" stroke-opacity="0.58"/>
+      <text x="148" y="303" fill="#FFE98A">33kV Switchgear</text>
+
+      <rect x="228" y="280" width="132" height="36" rx="18" fill="#D4400F" fill-opacity="0.22" stroke="#D4400F" stroke-opacity="0.65"/>
+      <text x="294" y="303" fill="#FDBA9B">Scope Penalties</text>
+
+      <rect x="372" y="280" width="136" height="36" rx="18" fill="#F6F2EA" fill-opacity="0.08" stroke="#F6F2EA" stroke-opacity="0.24"/>
+      <text x="440" y="303" fill="#FDFBF7">PDF Citations</text>
+
+      <rect x="520" y="280" width="144" height="36" rx="18" fill="#F6F2EA" fill-opacity="0.06" stroke="#F6F2EA" stroke-opacity="0.2"/>
+      <text x="592" y="303" fill="#DDD6CA">Pushback Model</text>
+    </g>
+
+    <!-- Stack line -->
+    <text x="80" y="366" font-family="'JetBrains Mono', Consolas, monospace" font-size="14" font-weight="500" letter-spacing="0.4" fill="#ACA397">React 19 · Vite 8 · Tailwind CSS 4 · GSAP · node:test</text>
+
+    <!-- Right motif card: 33kV Bid Leveling Bar Comparison -->
+    <rect x="846" y="48" width="352" height="296" rx="22" fill="#F6F2EA" fill-opacity="0.025" stroke="#FFE98A" stroke-opacity="0.2" transform="rotate(4 1022 196)"/>
+    <rect x="826" y="64" width="372" height="296" rx="22" fill="url(#antb-card-fill)"/>
+    <rect x="826" y="64" width="372" height="118" rx="22" fill="url(#antb-card-sheen)"/>
+    <rect x="826.75" y="64.75" width="370.5" height="294.5" rx="21.25" fill="none" stroke="url(#antb-card-border)" stroke-width="1.5"/>
+
+    <g font-family="'Inter', system-ui, sans-serif">
+      <text x="854" y="102" font-size="16.5" font-weight="700" fill="#FDFBF7">33kV GIS bid leveling</text>
+      <rect x="1064" y="84" width="110" height="26" rx="13" fill="#FFE98A" fill-opacity="0.18" stroke="#FFE98A" stroke-opacity="0.55"/>
+      <text x="1119" y="101" font-size="11.5" font-weight="700" text-anchor="middle" fill="#FFE98A">True Cost Mode</text>
+
+      <!-- Vendor A bar -->
+      <text x="854" y="144" font-size="12.5" font-weight="700" fill="#EDE8DE">Vendor A · Compliant</text>
+      <text x="1172" y="144" font-family="'JetBrains Mono', monospace" font-size="12.5" font-weight="700" text-anchor="end" fill="#F6F2EA">€452,000</text>
+      <rect x="854" y="154" width="318" height="24" rx="6" fill="#FFFFFF" fill-opacity="0.06"/>
+      <rect x="854" y="154" width="286" height="24" rx="6" fill="#F6F2EA" fill-opacity="0.88"/>
+
+      <!-- Vendor B stacked bar: base 418k + deviation 64.8k -->
+      <text x="854" y="206" font-size="12.5" font-weight="700" fill="#FFE98A">Vendor B · Base + 5 Deviations</text>
+      <text x="1172" y="206" font-family="'JetBrains Mono', monospace" font-size="12.5" font-weight="700" text-anchor="end" fill="#FFE98A">€482,800</text>
+      <rect x="854" y="216" width="318" height="24" rx="6" fill="#FFFFFF" fill-opacity="0.06"/>
+      <rect x="854" y="216" width="262" height="24" rx="6" fill="#C2BCB1"/>
+      <rect x="1118" y="216" width="48" height="24" rx="4" fill="#FFE98A"/>
+      <rect x="1118" y="216" width="48" height="24" rx="4" fill="url(#antb-hatch)"/>
+
+      <!-- Callout pill -->
+      <rect x="854" y="256" width="318" height="40" rx="10" fill="#D4400F" fill-opacity="0.18" stroke="#D4400F" stroke-opacity="0.55"/>
+      <text x="870" y="280" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="700" fill="#FDBA9B">p. 147 §4.2 · +€64,800 (+€30.8k vs A)</text>
+
+      <line x1="854" y1="314" x2="1172" y2="314" stroke="#F6F2EA" stroke-opacity="0.1"/>
+      <text x="854" y="336" font-family="'JetBrains Mono', monospace" font-size="11.5" fill="#ACA397">Deterministic pricing · Sticker | True | Pushback</text>
+    </g>
+  </g>
+  <rect x="0.5" y="0.5" width="1279" height="419" rx="27.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.09"/>
+</svg>
+
