@@ -57,8 +57,11 @@ export interface HalftoneWordmarkFooterProps {
   dotGap?: number
   /** How far the pointer pushes, in CSS px. Defaults to 80. */
   radius?: number
-  /** How much of the word's cap height hangs below the bottom edge, 0–0.6. Defaults to 0.2. */
+  /** How much of the word's cap height hangs below the bottom edge, 0–0.6. Defaults to 0.2.
+   *  Negative values lift the baseline above the edge (down to -0.5). */
   crop?: number
+  /** Share of the width the word spans. Defaults to 1.02 (bleeds off both sides). */
+  fill?: number
   /** Print grain over everything, 0–1. Defaults to 0.5. */
   grain?: number
   /** Pointer and click response. Defaults to true. */
@@ -201,15 +204,16 @@ export default function HalftoneWordmarkFooter({
   fontWeight = 800,
   monoFamily = MONO_STACK,
   height = "560px",
+  fill = 1.02,
   className = "",
   onClickCapture,
 }: HalftoneWordmarkFooterProps) {
   const colors = { ...(PRESETS[preset] || PRESETS.night), ...(palette || {}) }
   const rootRef = React.useRef(null as HTMLElement | null)
   const canvasRef = React.useRef(null as HTMLCanvasElement | null)
-  const opts = React.useRef({ colors, dotGap, radius, crop, grain, interactive, fontFamily, fontWeight, wordmark })
-  opts.current = { colors, dotGap, radius, crop, grain, interactive, fontFamily, fontWeight, wordmark }
-  const key = [wordmark, dotGap, crop, grain, fontFamily, fontWeight, colors.background, colors.ink, colors.warm].join("|")
+  const opts = React.useRef({ colors, dotGap, radius, crop, fill, grain, interactive, fontFamily, fontWeight, wordmark })
+  opts.current = { colors, dotGap, radius, crop, fill, grain, interactive, fontFamily, fontWeight, wordmark }
+  const key = [wordmark, dotGap, crop, fill, grain, fontFamily, fontWeight, colors.background, colors.ink, colors.warm].join("|")
 
   React.useEffect(() => {
     const root = rootRef.current
@@ -253,14 +257,15 @@ export default function HalftoneWordmarkFooter({
       const face = o.fontWeight + " 100px " + o.fontFamily
       m.font = face
       const word = o.wordmark || " "
-      const fit = hwfFitSize(m.measureText(word).width, w * 1.02)
+      const fit = hwfFitSize(m.measureText(word).width, w * o.fill)
       m.font = o.fontWeight + " " + fit + "px " + o.fontFamily
       const box = m.measureText(word)
       const cap = box.actualBoundingBoxAscent || fit * 0.72
-      const c = Math.max(0, Math.min(0.6, o.crop))
+      const c = Math.max(-0.5, Math.min(0.6, o.crop))
       m.fillStyle = "#000"
       m.textBaseline = "alphabetic"
-      m.fillText(word, (w - box.width) / 2, h + cap * c)
+      const inkW = (box.actualBoundingBoxLeft || 0) + (box.actualBoundingBoxRight || box.width)
+      m.fillText(word, (w - inkW) / 2 + (box.actualBoundingBoxLeft || 0), h + cap * c)
       const img = m.getImageData(0, 0, w, h).data
 
       const gap = Math.max(3, o.dotGap)

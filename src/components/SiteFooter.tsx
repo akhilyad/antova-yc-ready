@@ -27,7 +27,7 @@ const COLUMNS: FooterColumn[] = [
   },
   {
     title: 'Start',
-    links: [{ label: 'Audit a tender', href: '/#audit' }],
+    links: [{ label: 'Audit a tender free', href: '/#audit' }],
   },
 ];
 
@@ -55,7 +55,9 @@ export function SiteFooter({ onNavigate, onAuditClick }: SiteFooterProps) {
       fontFamily='"Geist", -apple-system, "Helvetica Neue", Arial, sans-serif'
       fontWeight={800}
       monoFamily='"Geist Mono", ui-monospace, SFMono-Regular, monospace'
-      height="clamp(420px, 52vw, 600px)"
+      height="max(calc(250px + 25vw), 410px)"
+      fill={0.9}
+      crop={-0.14}
       onClickCapture={handleClick}
     />
   );

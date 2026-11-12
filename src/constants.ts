@@ -62,7 +62,7 @@ export const CHECK_LABEL: Record<string, string> = {
   'PARAM-05': 'Factory testing',
   'PARAM-06': 'Delivery & warranty',
   'PARAM-07': 'Voltage',
-  'PARAM-08': 'Heat rating',
+  'PARAM-08': 'Ambient temperature',
 };
 
 export const STATUS_PLAIN = {
@@ -74,7 +74,7 @@ export const STATUS_PLAIN = {
 
 export const HERO_COPY = {
   eyebrow: 'Bid audits for electrical tenders',
-  headlineLead: 'Find what the cheapest bid',
+  headlineLead: 'Find what the lowest bid',
   headlineItalic: 'left out.',
   subtext:
     'Drop in your spec and every vendor quote. See each missing item and price gap, with the page it came from.',
@@ -83,20 +83,20 @@ export const HERO_COPY = {
 };
 
 export const MANIFESTO_COPY = {
-  lead: 'A switchgear bid runs thirty pages. The exclusion that costs you sits in one drawing note.',
-  italic: 'Antova reads all thirty.',
+  lead: 'An industrial equipment bid runs thirty pages. The missing breaker hides in one footnote.',
+  italic: 'Antova catches it before award.',
 };
 
 export const PROBLEM_STACK_SECTION = {
   eyebrow: 'Where bids go wrong',
-  heading: 'The cheapest bid is a claim, not a price.',
+  heading: 'The lowest bid is a claim, not a price.',
   cards: [
     {
       id: 'card-01',
       phaseTag: '01 · The quote',
       title: 'You picked the lowest quote.',
       titleItalic: 'It wasn’t the lowest price.',
-      description: 'VoltSwitch quoted €34,000 under Nordwerk. Brought up to spec, it costs €30,800 more.',
+      description: 'VoltSwitch quoted €34,000 under Nordwerk. Brought up to spec, it costs €30,800 more than Nordwerk.',
       visualType: 'headline-trap',
     },
     {
@@ -119,8 +119,8 @@ export const PROBLEM_STACK_SECTION = {
 };
 
 export const INTRO_COPY = {
-  heading: 'Introducing Antova.',
-  body: 'Every bid checked against your spec, line by line. Every gap priced.',
+  heading: 'Every bid, checked against your spec.',
+  body: 'Line by line. Every gap priced.',
   before: 'Your spreadsheet',
   after: 'With Antova',
 };
@@ -136,18 +136,18 @@ export const MATRIX_COPY = {
     round3: 'After negotiation',
   },
   viewNotes: {
-    headline: 'As quoted, VoltSwitch looks €34,000 cheapest.',
-    evaluated: 'With every gap priced, Nordwerk is cheapest at €452,000.',
+    headline: 'As quoted, VoltSwitch looks lowest, €34,000 under Nordwerk.',
+    evaluated: 'With every gap priced, Nordwerk is lowest at €452,000.',
     round3: 'Shown its gaps, VoltSwitch covers €57,400 of them. Now it wins at €425,400.',
   },
 };
 
 export const IMPACT_COPY = {
-  heading: 'What one audit found.',
+  heading: 'What the sample audit found.',
   stats: [
-    { value: '€64,800', label: 'missing from the cheapest quote' },
+    { value: '€64,800', label: 'missing from the lowest quote' },
     { value: '10 of 24', label: 'checks flagged across three bids' },
-    { value: '€57,400', label: 'won back in negotiation' },
+    { value: '€57,400', label: 'recovered in the sample negotiation' },
   ],
   footnote: 'Every number links to the page it came from.',
 };
@@ -159,7 +159,7 @@ export const PRICING_SECTION_COPY = {
 
 export const PRICING_PLANS: PricingPlan[] = [
   {
-    name: 'Shadow Audit',
+    name: 'Free first audit',
     priceAmount: 0,
     priceDisplay: '€0',
     suffix: '/ first tender',
@@ -185,7 +185,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       'Revised bids re-run through negotiation',
       'PDF report',
     ],
-    buttonText: 'Audit a tender',
+    buttonText: 'Audit a tender free',
     href: '#audit',
   },
   {
@@ -202,7 +202,7 @@ export const PRICING_PLANS: PricingPlan[] = [
 
 export const FAQ_SECTION_COPY = {
   eyebrow: 'Questions',
-  heading: 'Questions buyers ask.',
+  heading: 'Questions.',
   description: '',
   supportHeading: 'Still have a question about your tender?',
   supportDescription: 'Ask the founder. Usually answered the same day.',
@@ -225,13 +225,13 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     id: 'faq-3',
     question: 'What files can I send?',
-    answer: 'Text PDFs: your spec and each vendor’s full bid. Scanned pages are flagged for manual review.',
+    answer: 'Searchable PDFs: your spec and each vendor’s full bid. Scanned pages are flagged for manual review.',
   },
   {
     id: 'faq-4',
     question: 'Which equipment is covered?',
     answer:
-      '33 kV switchgear today. Send your package and we’ll confirm before you share bids.',
+      '33 kV switchgear today. For other electrical packages, send yours and we’ll confirm fit before you share bids.',
   },
   {
     id: 'faq-5',
@@ -244,8 +244,9 @@ export const FINAL_CTA_COPY = {
   badge: 'First tender free',
   headlineLead: 'Send the bids.',
   headlineMuted: 'Get the real price.',
-  subtext: 'Spec and vendor quotes in, under NDA. Signed-off results in 24 hours.',
-  submitButtonText: 'Request free audit',
+  subtext: 'Spec and vendor quotes in, under NDA. Engineer-checked results in 24 hours.',
+  submitButtonText: 'Audit a tender free',
+  equipmentHelp: '33 kV switchgear today. Other packages: we’ll confirm fit before you share bids.',
 };
 
 export const EQUIPMENT_OPTIONS = [

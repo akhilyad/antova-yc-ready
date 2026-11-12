@@ -20,7 +20,7 @@ export function OfferFormAndFaqSection() {
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
   const [equipment, setEquipment] = useState<EquipmentOption>('MV switchgear');
-  const [selectedPlan, setSelectedPlan] = useState<string>('Shadow Audit');
+  const [selectedPlan, setSelectedPlan] = useState<string>(PRICING_PLANS[0].name);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
@@ -197,6 +197,7 @@ export function OfferFormAndFaqSection() {
                     </label>
                     <select
                       id="audit-equipment"
+                      aria-describedby="audit-equipment-help"
                       value={equipment}
                       onChange={(e) =>
                         setEquipment(e.target.value as EquipmentOption)
@@ -213,6 +214,9 @@ export function OfferFormAndFaqSection() {
                         </option>
                       ))}
                     </select>
+                    <p id="audit-equipment-help" className="mt-1.5 font-sans text-xs text-ink/70">
+                      {FINAL_CTA_COPY.equipmentHelp}
+                    </p>
                   </div>
 
                   <div className="sm:col-span-2 pt-2">
