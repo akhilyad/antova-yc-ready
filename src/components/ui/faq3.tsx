@@ -48,21 +48,21 @@ export const Faq3 = ({
   return (
     <section
       id="faq"
-      className="scroll-mt-12 w-full border-t border-[#15120F]/10 bg-[#F6F2EA] px-4 py-20 sm:px-6 sm:py-24"
+      className="scroll-mt-12 w-full border-t border-[#FFFFFF]/10 bg-[#000000] px-4 py-20 sm:px-6 sm:py-24"
     >
       <div className="mx-auto max-w-6xl space-y-16">
         <div className="mx-auto flex max-w-3xl flex-col text-left md:text-center">
-          <p className="mb-3 font-mono text-xs uppercase tracking-wider text-[#15120F]/60">
+          <p className="mb-3 font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/60">
             {eyebrow}
           </p>
           <h2
-            className="mb-3 font-serif text-3xl tracking-tight text-[#15120F] md:mb-4 lg:mb-6 lg:text-5xl"
+            className="mb-3 font-serif text-3xl tracking-tight text-[#FFFFFF] md:mb-4 lg:mb-6 lg:text-5xl"
             style={{ textWrap: 'balance' }}
           >
             {heading}
           </h2>
           {description && (
-            <p className="font-sans text-[#15120F]/70 lg:text-lg">
+            <p className="font-sans text-[#FFFFFF]/70 lg:text-lg">
               {description}
             </p>
           )}
@@ -76,12 +76,12 @@ export const Faq3 = ({
           {items.map((item) => (
             <AccordionItem key={item.id} value={item.id}>
               <AccordionTrigger className="transition-opacity duration-200 hover:no-underline hover:opacity-60">
-                <span className="font-sans font-medium text-[#15120F] sm:py-1 lg:py-2 lg:text-lg">
+                <span className="font-sans font-medium text-[#FFFFFF] sm:py-1 lg:py-2 lg:text-lg">
                   {item.question}
                 </span>
               </AccordionTrigger>
               <AccordionContent className="sm:mb-1 lg:mb-2">
-                <span className="font-sans text-[#15120F]/70 lg:text-lg">
+                <span className="font-sans text-[#FFFFFF]/70 lg:text-lg">
                   {item.answer}
                 </span>
               </AccordionContent>
@@ -89,18 +89,18 @@ export const Faq3 = ({
           ))}
         </Accordion>
 
-        <div className="mx-auto flex max-w-4xl flex-col items-center rounded-lg border border-[#15120F]/10 bg-[#EDE8DE] p-4 text-center md:rounded-xl md:p-6 lg:p-8">
-          <Avatar className="mb-4 size-16 border-2 border-[#FDFBF7] shadow-sm md:mb-5">
+        <div className="mx-auto flex max-w-4xl flex-col items-center rounded-lg border border-[#FFFFFF]/10 bg-[#171717] p-4 text-center md:rounded-xl md:p-6 lg:p-8">
+          <Avatar className="mb-4 size-16 border-2 border-[#0B0B0B] shadow-sm md:mb-5">
             <AvatarImage
               src={TEAM_FOUNDER_DATA.image}
               alt={TEAM_FOUNDER_DATA.name}
             />
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
-          <h3 className="mb-2 max-w-3xl font-serif text-2xl text-[#15120F] lg:text-3xl">
+          <h3 className="mb-2 max-w-3xl font-serif text-2xl text-[#FFFFFF] lg:text-3xl">
             {supportHeading}
           </h3>
-          <p className="mb-8 max-w-3xl font-sans text-[#15120F]/70 lg:text-lg">
+          <p className="mb-8 max-w-3xl font-sans text-[#FFFFFF]/70 lg:text-lg">
             {supportDescription}
           </p>
           <div className="flex w-full flex-col justify-center gap-2 sm:flex-row">

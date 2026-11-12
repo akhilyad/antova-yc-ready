@@ -40,7 +40,7 @@ export function FrequencyToggle({
             className={cn(
               'relative z-10 rounded-full px-4 py-1.5 font-mono-cite text-xs transition-colors duration-150 cursor-pointer whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground',
               isActive
-                ? 'font-medium text-background'
+                ? 'font-medium text-primary-foreground'
                 : 'text-muted-foreground hover:text-foreground'
             )}
           >
@@ -48,7 +48,7 @@ export function FrequencyToggle({
               <motion.span
                 layoutId="pricing-frequency-pill"
                 transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-                className="bg-foreground absolute inset-0 -z-10 rounded-full"
+                className="bg-primary absolute inset-0 -z-10 rounded-full"
               />
             )}
             {option.label}

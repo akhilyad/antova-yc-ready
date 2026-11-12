@@ -79,7 +79,7 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
         <a
           href="/"
           onClick={handleBrandClick}
-          className="inline-flex items-center gap-2 font-serif text-2xl tracking-tight text-[#15120F] whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#15120F]"
+          className="inline-flex items-center gap-2 font-serif text-2xl tracking-tight text-[#FFFFFF] whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FFFFFF]"
         >
           <span aria-hidden="true" className="relative flex h-2 w-2">
             <span className="motion-safe:animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D4400F] opacity-60"></span>
@@ -104,8 +104,8 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
                 className={cn(
                   'rounded-full px-3 py-1.5 font-sans text-sm font-medium transition-colors whitespace-nowrap shrink-0',
                   isActive
-                    ? 'bg-primary/5 text-[#15120F]'
-                    : 'text-[#15120F]/70 hover:bg-primary/5 hover:text-[#15120F]'
+                    ? 'bg-primary/5 text-[#FFFFFF]'
+                    : 'text-[#FFFFFF]/70 hover:bg-primary/5 hover:text-[#FFFFFF]'
                 )}
               >
                 {item.label}
@@ -133,7 +133,7 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
             aria-label={isMenuOpen ? 'Close main menu' : 'Open main menu'}
             aria-expanded={isMenuOpen}
             aria-controls="mobile-nav"
-            className="text-[#15120F]/70 hover:text-[#15120F] relative flex size-9 items-center justify-center lg:hidden cursor-pointer"
+            className="text-[#FFFFFF]/70 hover:text-[#FFFFFF] relative flex size-9 items-center justify-center lg:hidden cursor-pointer"
             onClick={() => setIsMenuOpen((prev) => !prev)}
           >
             <div className="relative block w-[18px] h-3.5">
@@ -171,7 +171,7 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
         >
           <nav
             aria-label="Mobile navigation"
-            className="divide-[#15120F]/10 flex flex-col divide-y"
+            className="divide-[#FFFFFF]/10 flex flex-col divide-y"
           >
             {NAV_ITEMS.map((item) => {
               const isActive = item.view === 'team' && currentView === 'team';
@@ -184,8 +184,8 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
                   className={cn(
                     'py-3 font-sans text-base font-medium transition-colors first:pt-0 last:pb-0',
                     isActive
-                      ? 'text-[#15120F] font-semibold'
-                      : 'text-[#15120F]/80 hover:text-[#15120F]'
+                      ? 'text-[#FFFFFF] font-semibold'
+                      : 'text-[#FFFFFF]/80 hover:text-[#FFFFFF]'
                   )}
                 >
                   {item.label}
