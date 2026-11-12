@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { HERO_COPY } from '../constants';
-import { CELLS, TENDER, VENDORS, vendorAdders, vendorPrice } from '../data/tender402';
+import { CELLS, VENDORS, vendorAdders, vendorPrice } from '../data/tender402';
 import { formatEuro } from '../utils/audit';
 import { pillButtonClass } from './ui/hero-dithering-card';
 
@@ -35,7 +35,7 @@ function BidPreview() {
   return (
     <div className="w-full">
       <div className="mb-8 flex items-center justify-between gap-4">
-        <p className="hidden font-mono text-[11px] text-white/50 sm:block">{TENDER.title}</p>
+        <p className="font-mono text-[11px] text-white/50">3 bids · 33 kV switchgear</p>
         <div role="group" aria-label="Price view" className="inline-flex rounded-full bg-white/[0.06] p-1">
           {(['headline', 'evaluated'] as HeroView[]).map((key) => (
             <button
@@ -47,7 +47,7 @@ function BidPreview() {
                 setView(key);
               }}
               className={cn(
-                'relative z-10 cursor-pointer rounded-full px-4 py-1.5 font-mono text-xs transition-colors',
+                'relative z-10 cursor-pointer whitespace-nowrap rounded-full px-4 py-1.5 font-mono text-xs transition-colors',
                 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D4400F]',
                 view === key ? 'text-white' : 'text-white/55 hover:text-white'
               )}
@@ -75,7 +75,7 @@ function BidPreview() {
               key={v.id}
               layout={!reduced}
               transition={{ type: 'spring', stiffness: 260, damping: 30 }}
-              className="grid grid-cols-[5.5rem_1fr] items-center gap-4 sm:grid-cols-[7rem_1fr_9rem]"
+              className="grid grid-cols-[5.5rem_1fr] items-center gap-x-4 gap-y-1.5"
             >
               <span className="font-sans text-sm text-white">{v.short}</span>
               <div className="h-8">
@@ -93,7 +93,7 @@ function BidPreview() {
               </div>
               <span
                 className={cn(
-                  'col-start-2 font-mono text-[11px] sm:col-start-auto sm:text-right',
+                  'col-start-2 font-mono text-[11px]',
                   view === 'headline' || gaps === 0 ? 'text-white/40' : 'text-[#FF7A45]'
                 )}
               >
@@ -115,18 +115,19 @@ function BidPreview() {
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ onAuditClick }) => {
   return (
-    <section className="w-full px-4 pb-24 pt-32 text-white sm:pb-32 sm:pt-44 md:px-6">
-      <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
-        <p className="mb-8 font-mono text-[11px] uppercase tracking-[0.2em] text-white/50 sm:text-xs">
+    <section className="w-full px-4 pb-24 pt-28 text-white sm:pb-32 sm:pt-36 md:px-6 lg:flex lg:min-h-[100svh] lg:items-center lg:pb-16 lg:pt-28">
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-16 lg:grid-cols-[1.05fr_1fr] lg:gap-20">
+      <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+        <p className="mb-6 font-mono text-[11px] uppercase tracking-[0.2em] text-white/50 sm:text-xs">
           {HERO_COPY.eyebrow}
         </p>
 
-        <h1 className="font-serif text-[2.6rem] font-medium leading-[1.04] tracking-tight sm:text-6xl md:text-7xl lg:text-[5.5rem]">
+        <h1 className="font-serif text-[2.6rem] font-medium leading-[1.04] tracking-tight sm:text-6xl lg:text-[4.25rem]">
           {HERO_COPY.headlineLead}{' '}
           <em className="whitespace-nowrap italic text-[#FF7A45]">{HERO_COPY.headlineItalic}</em>
         </h1>
 
-        <p className="mt-8 max-w-xl font-sans text-base leading-relaxed text-white/70 md:text-lg">
+        <p className="mt-6 max-w-md font-sans text-base leading-relaxed text-white/70 md:text-lg">
           {HERO_COPY.subtext}
         </p>
 
@@ -141,8 +142,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onAuditClick }) => {
         <p className="mt-5 font-mono text-[11px] text-white/50 sm:text-xs">{HERO_COPY.subline}</p>
       </div>
 
-      <div className="mx-auto mt-24 max-w-3xl sm:mt-28">
+      <div className="mx-auto w-full max-w-xl lg:max-w-none">
         <BidPreview />
+      </div>
       </div>
     </section>
   );

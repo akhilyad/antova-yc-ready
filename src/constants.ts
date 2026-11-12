@@ -53,6 +53,25 @@ export interface TeamFounderData {
 
 export const SAMPLE_DATA_LABEL = 'Sample tender · synthetic documents';
 
+/** Plain-English names for the eight checks and four outcomes. */
+export const CHECK_LABEL: Record<string, string> = {
+  'PARAM-01': 'Fault rating',
+  'PARAM-02': 'Busbar metal',
+  'PARAM-03': 'Enclosure protection',
+  'PARAM-04': 'Control network',
+  'PARAM-05': 'Factory testing',
+  'PARAM-06': 'Delivery & warranty',
+  'PARAM-07': 'Voltage',
+  'PARAM-08': 'Heat rating',
+};
+
+export const STATUS_PLAIN = {
+  COMPLIANT: 'Meets spec',
+  DEVIATION_DOWNGRADE: 'Below spec',
+  CONFLICT_DOWNGRADE: 'Contradicts itself',
+  OMITTED: 'Left out',
+} as const;
+
 export const HERO_COPY = {
   eyebrow: 'Bid audits for electrical tenders',
   headlineLead: 'Find what the cheapest bid',
@@ -110,7 +129,7 @@ export const MATRIX_COPY = {
   eyebrow: 'TRY IT',
   headlineLead: 'Three bids. Eight checks.',
   headlineItalic: 'Click a flagged cell.',
-  subtext: 'A full audit of a sample 33 kV switchgear tender.',
+  subtext: 'A sample 33 kV switchgear tender, audited.',
   views: {
     headline: 'Quoted',
     evaluated: 'True cost',
@@ -161,12 +180,10 @@ export const PRICING_PLANS: PricingPlan[] = [
     priceDisplay: '€1,500',
     suffix: '/ tender',
     audienceInfo: 'One project, one package',
-    featuresHeader: 'EVERYTHING IN SHADOW AUDIT, PLUS:',
     features: [
-      'Up to 8 bids',
-      'Your own rates',
-      'Negotiation rounds tracked',
-      'PDF report, re-runs on revised bids',
+      'Up to 8 bids, priced at your rates',
+      'Revised bids re-run through negotiation',
+      'PDF report',
     ],
     buttonText: 'Audit a tender',
     href: '#audit',
@@ -177,8 +194,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     priceDisplay: '€6,000',
     suffix: '/ 5 tenders',
     audienceInfo: '€1,200 per tender',
-    featuresHeader: 'EVERYTHING IN PER TENDER, FOR FIVE PACKAGES',
-    features: ['20% below the per-tender rate', 'Same engineer, same NDA'],
+    features: ['Everything in Per Tender', '20% below the per-tender rate'],
     buttonText: 'Request a pack of five',
     href: '#audit',
   },
@@ -198,7 +214,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: 'faq-1',
     question: 'Does AI decide if a bid is compliant?',
     answer:
-      'No. AI finds the passage in the bid. Plain code checks the value against your spec and does every sum.',
+      'No. AI finds the passage. Fixed rules check it against your spec and do every sum.',
   },
   {
     id: 'faq-2',
@@ -209,13 +225,13 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     id: 'faq-3',
     question: 'What files can I send?',
-    answer: 'Text-based PDFs: specs, datasheets, drawings, BOMs, test plans and commercial terms. Scanned pages are flagged for manual review.',
+    answer: 'Text PDFs: your spec and each vendor’s full bid. Scanned pages are flagged for manual review.',
   },
   {
     id: 'faq-4',
     question: 'Which equipment is covered?',
     answer:
-      '33 kV-class GIS switchgear today. Send us your package and we’ll confirm coverage before you share bids.',
+      '33 kV switchgear today. Send your package and we’ll confirm before you share bids.',
   },
   {
     id: 'faq-5',

@@ -48,7 +48,7 @@ export const Faq3 = ({
   return (
     <section
       id="faq"
-      className="scroll-mt-12 w-full px-4 py-20 sm:px-6 sm:py-24"
+      className="scroll-mt-12 w-full px-4 py-32 sm:px-6 sm:py-44"
     >
       <div className="mx-auto max-w-6xl space-y-16">
         <div className="mx-auto flex max-w-3xl flex-col text-left md:text-center">
