@@ -2,40 +2,46 @@
 
 :root {
   color-scheme: dark;
-  --background: #000000;
-  --foreground: #FFFFFF;
-  --card: #0B0B0B;
-  --card-foreground: #FFFFFF;
-  --popover: #0B0B0B;
-  --popover-foreground: #FFFFFF;
-  --primary: #D4400F;
-  --primary-foreground: #FFFFFF;
-  --secondary: #171717;
-  --secondary-foreground: #FFFFFF;
-  --muted: #171717;
-  --muted-foreground: #A3A3A3;
-  --accent: #1F1F1F;
-  --accent-foreground: #FFFFFF;
-  --destructive: #D4400F;
-  --border: rgba(255, 255, 255, 0.12);
-  --input: rgba(255, 255, 255, 0.15);
-  --ring: #D4400F;
+  /* Palette adapted from the mochatrade.com token set (DESIGN.md). */
+  --canvas: #1A1512;          /* Background Dark */
+  --canvas-raised: #211B17;   /* canvas + 3% ink, for surfaces */
+  --ink: #F1F0EF;             /* Text Light */
+  --ink-muted: #8B8A87;       /* Text Secondary */
+  --brand: #C4552D;           /* --color-red-remote */
+  --brand-hover: #D2643C;     /* --accent-hover */
+  --brand-strong: #9C5137;    /* fills that carry white text (5.8:1) */
+  --brand-text: #D9603A;      /* accent text on canvas (4.9:1) */
+  --brand-soft: #D49672;      /* quiet accent text (7.2:1) */
+  --hairline: rgba(241, 240, 239, 0.08);
 
-  --radius: 8px;
+  --background: var(--canvas);
+  --foreground: var(--ink);
+  --card: var(--canvas-raised);
+  --card-foreground: var(--ink);
+  --popover: var(--canvas-raised);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--canvas);
+  --secondary: var(--canvas-raised);
+  --secondary-foreground: var(--ink);
+  --muted: var(--canvas-raised);
+  --muted-foreground: #C6C5C2;
+  --accent: rgba(241, 240, 239, 0.06);
+  --accent-foreground: var(--ink);
+  --destructive: var(--brand);
+  --border: var(--hairline);
+  --input: rgba(241, 240, 239, 0.14);
+  --ring: var(--brand);
 
-  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: 'Instrument Serif', Georgia, Cambria, serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  --radius: 12px;
 
-  --bg-canvas: #000000;
-  --bg-surface: #0B0B0B;
-  --bg-secondary: #171717;
-  --text-ink: #FFFFFF;
-  --text-muted: #A3A3A3;
-  --border-hairline: rgba(255, 255, 255, 0.12);
-  --color-accent: #D4400F;
-  --color-highlighter: #D4400F;
+  --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Source Serif 4', Georgia, Cambria, serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* Elevation from DESIGN.md */
+  --shadow-surface: rgba(241, 240, 239, 0.08) 0 0 0 1px inset, rgba(0, 0, 0, 0.35) 0 30px 80px 0;
+  --shadow-hairline: rgba(241, 240, 239, 0.05) 0 0 0 1px inset;
 }
 
 @theme inline {
@@ -57,6 +63,16 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-canvas: var(--canvas);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-text: var(--brand-text);
+  --color-brand-soft: var(--brand-soft);
+  --shadow-surface: var(--shadow-surface);
+  --shadow-hairline: var(--shadow-hairline);
 
   --font-sans: var(--font-sans);
   --font-serif: var(--font-serif);
@@ -105,17 +121,17 @@
 
 @layer base {
   * {
-    border-color: rgba(255, 255, 255, 0.12);
+    border-color: var(--hairline);
   }
   html {
     scroll-behavior: smooth;
-    background-color: #000000;
-    color: #FFFFFF;
+    background-color: var(--canvas);
+    color: var(--ink);
     font-family: var(--font-sans);
   }
   body {
-    background-color: #000000;
-    color: #FFFFFF;
+    background-color: var(--canvas);
+    color: var(--ink);
     font-family: var(--font-sans);
     position: relative;
     overflow-x: hidden;
@@ -137,38 +153,19 @@
 }
 
 @layer utilities {
-  .font-serif,
-  .font-serif-editorial {
-    font-family: 'Instrument Serif', Georgia, Cambria, serif;
-  }
-  .font-sans,
-  .font-text,
-  .font-sans-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  }
-  .font-mono,
-  .font-mono-cite {
-    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  .font-serif { font-family: var(--font-serif); font-optical-sizing: auto; }
+  .font-sans { font-family: var(--font-sans); }
+  .font-mono { font-family: var(--font-mono); }
+  /* Raised panel: the one surface used for every product visual. */
+  .surface {
+    background-color: var(--canvas-raised);
+    box-shadow: var(--shadow-surface);
+    border-radius: 20px;
   }
 }
 
-.hatched-penalty {
-  background-color: rgba(212, 64, 15, 0.14);
-  background-image: repeating-linear-gradient(
-    -45deg,
-    #D4400F,
-    #D4400F 2px,
-    transparent 2px,
-    transparent 7px
-  );
-}
-
-.hatched-penalty:hover,
-.hatched-penalty:focus-visible {
-  background-color: rgba(212, 64, 15, 0.28);
-}
 
 ::selection {
-  background-color: #D4400F;
-  color: #FFFFFF;
+  background-color: var(--brand-strong);
+  color: var(--ink);
 }

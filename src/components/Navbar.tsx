@@ -54,7 +54,7 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
   return (
     <header
       className={cn(
-        'bg-black/50 fixed left-1/2 z-50 w-[min(92%,880px)] -translate-x-1/2 rounded-full border border-border shadow-sm backdrop-blur-md transition-all duration-200',
+        'bg-canvas/80 fixed left-1/2 z-50 w-[min(92%,880px)] -translate-x-1/2 rounded-full border border-border shadow-sm backdrop-blur-md transition-all duration-200',
         'top-4 lg:top-6'
       )}
     >
@@ -63,11 +63,10 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
         <a
           href="/"
           onClick={handleBrandClick}
-          className="inline-flex items-center gap-2 font-serif text-2xl tracking-tight text-[#FFFFFF] whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FFFFFF]"
+          className="inline-flex items-center gap-2 font-serif text-2xl tracking-tight text-ink whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
         >
           <span aria-hidden="true" className="relative flex h-2 w-2">
-            <span className="motion-safe:animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D4400F] opacity-60"></span>
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-[#D4400F]"></span>
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-brand"></span>
           </span>
           Antova
         </a>
@@ -88,8 +87,8 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
                 className={cn(
                   'rounded-full px-3 py-1.5 font-sans text-sm font-medium transition-colors whitespace-nowrap shrink-0',
                   isActive
-                    ? 'bg-primary/5 text-[#FFFFFF]'
-                    : 'text-[#FFFFFF]/70 hover:bg-primary/5 hover:text-[#FFFFFF]'
+                    ? 'bg-primary/5 text-ink'
+                    : 'text-ink/70 hover:bg-primary/5 hover:text-ink'
                 )}
               >
                 {item.label}
@@ -117,7 +116,7 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
             aria-label={isMenuOpen ? 'Close main menu' : 'Open main menu'}
             aria-expanded={isMenuOpen}
             aria-controls="mobile-nav"
-            className="text-[#FFFFFF]/70 hover:text-[#FFFFFF] relative flex size-9 items-center justify-center lg:hidden cursor-pointer"
+            className="text-ink/70 hover:text-ink relative flex size-9 items-center justify-center lg:hidden cursor-pointer"
             onClick={() => setIsMenuOpen((prev) => !prev)}
           >
             <div className="relative block w-[18px] h-3.5">
@@ -151,11 +150,11 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
       {isMenuOpen && (
         <div
           id="mobile-nav"
-          className="bg-black/80 backdrop-blur-md border-border absolute inset-x-0 top-[calc(100%+0.5rem)] flex flex-col rounded-3xl border p-5 shadow-lg lg:hidden"
+          className="bg-canvas/95 backdrop-blur-md border-border absolute inset-x-0 top-[calc(100%+0.5rem)] flex flex-col rounded-3xl border p-5 shadow-lg lg:hidden"
         >
           <nav
             aria-label="Mobile navigation"
-            className="divide-[#FFFFFF]/10 flex flex-col divide-y"
+            className="divide-ink/10 flex flex-col divide-y"
           >
             {NAV_ITEMS.map((item) => {
               const isActive = item.view === 'team' && currentView === 'team';
@@ -168,8 +167,8 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
                   className={cn(
                     'py-3 font-sans text-base font-medium transition-colors first:pt-0 last:pb-0',
                     isActive
-                      ? 'text-[#FFFFFF] font-semibold'
-                      : 'text-[#FFFFFF]/80 hover:text-[#FFFFFF]'
+                      ? 'text-ink font-semibold'
+                      : 'text-ink/80 hover:text-ink'
                   )}
                 >
                   {item.label}

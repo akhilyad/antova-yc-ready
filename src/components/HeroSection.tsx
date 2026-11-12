@@ -33,10 +33,10 @@ function BidPreview() {
   const max = 500000;
 
   return (
-    <div className="w-full">
+    <div className="surface w-full p-6 sm:p-8">
       <div className="mb-8 flex items-center justify-between gap-4">
-        <p className="font-mono text-[11px] text-white/50">3 bids · 33 kV switchgear</p>
-        <div role="group" aria-label="Price view" className="inline-flex rounded-full bg-white/[0.06] p-1">
+        <p className="font-mono text-[11px] text-ink/55">3 bids · 33 kV switchgear</p>
+        <div role="group" aria-label="Price view" className="inline-flex rounded-full bg-ink/[0.06] p-1">
           {(['headline', 'evaluated'] as HeroView[]).map((key) => (
             <button
               key={key}
@@ -48,15 +48,15 @@ function BidPreview() {
               }}
               className={cn(
                 'relative z-10 cursor-pointer whitespace-nowrap rounded-full px-4 py-1.5 font-mono text-xs transition-colors',
-                'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D4400F]',
-                view === key ? 'text-white' : 'text-white/55 hover:text-white'
+                'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
+                view === key ? 'text-ink' : 'text-ink/55 hover:text-ink'
               )}
             >
               {view === key && (
                 <motion.span
                   layoutId="hero-view-pill"
                   transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-                  className="absolute inset-0 -z-10 rounded-full bg-[#D4400F]"
+                  className="absolute inset-0 -z-10 rounded-full bg-brand-strong"
                 />
               )}
               {key === 'headline' ? 'Quoted' : 'True cost'}
@@ -77,15 +77,15 @@ function BidPreview() {
               transition={{ type: 'spring', stiffness: 260, damping: 30 }}
               className="grid grid-cols-[5.5rem_1fr] items-center gap-x-4 gap-y-1.5"
             >
-              <span className="font-sans text-sm text-white">{v.short}</span>
+              <span className="font-sans text-sm text-ink">{v.short}</span>
               <div className="h-8">
                 <motion.div
                   initial={false}
                   animate={{ width: `${(price / max) * 100}%` }}
                   transition={{ duration: reduced ? 0 : 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
                   className={cn(
-                    'flex h-full items-center justify-end rounded-sm px-3 font-mono text-xs text-white',
-                    isLowest ? 'bg-[#D4400F]' : 'bg-white/15'
+                    'flex h-full items-center justify-end rounded-sm px-3 font-mono text-xs text-ink',
+                    isLowest ? 'bg-brand-strong' : 'bg-ink/10'
                   )}
                 >
                   {formatEuro(price)}
@@ -94,7 +94,7 @@ function BidPreview() {
               <span
                 className={cn(
                   'col-start-2 font-mono text-[11px]',
-                  view === 'headline' || gaps === 0 ? 'text-white/40' : 'text-[#FF7A45]'
+                  view === 'headline' || gaps === 0 ? 'text-ink/55' : 'text-brand-text'
                 )}
               >
                 {view === 'headline'
@@ -114,20 +114,26 @@ function BidPreview() {
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ onAuditClick }) => {
+  const reduced = useReducedMotion();
   return (
-    <section className="w-full px-4 pb-24 pt-28 text-white sm:pb-32 sm:pt-36 md:px-6 lg:flex lg:min-h-[100svh] lg:items-center lg:pb-16 lg:pt-28">
+    <section className="w-full px-4 pb-24 pt-28 text-ink sm:pb-32 sm:pt-36 md:px-6 lg:flex lg:min-h-[100svh] lg:items-center lg:pb-16 lg:pt-28">
       <div className="mx-auto grid w-full max-w-6xl items-center gap-16 lg:grid-cols-[1.05fr_1fr] lg:gap-20">
-      <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
-        <p className="mb-6 font-mono text-[11px] uppercase tracking-[0.2em] text-white/50 sm:text-xs">
+      <motion.div
+        initial={reduced ? false : { opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: [0.21, 0.47, 0.32, 0.98] }}
+        className="flex flex-col items-center text-center lg:items-start lg:text-left"
+      >
+        <p className="mb-6 font-mono text-xs text-brand-soft">
           {HERO_COPY.eyebrow}
         </p>
 
-        <h1 className="font-serif text-[2.6rem] font-medium leading-[1.04] tracking-tight sm:text-6xl lg:text-[4.25rem]">
+        <h1 className="font-serif text-[2.6rem] font-normal leading-[1.04] tracking-tight sm:text-6xl lg:text-[4.25rem]">
           {HERO_COPY.headlineLead}{' '}
-          <em className="whitespace-nowrap italic text-[#FF7A45]">{HERO_COPY.headlineItalic}</em>
+          <em className="whitespace-nowrap italic text-brand-text">{HERO_COPY.headlineItalic}</em>
         </h1>
 
-        <p className="mt-6 max-w-md font-sans text-base leading-relaxed text-white/70 md:text-lg">
+        <p className="mt-6 max-w-md font-sans text-base leading-relaxed text-ink/70 md:text-lg">
           {HERO_COPY.subtext}
         </p>
 
@@ -139,12 +145,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onAuditClick }) => {
           <span className="relative z-10">{HERO_COPY.ctaLabel}</span>
           <ArrowRight className="relative z-10 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
         </button>
-        <p className="mt-5 font-mono text-[11px] text-white/50 sm:text-xs">{HERO_COPY.subline}</p>
-      </div>
+        <p className="mt-5 font-mono text-[11px] text-ink/55 sm:text-xs">{HERO_COPY.subline}</p>
+      </motion.div>
 
-      <div className="mx-auto w-full max-w-xl lg:max-w-none">
+      <motion.div
+        initial={reduced ? false : { opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.15, ease: [0.21, 0.47, 0.32, 0.98] }}
+        className="mx-auto w-full max-w-xl lg:max-w-none"
+      >
         <BidPreview />
-      </div>
+      </motion.div>
       </div>
     </section>
   );

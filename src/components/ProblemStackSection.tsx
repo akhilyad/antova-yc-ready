@@ -4,7 +4,7 @@ import { CELLS, SECTION_LABEL, cellAdder } from '../data/tender402';
 import { formatEuro } from '../utils/audit';
 import { TiltStackItem, TiltStackScroll } from './ui/tilt-stack-scroll';
 
-const mono = 'font-mono text-[11px] uppercase tracking-wider';
+const mono = 'font-mono text-[11px]';
 
 /** 01: headline ranking vs evaluated ranking for the two closest bids. */
 function HeadlineTrap() {
@@ -19,26 +19,26 @@ function HeadlineTrap() {
         const order = [...rows].sort((a, b) => a[key] - b[key]);
         return (
           <div key={key}>
-            <p className={`${mono} mb-2 text-white/55`}>
+            <p className={`${mono} mb-2 text-ink/55`}>
               {key === 'headline' ? 'Ranked by quote' : 'Ranked by true cost'}
             </p>
             <div className="space-y-2">
               {order.map((r, i) => (
                 <div key={r.name} className="flex items-center gap-3">
-                  <span className="w-20 shrink-0 font-mono text-xs text-white/80">{r.name}</span>
+                  <span className="w-20 shrink-0 font-mono text-xs text-ink/80">{r.name}</span>
                   <div className="h-6 flex-1">
                     <div
                       className={
                         i === 0
-                          ? 'flex h-full items-center rounded-sm bg-[#D4400F] px-2'
-                          : 'flex h-full items-center rounded-sm bg-white/15 px-2'
+                          ? 'flex h-full items-center rounded-sm bg-brand-strong px-2'
+                          : 'flex h-full items-center rounded-sm bg-ink/15 px-2'
                       }
                       style={{ width: `${(r[key] / max) * 100}%` }}
                     >
-                      <span className="font-mono text-[11px] text-white">{formatEuro(r[key])}</span>
+                      <span className="font-mono text-[11px] text-ink">{formatEuro(r[key])}</span>
                     </div>
                   </div>
-                  <span className="w-10 shrink-0 text-right font-mono text-[11px] text-white/55">
+                  <span className="w-10 shrink-0 text-right font-mono text-[11px] text-ink/55">
                     #{i + 1}
                   </span>
                 </div>
@@ -57,23 +57,23 @@ function BuriedConflict() {
   const claim = cell.secondary!;
   return (
     <div className="flex w-full flex-col gap-5 font-mono text-xs">
-      <div className="border-l-2 border-white/25 pl-4">
-        <p className={`${mono} text-white/55`}>
+      <div className="border-l-2 border-ink/25 pl-4">
+        <p className={`${mono} text-ink/55`}>
           {SECTION_LABEL[claim.section]} · p.{claim.page}
         </p>
-        <p className="mt-1.5 font-sans text-sm leading-relaxed text-white/60 line-through decoration-white/40">
+        <p className="mt-1.5 font-sans text-sm leading-relaxed text-ink/60 line-through decoration-ink/40">
           “{claim.quote} …”
         </p>
       </div>
-      <div className="border-l-2 border-[#D4400F] pl-4">
-        <p className={`${mono} text-[#FF7A45]`}>
+      <div className="border-l-2 border-brand pl-4">
+        <p className={`${mono} text-brand-text`}>
           {SECTION_LABEL[cell.citation.section]} · p.{cell.citation.page}
         </p>
-        <p className="mt-1.5 font-sans text-sm leading-relaxed text-white">“{cell.citation.quote}”</p>
+        <p className="mt-1.5 font-sans text-sm leading-relaxed text-ink">“{cell.citation.quote}”</p>
       </div>
-      <p className="text-white/60">
+      <p className="text-ink/60">
         31.5 kA offered, 50 kA required →{' '}
-        <span className="text-[#FF7A45]">+{formatEuro(cellAdder(cell))} to fix</span>
+        <span className="text-brand-text">+{formatEuro(cellAdder(cell))} to fix</span>
       </p>
     </div>
   );
@@ -93,18 +93,18 @@ function VariationOrders() {
       {items.map((it, i) => (
         <div
           key={it.id}
-          className="flex items-center justify-between gap-4 border-b border-white/10 py-3"
+          className="flex items-center justify-between gap-4 border-b border-ink/10 py-3"
         >
           <div className="min-w-0">
-            <p className="text-white/50">Change order {i + 1} · p.{it.cell.citation.page}</p>
-            <p className="mt-0.5 truncate text-white">{it.label}</p>
+            <p className="text-ink/55">Change order {i + 1} · p.{it.cell.citation.page}</p>
+            <p className="mt-0.5 truncate text-ink">{it.label}</p>
           </div>
-          <span className="shrink-0 text-[#FF7A45]">+{formatEuro(cellAdder(it.cell))}</span>
+          <span className="shrink-0 text-brand-text">+{formatEuro(cellAdder(it.cell))}</span>
         </div>
       ))}
       <div className="flex items-center justify-between pt-3">
-        <span className="text-white/60">Billed after award</span>
-        <span className="text-white">{formatEuro(total)}</span>
+        <span className="text-ink/60">Billed after award</span>
+        <span className="text-ink">{formatEuro(total)}</span>
       </div>
     </div>
   );

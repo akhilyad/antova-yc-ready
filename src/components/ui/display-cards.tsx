@@ -33,14 +33,14 @@ export function DisplayCard({
   return (
     <div
       className={cn(
-        "group relative flex flex-col gap-1.5 border-l-2 border-[#D4400F]/40 py-1 pl-4 transition-colors duration-300 hover:border-[#D4400F]",
+        "group relative flex flex-col gap-1.5 border-l-2 border-brand/40 py-1 pl-4 transition-colors duration-300 hover:border-brand",
         className
       )}
     >
       <div className="flex items-center gap-2">
         <span
           className={cn(
-            "inline-flex rounded-full bg-[#D4400F] p-1 text-[#FFFFFF]",
+            "inline-flex rounded-full bg-brand-strong p-1 text-ink",
             iconClassName
           )}
         >
@@ -48,17 +48,17 @@ export function DisplayCard({
         </span>
         <p
           className={cn(
-            "font-mono text-sm font-semibold uppercase tracking-wider text-[#FFFFFF]",
+            "font-mono text-sm font-semibold text-ink",
             titleClassName
           )}
         >
           {title}
         </p>
       </div>
-      <p className="font-sans text-base text-[#FFFFFF] sm:text-lg">
+      <p className="font-sans text-base text-ink sm:text-lg">
         {description}
       </p>
-      <p className="font-mono text-xs text-[#FFFFFF]/60">{date}</p>
+      <p className="font-mono text-xs text-ink/60">{date}</p>
     </div>
   );
 }
