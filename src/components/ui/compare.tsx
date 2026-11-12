@@ -46,13 +46,20 @@ export const Compare = ({
 
   const startAutoplay = useCallback(() => {
     if (!autoplay) return;
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    )
+      return;
 
     const startTime = Date.now();
     const animate = () => {
       const elapsedTime = Date.now() - startTime;
       const progress =
         (elapsedTime % (autoplayDuration * 2)) / autoplayDuration;
-      const percentage = progress <= 1 ? progress * 100 : (2 - progress) * 100;
+      const sweep = progress <= 1 ? progress : 2 - progress;
+      // Keep the sweep off the edges so both documents stay readable.
+      const percentage = 15 + sweep * 70;
 
       setSliderXPercent(percentage);
       autoplayRef.current = setTimeout(animate, 16);
@@ -172,17 +179,21 @@ export const Compare = ({
       </div>
 
       {/* Vertical Divider Line + Handlebar */}
+      {/* Glowing divider (Aceternity compare): gradient line plus two masked
+          light washes that trail to the right of the handle. */}
       <motion.div
           aria-hidden="true"
-          className="h-full w-px absolute top-0 z-40 bg-[#15120F]/40"
+          className="h-full w-px absolute top-0 m-auto z-40 bg-gradient-to-b from-transparent from-[5%] via-[#D4400F] to-transparent to-[95%]"
           style={{
             left: `${sliderXPercent}%`,
           }}
           transition={{ duration: 0 }}
         >
+          <div className="pointer-events-none absolute left-0 top-1/2 z-20 h-full w-36 -translate-y-1/2 bg-gradient-to-r from-[#FFE98A] via-transparent to-transparent opacity-70 [mask-image:radial-gradient(100px_at_left,white,transparent)]" />
+          <div className="pointer-events-none absolute left-0 top-1/2 z-10 h-1/2 w-10 -translate-y-1/2 bg-gradient-to-r from-[#D4400F] via-transparent to-transparent opacity-60 [mask-image:radial-gradient(50px_at_left,white,transparent)]" />
           {showHandlebar && (
-            <div className="h-7 w-7 rounded-full top-1/2 -translate-y-1/2 bg-[#15120F] text-[#F6F2EA] z-40 -left-3.5 absolute flex items-center justify-center shadow-sm border border-[#F6F2EA]/30">
-              <GripVertical className="h-3.5 w-3.5" />
+            <div className="absolute -right-2.5 top-1/2 z-30 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md border border-[#15120F]/15 bg-[#FDFBF7] shadow-[0_1px_3px_rgba(21,18,15,0.25)]">
+              <GripVertical className="h-3.5 w-3.5 text-[#15120F]" />
             </div>
           )}
         </motion.div>

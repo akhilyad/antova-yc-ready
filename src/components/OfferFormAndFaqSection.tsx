@@ -1,5 +1,5 @@
 import React, { FormEvent, useState } from 'react';
-import { Check } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 import {
   EQUIPMENT_OPTIONS,
   EquipmentOption,
@@ -13,6 +13,7 @@ import {
 import { submitAuditRequest, validateWorkEmail } from '../utils/audit';
 import { Pricing4 } from './ui/pricing-4';
 import { Faq3 } from './ui/faq3';
+import { CTASection } from './ui/hero-dithering-card';
 
 export function OfferFormAndFaqSection() {
   const [email, setEmail] = useState('');
@@ -87,29 +88,23 @@ export function OfferFormAndFaqSection() {
         heading={FAQ_SECTION_COPY.heading}
         description={FAQ_SECTION_COPY.description}
         items={FAQ_ITEMS}
+        onSupportClick={() => focusAuditForm()}
       />
 
       {/* Final CTA & Lead Capture Section */}
-      <section
+      <CTASection
         id="audit"
-        className="scroll-mt-12 w-full bg-[#F6F2EA] text-[#15120F] border-t border-[#15120F]/10 py-20 sm:py-24 px-4 sm:px-6"
+        className="scroll-mt-12 border-t border-[#15120F]/10 bg-[#F6F2EA] py-20 sm:py-24"
+        badge={FINAL_CTA_COPY.badge}
+        heading={FINAL_CTA_COPY.headlineLead}
+        headingMuted={FINAL_CTA_COPY.headlineMuted}
+        description={FINAL_CTA_COPY.subtext}
+        colorFront="#D4400F"
       >
-        <div className="max-w-4xl mx-auto">
-          <div className="rounded-2xl border border-[#15120F]/15 bg-[#FDFBF7] p-6 sm:p-12 shadow-sm text-center">
-            <p className="font-mono text-xs uppercase tracking-wider text-[#15120F]/60">
-              {FINAL_CTA_COPY.eyebrow}
-            </p>
-            <h2 className="mt-3 font-serif text-3xl md:text-5xl text-[#15120F] tracking-tight">
-              {FINAL_CTA_COPY.headline}
-            </h2>
-            <p className="font-sans text-base text-[#15120F]/70 max-w-xl mx-auto text-center mt-3 mb-8">
-              {FINAL_CTA_COPY.subtext}
-            </p>
-
-            {/* Direct Tender Audit Intake Form (No duplicate button above form) */}
+            {/* Intake form sits inside the dithering card, replacing its default button */}
             <div
               id="audit-form"
-              className="pt-8 border-t border-[#15120F]/10 text-left max-w-xl mx-auto"
+              className="w-full max-w-xl rounded-3xl border border-[#15120F]/15 bg-[#FDFBF7]/90 p-5 text-left shadow-sm backdrop-blur-sm sm:p-7"
             >
               <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
                 <span className="font-mono text-xs uppercase tracking-wider text-[#15120F]/70">
@@ -239,17 +234,18 @@ export function OfferFormAndFaqSection() {
                     <button
                       type="submit"
                       disabled={sending}
-                      className="bg-[#15120F] text-[#F6F2EA] w-full py-3.5 rounded-md font-sans text-sm font-medium hover:bg-[#15120F]/90 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="group inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#15120F] font-sans text-sm font-medium text-[#F6F2EA] transition-all duration-300 hover:bg-[#15120F]/90 hover:ring-4 hover:ring-[#15120F]/15 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       {sending ? 'Sending...' : FINAL_CTA_COPY.submitButtonText}
+                      {!sending && (
+                        <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                      )}
                     </button>
                   </div>
                 </form>
               )}
             </div>
-          </div>
-        </div>
-      </section>
+      </CTASection>
     </>
   );
 }

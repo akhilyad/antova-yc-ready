@@ -240,6 +240,28 @@ export const SOLUTION_TRANSITION_COPY = {
       'Witness FAT and bay reservation are excluded from the base contract price.',
     calculatedDeltaPill: '+€4,000 (FAT Excluded)',
   },
+  flaggedDeviations: {
+    eyebrow: 'FLAGGED IN VENDOR B',
+    heading: 'Three clauses, one leveled price.',
+    body: 'Each deviation is pinned to the page that caused it, so the clarification letter writes itself. Hover the stack to bring a finding forward.',
+    cards: [
+      {
+        title: 'p. 147 §4.2',
+        description: 'Witness FAT excluded · +€4,000',
+        date: 'Flagged at upload',
+      },
+      {
+        title: 'p. 88 §2.1',
+        description: 'Ex-works, not DDP · +€39,800',
+        date: 'Flagged at upload',
+      },
+      {
+        title: 'p. 14 §1.3',
+        description: '25.0 kA vs 31.5 kA · +€21,000',
+        date: 'Flagged at upload',
+      },
+    ],
+  },
 };
 
 export const BENTO_SECTION_COPY = {
@@ -358,6 +380,10 @@ export const FAQ_SECTION_COPY = {
   heading: 'Technical & commercial questions.',
   description:
     'How Antova verifies electrical bids, protects confidential tender packages, and integrates with your engineering workflow.',
+  supportHeading: 'Still have a question about your tender?',
+  supportDescription:
+    'Ask the founder directly. You get an engineer who has reviewed switchgear bids, usually within the same working day.',
+  supportButtonText: 'Message Akhil on LinkedIn',
 };
 
 export const FAQ_ITEMS: FaqItem[] = [
@@ -389,7 +415,11 @@ export const FAQ_ITEMS: FaqItem[] = [
 
 export const FINAL_CTA_COPY = {
   eyebrow: 'START YOUR AUDIT',
+  badge: 'First tender audited free',
   headline: 'Audit your first tender package for free.',
+  // Two-line split used by the dithering CTA card.
+  headlineLead: 'Audit your first tender',
+  headlineMuted: 'package for free.',
   subtext:
     'Submit your vendor bids today. Receive your leveled evaluation sheet in minutes, verified by an engineer within 24 hours under mutual NDA.',
   submitButtonText: 'Request Free Audit',

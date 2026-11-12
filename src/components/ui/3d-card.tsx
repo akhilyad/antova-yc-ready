@@ -2,213 +2,187 @@
 
 import * as React from "react";
 import {
-  motion,
-  useMotionValue,
-  useReducedMotion,
-  useSpring,
-  useTransform,
-} from "motion/react";
-import { ArrowUpRight } from "lucide-react";
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 
-export interface InteractiveTravelCardProps {
-  title: string;
-  subtitle: string;
-  imageUrl: string;
-  actionText: string;
-  href: string;
-  onActionClick: () => void;
+/**
+ * 3D Card Effect (Aceternity / @manuarora700 on 21st.dev).
+ * The container tilts toward the cursor; each CardItem lifts to its own
+ * translateZ only while the card is hovered, so layers separate on hover
+ * and fall flat again on leave.
+ */
+
+const MouseEnterContext = createContext<
+  [boolean, React.Dispatch<React.SetStateAction<boolean>>] | undefined
+>(undefined);
+
+export const CardContainer = ({
+  children,
+  className,
+  containerClassName,
+}: {
+  children?: React.ReactNode;
   className?: string;
-}
+  containerClassName?: string;
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isMouseEntered, setIsMouseEntered] = useState(false);
+  const reduceMotion = useReducedMotion();
 
-export const InteractiveTravelCard = React.forwardRef<
-  HTMLDivElement,
-  InteractiveTravelCardProps
->(
-  (
-    { title, subtitle, imageUrl, actionText, href, onActionClick, className },
-    ref
-  ) => {
-    const mouseX = useMotionValue(0);
-    const mouseY = useMotionValue(0);
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!containerRef.current || reduceMotion) return;
+    const { left, top, width, height } =
+      containerRef.current.getBoundingClientRect();
+    const x = (e.clientX - left - width / 2) / 25;
+    const y = (e.clientY - top - height / 2) / 25;
+    containerRef.current.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+  };
 
-    const springConfig = { damping: 15, stiffness: 150 };
-    const springX = useSpring(mouseX, springConfig);
-    const springY = useSpring(mouseY, springConfig);
+  const handleMouseLeave = () => {
+    if (!containerRef.current) return;
+    setIsMouseEntered(false);
+    containerRef.current.style.transform = `rotateY(0deg) rotateX(0deg)`;
+  };
 
-    const rotateX = useTransform(springY, [-0.5, 0.5], ["10.5deg", "-10.5deg"]);
-    const rotateY = useTransform(springX, [-0.5, 0.5], ["-10.5deg", "10.5deg"]);
-
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const { width, height, left, top } = rect;
-      const mouseXVal = e.clientX - left;
-      const mouseYVal = e.clientY - top;
-      const xPct = mouseXVal / width - 0.5;
-      const yPct = mouseYVal / height - 0.5;
-      mouseX.set(xPct);
-      mouseY.set(yPct);
-    };
-
-    const handleMouseLeave = () => {
-      mouseX.set(0);
-      mouseY.set(0);
-    };
-
-    return (
-      <motion.div
-        ref={ref}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        style={{
-          rotateX,
-          rotateY,
-          transformStyle: "preserve-3d",
-        }}
-        className={cn(
-          "relative h-[26rem] w-80 rounded-2xl bg-transparent shadow-2xl border border-[#15120F]/15",
-          className
-        )}
+  return (
+    <MouseEnterContext.Provider value={[isMouseEntered, setIsMouseEntered]}>
+      <div
+        className={cn("flex items-center justify-center", containerClassName)}
+        style={{ perspective: "1000px" }}
       >
         <div
-          style={{
-            transform: "translateZ(50px)",
-            transformStyle: "preserve-3d",
-          }}
-          className="absolute inset-4 grid h-[calc(100%-2rem)] w-[calc(100%-2rem)] grid-rows-[1fr_auto] rounded-xl shadow-lg"
+          ref={containerRef}
+          onMouseEnter={() => setIsMouseEntered(!reduceMotion)}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          className={cn(
+            "relative flex items-center justify-center transition-all duration-200 ease-linear",
+            className
+          )}
+          style={{ transformStyle: "preserve-3d" }}
         >
-          <img
-            src={imageUrl}
-            alt={`${title}, ${subtitle}`}
-            className="absolute inset-0 h-full w-full rounded-xl object-cover"
-          />
-          <div className="absolute inset-0 h-full w-full rounded-xl bg-gradient-to-b from-black/20 via-transparent to-black/60" />
-
-          <div className="relative flex flex-col justify-between rounded-xl p-4 text-white">
-            <div className="flex items-start justify-between">
-              <div>
-                <motion.h2
-                  style={{ transform: "translateZ(50px)" }}
-                  className="text-2xl font-bold"
-                >
-                  {title}
-                </motion.h2>
-                <motion.p
-                  style={{ transform: "translateZ(40px)" }}
-                  className="text-sm font-light text-white/80"
-                >
-                  {subtitle}
-                </motion.p>
-              </div>
-              <motion.a
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.1, rotate: "2.5deg" }}
-                whileTap={{ scale: 0.9 }}
-                aria-label={`Learn more about ${title}`}
-                style={{ transform: "translateZ(60px)" }}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm ring-1 ring-inset ring-white/30 transition-colors hover:bg-white/30"
-              >
-                <ArrowUpRight className="h-5 w-5 text-white" />
-              </motion.a>
-            </div>
-
-            <motion.button
-              onClick={onActionClick}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              style={{ transform: "translateZ(40px)" }}
-              className="w-full rounded-lg py-3 text-center font-semibold text-white transition-colors bg-white/10 backdrop-blur-md ring-1 ring-inset ring-white/20 hover:bg-white/20"
-            >
-              {actionText}
-            </motion.button>
-          </div>
+          {children}
         </div>
-      </motion.div>
-    );
-  }
+      </div>
+    </MouseEnterContext.Provider>
+  );
+};
+
+export const CardBody = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => (
+  <div
+    className={cn(
+      "h-96 w-96 [transform-style:preserve-3d] [&>*]:[transform-style:preserve-3d]",
+      className
+    )}
+  >
+    {children}
+  </div>
 );
-InteractiveTravelCard.displayName = "InteractiveTravelCard";
+
+type CardItemProps<T extends React.ElementType> = {
+  as?: T;
+  children: React.ReactNode;
+  className?: string;
+  translateX?: number | string;
+  translateY?: number | string;
+  translateZ?: number | string;
+  rotateX?: number | string;
+  rotateY?: number | string;
+  rotateZ?: number | string;
+} & Omit<React.ComponentPropsWithoutRef<T>, "as" | "children" | "className">;
+
+export const CardItem = <T extends React.ElementType = "div">({
+  as,
+  children,
+  className,
+  translateX = 0,
+  translateY = 0,
+  translateZ = 0,
+  rotateX = 0,
+  rotateY = 0,
+  rotateZ = 0,
+  ...rest
+}: CardItemProps<T>) => {
+  const Tag = (as ?? "div") as React.ElementType;
+  const ref = useRef<HTMLElement>(null);
+  const [isMouseEntered] = useMouseEnter();
+
+  useEffect(() => {
+    if (!ref.current) return;
+    ref.current.style.transform = isMouseEntered
+      ? `translateX(${translateX}px) translateY(${translateY}px) translateZ(${translateZ}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg)`
+      : `translateX(0px) translateY(0px) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg)`;
+  }, [isMouseEntered, translateX, translateY, translateZ, rotateX, rotateY, rotateZ]);
+
+  return (
+    <Tag
+      ref={ref}
+      className={cn("w-fit transition duration-200 ease-linear", className)}
+      {...rest}
+    >
+      {children}
+    </Tag>
+  );
+};
+
+export const useMouseEnter = () => {
+  const context = useContext(MouseEnterContext);
+  if (context === undefined) {
+    throw new Error("useMouseEnter must be used within a CardContainer");
+  }
+  return context;
+};
 
 export interface DepthCard3DProps {
   baseLayer: React.ReactNode;
   floatingLayer: React.ReactNode;
+  footer?: React.ReactNode;
   className?: string;
 }
 
 /**
- * Antova 3D Depth Card adapted from 3d-card.tsx:
- * Base document remains on flat plane (translateZ="0px").
- * Only the extracted deviation card pops forward (translateZ="40px").
+ * Antova adaptation: the specification sheet stays on the base plane
+ * (translateZ 0) and only the extracted exclusion card lifts toward the
+ * viewer on hover.
  */
 export function DepthCard3D({
   baseLayer,
   floatingLayer,
+  footer,
   className,
 }: DepthCard3DProps) {
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  const springConfig = { damping: 18, stiffness: 140 };
-  const springX = useSpring(mouseX, springConfig);
-  const springY = useSpring(mouseY, springConfig);
-
-  const rotateX = useTransform(springY, [-0.5, 0.5], ["7deg", "-7deg"]);
-  const rotateY = useTransform(springX, [-0.5, 0.5], ["-7deg", "7deg"]);
-  const reduceMotion = useReducedMotion();
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (reduceMotion) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const xPct = (e.clientX - rect.left) / rect.width - 0.5;
-    const yPct = (e.clientY - rect.top) / rect.height - 0.5;
-    mouseX.set(xPct);
-    mouseY.set(yPct);
-  };
-
-  const handleMouseLeave = () => {
-    mouseX.set(0);
-    mouseY.set(0);
-  };
-
   return (
-    <div style={{ perspective: "1100px" }} className="w-full h-full">
-      <motion.div
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        style={{
-          rotateX,
-          rotateY,
-          transformStyle: "preserve-3d",
-        }}
+    <CardContainer containerClassName="h-full w-full" className="h-full w-full">
+      <CardBody
         className={cn(
-          "relative w-full h-full rounded-2xl border border-[#15120F]/15 bg-[#FDFBF7] p-6 flex flex-col justify-between transition-shadow",
+          "group/card relative flex h-full w-full flex-col justify-between rounded-2xl border border-[#15120F]/15 bg-[#FDFBF7] p-6 transition-shadow duration-200 hover:shadow-[0_30px_60px_-25px_rgba(21,18,15,0.35)]",
           className
         )}
       >
-        {/* Flat Base Plane (translateZ="0") */}
-        <div
-          style={{
-            transform: "translateZ(0px)",
-            transformStyle: "preserve-3d",
-          }}
-          className="w-full"
-        >
+        <CardItem translateZ={0} className="w-full">
           {baseLayer}
-        </div>
-
-        {/* Popped Forward Deviation Card (translateZ="40px") */}
-        <div
-          style={{
-            transform: "translateZ(40px)",
-            transformStyle: "preserve-3d",
-          }}
-          className="w-full mt-5"
-        >
+        </CardItem>
+        <CardItem translateZ={60} rotateX={4} className="mt-5 w-full">
           {floatingLayer}
-        </div>
-      </motion.div>
-    </div>
+        </CardItem>
+        {footer && (
+          <CardItem translateZ={20} className="mt-4 w-full">
+            {footer}
+          </CardItem>
+        )}
+      </CardBody>
+    </CardContainer>
   );
 }
