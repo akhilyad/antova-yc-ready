@@ -41,12 +41,12 @@ const BentoGridItem = ({
   return (
     <div
       className={cn(
-        'group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-[#15120F]/10 bg-[#FDFBF7] p-6 transition-all duration-200 hover:border-[#15120F]/25 shadow-2xs',
+        'group/bento relative flex flex-col justify-between overflow-hidden rounded-2xl border border-[#15120F]/10 bg-[#FDFBF7] p-6 shadow-2xs transition duration-200 hover:border-[#15120F]/25 hover:shadow-md motion-safe:hover:-translate-y-0.5',
         className
       )}
     >
       <div className="mb-5 w-full flex-1">{header}</div>
-      <div className="z-10 flex flex-col gap-1.5">
+      <div className="z-10 flex flex-col gap-1.5 transition duration-200 motion-safe:group-hover/bento:translate-x-1">
         <div className="flex items-center justify-between gap-2">
           {kicker && (
             <span className="font-mono text-[11px] uppercase tracking-wider text-[#15120F]/60">

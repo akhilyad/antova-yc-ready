@@ -22,7 +22,7 @@ export const Faq3 = ({
   return (
     <section
       id="faq"
-      className="scroll-mt-24 w-full border-t border-[#15120F]/10 bg-[#F6F2EA] px-4 py-20 sm:px-6 sm:py-24"
+      className="scroll-mt-12 w-full border-t border-[#15120F]/10 bg-[#F6F2EA] px-4 py-20 sm:px-6 sm:py-24"
     >
       <div className="mx-auto max-w-6xl space-y-12">
         <div className="mx-auto flex max-w-3xl flex-col text-left md:text-center">

@@ -104,7 +104,7 @@ export function ProblemStackSection() {
   );
 
   return (
-    <div id="how-it-works" className="scroll-mt-32">
+    <div id="how-it-works">
       <TiltStackScroll
         eyebrow={PROBLEM_STACK_SECTION.eyebrow}
         heading={PROBLEM_STACK_SECTION.heading}

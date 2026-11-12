@@ -12,7 +12,7 @@ export function SolutionMockupSection() {
   return (
     <section
       id="verification"
-      className="w-full bg-[#F6F2EA] text-[#15120F] border-t border-[#15120F]/10 py-20 sm:py-24 px-4 sm:px-6"
+      className="scroll-mt-12 w-full bg-[#F6F2EA] text-[#15120F] border-t border-[#15120F]/10 py-20 sm:py-24 px-4 sm:px-6"
     >
       <div className="max-w-6xl mx-auto">
         {/* Section Header */}
