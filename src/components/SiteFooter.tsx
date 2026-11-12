@@ -32,7 +32,7 @@ export function SiteFooter({ onNavigate, onAuditClick }: SiteFooterProps) {
   const [hovered, setHovered] = useState(false);
 
   return (
-    <footer className="w-full bg-[#F6F2EA] px-4 pb-6 pt-4 text-[#15120F] md:px-6">
+    <footer className="w-full bg-[#000000] px-4 pb-6 pt-4 text-[#FFFFFF] md:px-6">
       <div
         className="relative mx-auto w-full max-w-7xl"
         onMouseEnter={() => setHovered(true)}
@@ -43,7 +43,7 @@ export function SiteFooter({ onNavigate, onAuditClick }: SiteFooterProps) {
           <DitheringBackground
             colorFront="#D4400F"
             active={hovered}
-            className="opacity-25"
+            className="opacity-35"
           />
 
           <div className="relative z-10 grid gap-10 px-6 py-12 sm:px-10 md:grid-cols-12 md:py-16 lg:px-14">
@@ -77,7 +77,7 @@ export function SiteFooter({ onNavigate, onAuditClick }: SiteFooterProps) {
               aria-label="Footer navigation"
               className="md:col-span-5 md:justify-self-end"
             >
-              <p className="mb-4 font-mono text-xs uppercase tracking-wider text-[#15120F]/60">
+              <p className="mb-4 font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/60">
                 Explore
               </p>
               <ul className="grid grid-cols-2 gap-x-10 gap-y-3 font-sans text-base">
@@ -89,7 +89,7 @@ export function SiteFooter({ onNavigate, onAuditClick }: SiteFooterProps) {
                         e.preventDefault();
                         onNavigate(link.view, link.sectionId);
                       }}
-                      className="text-[#15120F]/75 transition-colors hover:text-[#D4400F]"
+                      className="text-[#FFFFFF]/75 transition-colors hover:text-[#D4400F]"
                     >
                       {link.label}
                     </a>
@@ -102,7 +102,7 @@ export function SiteFooter({ onNavigate, onAuditClick }: SiteFooterProps) {
                       e.preventDefault();
                       onAuditClick();
                     }}
-                    className="text-[#15120F]/75 transition-colors hover:text-[#D4400F]"
+                    className="text-[#FFFFFF]/75 transition-colors hover:text-[#D4400F]"
                   >
                     Contact
                   </a>
@@ -110,7 +110,7 @@ export function SiteFooter({ onNavigate, onAuditClick }: SiteFooterProps) {
               </ul>
             </nav>
 
-            <div className="flex flex-col gap-2 border-t border-[#15120F]/10 pt-6 font-mono text-xs text-[#15120F]/55 sm:flex-row sm:items-center sm:justify-between md:col-span-12">
+            <div className="flex flex-col gap-2 border-t border-[#FFFFFF]/10 pt-6 font-mono text-xs text-[#FFFFFF]/60 sm:flex-row sm:items-center sm:justify-between md:col-span-12">
               <span>© 2026 Antova</span>
               <span>Mutual NDA on every tender · Engineer-reviewed within 24 hours</span>
             </div>

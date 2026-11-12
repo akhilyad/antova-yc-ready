@@ -70,7 +70,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F6F2EA] text-[#15120F] font-sans">
+    <div className="min-h-screen bg-[#000000] text-[#FFFFFF] font-sans">
       <Navbar
         currentView={currentView}
         onNavigate={handleNavigate}

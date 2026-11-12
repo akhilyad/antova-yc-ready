@@ -226,7 +226,7 @@ export function TiltStackScroll({
       ref={sectionRef}
       style={{ height: `${sectionHeightVh}vh` }}
       className={cn(
-        "relative w-full bg-[#F6F2EA] text-[#15120F] border-t border-[#15120F]/10",
+        "relative w-full bg-[#000000] text-[#FFFFFF] border-t border-[#FFFFFF]/10",
         className
       )}
     >
@@ -234,10 +234,10 @@ export function TiltStackScroll({
         {/* Top Header + Progress Step Selector */}
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="font-mono text-xs uppercase tracking-wider text-[#15120F]/60">
+            <p className="font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/60">
               {eyebrow}
             </p>
-            <h2 className="mt-2 font-serif text-3xl tracking-tight text-[#15120F] md:text-5xl">
+            <h2 className="mt-2 font-serif text-3xl tracking-tight text-[#FFFFFF] md:text-5xl">
               {heading}
             </h2>
           </div>
@@ -255,8 +255,8 @@ export function TiltStackScroll({
                   className={cn(
                     "px-3 py-1.5 rounded-md font-mono text-xs transition border cursor-pointer",
                     isCurrent
-                      ? "bg-[#15120F] text-[#F6F2EA] border-[#15120F]"
-                      : "bg-[#FDFBF7] text-[#15120F]/70 border-[#15120F]/15 hover:bg-[#EDE8DE] hover:text-[#15120F]"
+                      ? "bg-[#D4400F] text-[#FFFFFF] border-[#D4400F]"
+                      : "bg-[#0B0B0B] text-[#FFFFFF]/70 border-[#FFFFFF]/15 hover:bg-[#171717] hover:text-[#FFFFFF]"
                   )}
                 >
                   {pad2(idx + 1)} / {pad2(total)}
@@ -290,7 +290,7 @@ export function TiltStackScroll({
                   transformOrigin: "50% 0%",
                   willChange: "transform",
                 }}
-                className="absolute left-1/2 top-1/2 h-[94%] w-[96%] max-w-5xl select-none overflow-hidden rounded-3xl border border-[#15120F]/10 bg-[#FDFBF7] p-5 shadow-[0_30px_60px_-30px_rgba(21,18,15,0.45)] sm:p-8 md:h-[88%] md:p-10"
+                className="absolute left-1/2 top-1/2 h-[94%] w-[96%] max-w-5xl select-none overflow-hidden rounded-3xl border border-[#FFFFFF]/10 bg-[#0B0B0B] p-5 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.45)] sm:p-8 md:h-[88%] md:p-10"
               >
                 {/* Darkens as newer cards pile on top */}
                 <div
@@ -299,40 +299,40 @@ export function TiltStackScroll({
                   }}
                   aria-hidden="true"
                   style={{ opacity: initial.shade }}
-                  className="pointer-events-none absolute inset-0 z-20 bg-[#15120F]"
+                  className="pointer-events-none absolute inset-0 z-20 bg-black"
                 />
                 <div className="grid h-full grid-cols-1 content-start gap-5 md:grid-cols-12 md:content-center md:gap-8 md:items-center">
                   {/* Left Narrative Column */}
                   <div className="flex flex-col justify-between md:col-span-5 md:h-full md:py-1">
                     <div>
-                      <div className="inline-flex items-center gap-2 rounded-md border border-[#15120F]/15 bg-[#EDE8DE]/70 px-2.5 py-1 font-mono text-xs uppercase tracking-wider text-[#15120F]/80">
+                      <div className="inline-flex items-center gap-2 rounded-md border border-[#FFFFFF]/15 bg-[#171717]/70 px-2.5 py-1 font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/80">
                         <span>{item.phaseTag ?? `PHASE ${pad2(i + 1)}`}</span>
                       </div>
 
-                      <h3 className="mt-3 font-serif md:mt-4 text-2xl leading-tight tracking-tight text-[#15120F] sm:text-3xl md:text-4xl">
+                      <h3 className="mt-3 font-serif md:mt-4 text-2xl leading-tight tracking-tight text-[#FFFFFF] sm:text-3xl md:text-4xl">
                         {item.title}
                       </h3>
 
-                      <p className="mt-3 font-sans text-sm leading-relaxed text-[#15120F]/75 sm:text-base">
+                      <p className="mt-3 font-sans text-sm leading-relaxed text-[#FFFFFF]/75 sm:text-base">
                         {item.description}
                       </p>
                     </div>
 
-                    <div className="mt-4 hidden items-center justify-between border-t border-[#15120F]/10 pt-3 md:flex">
+                    <div className="mt-4 hidden items-center justify-between border-t border-[#FFFFFF]/10 pt-3 md:flex">
                       <span
                         style={{ color: accentColor }}
                         className="font-mono text-xs font-medium tracking-wider uppercase"
                       >
                         CARD {pad2(i + 1)} OF {pad2(total)}
                       </span>
-                      <span className="font-mono text-xs text-[#15120F]/55">
+                      <span className="font-mono text-xs text-[#FFFFFF]/60">
                         Scroll or pick a step
                       </span>
                     </div>
                   </div>
 
                   {/* Right Engineering Visual Column */}
-                  <div className="relative flex flex-col justify-center overflow-hidden rounded-xl border border-[#15120F]/15 bg-[#F6F2EA] p-3 sm:p-5 md:col-span-7 md:h-full md:min-h-[210px]">
+                  <div className="relative flex flex-col justify-center overflow-hidden rounded-xl border border-[#FFFFFF]/15 bg-[#000000] p-3 sm:p-5 md:col-span-7 md:h-full md:min-h-[210px]">
                     {item.visual ? (
                       item.visual
                     ) : item.image ? (
@@ -351,12 +351,12 @@ export function TiltStackScroll({
         </div>
 
         {/* Counter + progress rail */}
-        <div className="mx-auto flex w-full max-w-6xl items-center gap-4 font-mono text-xs text-[#15120F]/60">
+        <div className="mx-auto flex w-full max-w-6xl items-center gap-4 font-mono text-xs text-[#FFFFFF]/60">
           <span className="shrink-0 tabular-nums">
-            <span className="text-[#15120F]">{pad2(activeIndex + 1)}</span> /{" "}
+            <span className="text-[#FFFFFF]">{pad2(activeIndex + 1)}</span> /{" "}
             {pad2(total)}
           </span>
-          <div className="relative h-px flex-1 overflow-hidden bg-[#15120F]/15">
+          <div className="relative h-px flex-1 overflow-hidden bg-[#FFFFFF]/15">
             <div
               ref={railRef}
               style={{ backgroundColor: accentColor, transform: "scaleX(0)" }}

@@ -27,10 +27,10 @@ export function DitheringBackground({
   className,
 }: DitheringBackgroundProps) {
   return (
-    <Suspense fallback={<div className="absolute inset-0 bg-muted/20" />}>
+    <Suspense fallback={<div className="absolute inset-0 bg-black" />}>
       <div
         className={cn(
-          "absolute inset-0 z-0 pointer-events-none opacity-40 dark:opacity-30 mix-blend-multiply dark:mix-blend-screen",
+          "absolute inset-0 z-0 pointer-events-none opacity-50 mix-blend-screen",
           className
         )}
       >

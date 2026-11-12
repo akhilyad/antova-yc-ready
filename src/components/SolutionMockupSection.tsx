@@ -18,21 +18,21 @@ export function SolutionMockupSection() {
   return (
     <section
       id="verification"
-      className="scroll-mt-12 w-full bg-[#F6F2EA] text-[#15120F] border-t border-[#15120F]/10 py-20 sm:py-24 px-4 sm:px-6"
+      className="scroll-mt-12 w-full bg-[#000000] text-[#FFFFFF] border-t border-[#FFFFFF]/10 py-20 sm:py-24 px-4 sm:px-6"
     >
       <div className="max-w-6xl mx-auto">
         {/* Section Header */}
         <div className="text-center">
-          <p className="font-mono text-xs uppercase tracking-wider text-[#15120F]/60">
+          <p className="font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/60">
             {eyebrow}
           </p>
-          <h2 className="mt-3 font-serif text-3xl md:text-5xl text-[#15120F] text-center max-w-3xl mx-auto tracking-tight">
+          <h2 className="mt-3 font-serif text-3xl md:text-5xl text-[#FFFFFF] text-center max-w-3xl mx-auto tracking-tight">
             {headline}
           </h2>
-          <p className="font-sans text-base text-[#15120F]/70 text-center max-w-2xl mx-auto mt-3">
+          <p className="font-sans text-base text-[#FFFFFF]/70 text-center max-w-2xl mx-auto mt-3">
             {subtext}
           </p>
-          <span className="mt-4 inline-block rounded border border-[#15120F]/20 bg-[#FDFBF7] px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#15120F]/70">
+          <span className="mt-4 inline-block rounded border border-[#FFFFFF]/20 bg-[#0B0B0B] px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#FFFFFF]/70">
             {SAMPLE_DATA_LABEL}
           </span>
         </div>
@@ -51,74 +51,74 @@ export function SolutionMockupSection() {
                 autoplayDuration={4500}
                 className="h-full min-h-[310px]"
                 firstContent={
-                  <div className="w-full h-full p-6 pt-14 flex flex-col justify-between bg-[#FDFBF7]">
+                  <div className="w-full h-full p-6 pt-14 flex flex-col justify-between bg-[#0B0B0B]">
                     <div className="space-y-4">
-                      <div className="flex min-w-0 items-center gap-2 border-b border-[#15120F]/10 pb-3">
-                        <FileText className="h-4 w-4 shrink-0 text-[#15120F]/60" />
-                        <span className="truncate font-mono text-xs text-[#15120F]/70">
+                      <div className="flex min-w-0 items-center gap-2 border-b border-[#FFFFFF]/10 pb-3">
+                        <FileText className="h-4 w-4 shrink-0 text-[#FFFFFF]/60" />
+                        <span className="truncate font-mono text-xs text-[#FFFFFF]/70">
                           {compareMockup.documentTitle}
                         </span>
                       </div>
 
                       {/* 3 Skeleton Text Bars */}
                       <div className="space-y-3 pt-2">
-                        <div className="h-2.5 w-full bg-[#15120F]/10 rounded" />
-                        <div className="h-2.5 w-5/6 bg-[#15120F]/10 rounded" />
-                        <div className="h-2.5 w-4/6 bg-[#15120F]/10 rounded" />
+                        <div className="h-2.5 w-full bg-[#FFFFFF]/10 rounded" />
+                        <div className="h-2.5 w-5/6 bg-[#FFFFFF]/10 rounded" />
+                        <div className="h-2.5 w-4/6 bg-[#FFFFFF]/10 rounded" />
                       </div>
                     </div>
 
-                    <div className="rounded-xl border border-[#15120F]/15 bg-[#F6F2EA] p-3.5 flex items-center justify-between">
+                    <div className="rounded-xl border border-[#FFFFFF]/15 bg-[#000000] p-3.5 flex items-center justify-between">
                       <div>
-                        <span className="block font-mono text-[10px] uppercase tracking-wider text-[#15120F]/60">
+                        <span className="block font-mono text-[10px] uppercase tracking-wider text-[#FFFFFF]/60">
                           Commercial Cover
                         </span>
-                        <span className="mt-0.5 inline-block font-mono text-xs font-bold text-[#15120F]">
+                        <span className="mt-0.5 inline-block font-mono text-xs font-bold text-[#FFFFFF]">
                           {compareMockup.baseQuoteBadge}
                         </span>
                       </div>
-                      <span className="font-mono text-[11px] text-[#15120F]/50">
+                      <span className="font-mono text-[11px] text-[#FFFFFF]/60">
                         0 Gaps Shown
                       </span>
                     </div>
                   </div>
                 }
                 secondContent={
-                  <div className="w-full h-full p-6 pt-14 flex flex-col justify-between bg-[#F6F2EA]">
+                  <div className="w-full h-full p-6 pt-14 flex flex-col justify-between bg-[#000000]">
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between gap-3 border-b border-[#15120F]/10 pb-3">
+                      <div className="flex items-center justify-between gap-3 border-b border-[#FFFFFF]/10 pb-3">
                         <div className="flex min-w-0 items-center gap-2">
-                          <FileText className="h-4 w-4 shrink-0 text-[#15120F]" />
-                          <span className="truncate font-mono text-xs font-medium text-[#15120F]">
+                          <FileText className="h-4 w-4 shrink-0 text-[#FFFFFF]" />
+                          <span className="truncate font-mono text-xs font-medium text-[#FFFFFF]">
                             {compareMockup.documentTitle}
                           </span>
                         </div>
-                        <span className="shrink-0 whitespace-nowrap font-mono text-[11px] font-semibold text-[#15120F]">
+                        <span className="shrink-0 whitespace-nowrap font-mono text-[11px] font-semibold text-[#FFFFFF]">
                           p. 147 §4.2
                         </span>
                       </div>
 
                       {/* Skeleton Wireframe + Right-Aligned Exclusion Overlay */}
                       <div className="space-y-2.5 pt-1">
-                        <div className="h-2.5 w-full bg-[#15120F]/10 rounded" />
+                        <div className="h-2.5 w-full bg-[#FFFFFF]/10 rounded" />
                         <div className="flex justify-end">
-                          <span className="rounded-md border border-[#15120F] bg-[#FFE98A] px-2.5 py-1 font-mono text-[11px] font-bold text-[#15120F]">
+                          <span className="rounded-md border border-[#D4400F] bg-[#D4400F] px-2.5 py-1 font-mono text-[11px] font-bold text-[#FFFFFF]">
                             +€64,800 Exclusions
                           </span>
                         </div>
-                        <div className="h-2.5 w-4/6 bg-[#15120F]/10 rounded" />
+                        <div className="h-2.5 w-4/6 bg-[#FFFFFF]/10 rounded" />
                       </div>
                     </div>
 
-                    <div className="rounded-xl border border-[#15120F]/25 bg-[#FDFBF7] p-3.5 flex items-center justify-between">
-                      <span className="font-mono text-[11px] text-[#15120F]/60">
+                    <div className="rounded-xl border border-[#FFFFFF]/25 bg-[#0B0B0B] p-3.5 flex items-center justify-between">
+                      <span className="font-mono text-[11px] text-[#FFFFFF]/60">
                         Vendor Cover
                       </span>
                       <div className="text-right">
-                        <span className="block font-mono text-[10px] uppercase tracking-wider text-[#15120F]/60">
+                        <span className="block font-mono text-[10px] uppercase tracking-wider text-[#FFFFFF]/60">
                           True Cost
                         </span>
-                        <span className="mt-0.5 inline-block rounded bg-[#FFE98A] px-2 py-0.5 font-mono text-xs font-bold text-[#15120F]">
+                        <span className="mt-0.5 inline-block rounded bg-[#D4400F] px-2 py-0.5 font-mono text-xs font-bold text-[#FFFFFF]">
                           €482,800 Leveled
                         </span>
                       </div>
@@ -133,37 +133,37 @@ export function SolutionMockupSection() {
               <DepthCard3D
                 baseLayer={
                   <div className="space-y-4">
-                    <div className="flex items-start justify-between gap-3 border-b border-[#15120F]/10 pb-3">
-                      <span className="font-mono text-xs uppercase tracking-wider text-[#15120F]/60">
+                    <div className="flex items-start justify-between gap-3 border-b border-[#FFFFFF]/10 pb-3">
+                      <span className="font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/60">
                         {depthCardMockup.documentTitle}
                       </span>
-                      <span className="shrink-0 whitespace-nowrap font-mono text-xs text-[#15120F]/60">
+                      <span className="shrink-0 whitespace-nowrap font-mono text-xs text-[#FFFFFF]/60">
                         IEC 62271-200
                       </span>
                     </div>
 
                     {/* Base Document Skeleton Wireframe on Flat Plane */}
                     <div className="space-y-2.5 pt-1">
-                      <div className="h-2 w-full bg-[#15120F]/10 rounded" />
-                      <div className="h-2 w-11/12 bg-[#15120F]/10 rounded" />
-                      <div className="h-2 w-3/4 bg-[#15120F]/10 rounded" />
+                      <div className="h-2 w-full bg-[#FFFFFF]/10 rounded" />
+                      <div className="h-2 w-11/12 bg-[#FFFFFF]/10 rounded" />
+                      <div className="h-2 w-3/4 bg-[#FFFFFF]/10 rounded" />
                     </div>
                   </div>
                 }
                 floatingLayer={
-                  <div className="rounded-xl border-2 border-[#15120F] bg-[#FDFBF7] p-5 shadow-md space-y-3">
+                  <div className="rounded-xl border-2 border-[#D4400F] bg-[#0B0B0B] p-5 shadow-md space-y-3">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-mono text-xs font-semibold uppercase tracking-wider text-[#15120F]">
+                      <span className="font-mono text-xs font-semibold uppercase tracking-wider text-[#FFFFFF]">
                         {depthCardMockup.citationHeader}
                       </span>
                     </div>
 
-                    <p className="font-sans text-sm font-medium leading-relaxed text-[#15120F]">
+                    <p className="font-sans text-sm font-medium leading-relaxed text-[#FFFFFF]">
                       &ldquo;{depthCardMockup.highlightedText}&rdquo;
                     </p>
 
                     <div className="pt-1">
-                      <span className="inline-block rounded-md border border-[#15120F]/25 bg-[#FFE98A] px-3 py-1 font-mono text-xs font-bold text-[#15120F]">
+                      <span className="inline-block rounded-md border border-[#FFFFFF]/25 bg-[#D4400F] px-3 py-1 font-mono text-xs font-bold text-[#FFFFFF]">
                         {depthCardMockup.calculatedDeltaPill}
                       </span>
                     </div>
@@ -174,15 +174,15 @@ export function SolutionMockupSection() {
           </div>
 
           {/* Display Cards stack: the three deviations the audit raised */}
-          <div className="mt-6 grid grid-cols-1 items-center gap-10 overflow-hidden rounded-2xl border border-[#15120F]/10 bg-[#F6F2EA] p-5 sm:p-8 lg:grid-cols-12">
+          <div className="mt-6 grid grid-cols-1 items-center gap-10 overflow-hidden rounded-2xl border border-[#FFFFFF]/10 bg-[#000000] p-5 sm:p-8 lg:grid-cols-12">
             <div className="lg:col-span-5">
-              <p className="font-mono text-xs uppercase tracking-wider text-[#15120F]/60">
+              <p className="font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/60">
                 {flaggedDeviations.eyebrow}
               </p>
-              <h3 className="mt-2 font-serif text-2xl leading-tight tracking-tight text-[#15120F] sm:text-3xl">
+              <h3 className="mt-2 font-serif text-2xl leading-tight tracking-tight text-[#FFFFFF] sm:text-3xl">
                 {flaggedDeviations.heading}
               </h3>
-              <p className="mt-3 font-sans text-sm leading-relaxed text-[#15120F]/70">
+              <p className="mt-3 font-sans text-sm leading-relaxed text-[#FFFFFF]/70">
                 {flaggedDeviations.body}
               </p>
             </div>

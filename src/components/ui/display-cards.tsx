@@ -31,16 +31,16 @@ export function DisplayCard({
   return (
     <div
       className={cn(
-        "relative flex h-32 w-[14rem] -skew-y-[8deg] sm:h-36 select-none flex-col justify-between rounded-xl border-2 border-[#15120F]/15 bg-[#EDE8DE]/80 px-4 py-3 backdrop-blur-sm transition-all duration-700",
-        "after:absolute after:-right-1 after:top-[-5%] after:h-[110%] after:w-[6rem] after:bg-gradient-to-l after:from-[#FDFBF7] after:to-transparent after:content-[''] sm:w-[22rem] sm:after:w-[8rem]",
-        "hover:border-[#15120F]/30 hover:bg-[#FDFBF7] [&>*]:flex [&>*]:items-center [&>*]:gap-2",
+        "relative flex h-32 w-[14rem] -skew-y-[8deg] sm:h-36 select-none flex-col justify-between rounded-xl border-2 border-[#FFFFFF]/15 bg-[#171717]/80 px-4 py-3 backdrop-blur-sm transition-all duration-700",
+        "after:absolute after:-right-1 after:top-[-5%] after:h-[110%] after:w-[6rem] after:bg-gradient-to-l after:from-[#0B0B0B] after:to-transparent after:content-[''] sm:w-[22rem] sm:after:w-[8rem]",
+        "hover:border-[#FFFFFF]/30 hover:bg-[#0B0B0B] [&>*]:flex [&>*]:items-center [&>*]:gap-2",
         className
       )}
     >
       <div>
         <span
           className={cn(
-            "relative inline-block rounded-full bg-[#15120F] p-1 text-[#FFE98A]",
+            "relative inline-block rounded-full bg-[#D4400F] p-1 text-[#FFFFFF]",
             iconClassName
           )}
         >
@@ -48,23 +48,23 @@ export function DisplayCard({
         </span>
         <p
           className={cn(
-            "font-mono text-sm font-semibold uppercase tracking-wider text-[#15120F]",
+            "font-mono text-sm font-semibold uppercase tracking-wider text-[#FFFFFF]",
             titleClassName
           )}
         >
           {title}
         </p>
       </div>
-      <p className="whitespace-nowrap font-sans text-sm text-[#15120F] sm:text-lg">
+      <p className="whitespace-nowrap font-sans text-sm text-[#FFFFFF] sm:text-lg">
         {description}
       </p>
-      <p className="font-mono text-xs text-[#15120F]/60">{date}</p>
+      <p className="font-mono text-xs text-[#FFFFFF]/60">{date}</p>
     </div>
   );
 }
 
 const backCard =
-  "before:absolute before:left-0 before:top-0 before:h-full before:w-full before:rounded-xl before:bg-[#F6F2EA]/50 before:bg-blend-overlay before:outline-1 before:outline-[#15120F]/10 before:transition-opacity before:duration-700 before:content-[''] grayscale-[100%] hover:before:opacity-0 hover:grayscale-0";
+  "before:absolute before:left-0 before:top-0 before:h-full before:w-full before:rounded-xl before:bg-[#000000]/50 before:bg-blend-overlay before:outline-1 before:outline-[#FFFFFF]/10 before:transition-opacity before:duration-700 before:content-[''] grayscale-[100%] hover:before:opacity-0 hover:grayscale-0";
 
 const stackPositions = [
   cn("[grid-area:stack] hover:-translate-y-10", backCard),
@@ -111,7 +111,7 @@ export function DisplayCardFrame({ children, className }: DisplayCardFrameProps)
   return (
     <div
       className={cn(
-        "relative mx-auto max-w-5xl rounded-3xl border border-[#15120F]/15 bg-[#FDFBF7] p-4 shadow-2xs sm:p-8",
+        "relative mx-auto max-w-5xl rounded-3xl border border-[#FFFFFF]/15 bg-[#0B0B0B] p-4 shadow-2xs sm:p-8",
         className
       )}
     >

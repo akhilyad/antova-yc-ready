@@ -41,7 +41,7 @@ const BentoGridItem = ({
   return (
     <div
       className={cn(
-        'group/bento row-span-1 relative flex flex-col justify-between space-y-4 overflow-hidden rounded-xl border border-[#15120F]/10 bg-[#FDFBF7] p-4 shadow-[0_2px_8px_-2px_rgba(21,18,15,0.06)] transition duration-200 hover:shadow-xl hover:shadow-[#15120F]/10',
+        'group/bento row-span-1 relative flex flex-col justify-between space-y-4 overflow-hidden rounded-xl border border-[#FFFFFF]/10 bg-[#0B0B0B] p-4 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)] transition duration-200 hover:shadow-xl hover:shadow-[#FFFFFF]/10',
         className
       )}
     >
@@ -51,16 +51,16 @@ const BentoGridItem = ({
       <div className="z-10 flex flex-col gap-1.5 px-1 pb-1 transition duration-200 motion-safe:group-hover/bento:translate-x-2">
         <div className="flex items-center justify-between gap-2">
           {kicker && (
-            <span className="font-mono text-[11px] uppercase tracking-wider text-[#15120F]/60">
+            <span className="font-mono text-[11px] uppercase tracking-wider text-[#FFFFFF]/60">
               {kicker}
             </span>
           )}
-          {icon && <div className="text-[#15120F]/70">{icon}</div>}
+          {icon && <div className="text-[#FFFFFF]/70">{icon}</div>}
         </div>
-        <h3 className="font-serif text-2xl text-[#15120F] tracking-tight leading-snug">
+        <h3 className="font-serif text-2xl text-[#FFFFFF] tracking-tight leading-snug">
           {title}
         </h3>
-        <p className="font-sans text-sm text-[#15120F]/70 leading-relaxed">
+        <p className="font-sans text-sm text-[#FFFFFF]/70 leading-relaxed">
           {description}
         </p>
       </div>
@@ -92,19 +92,19 @@ const BentoCard = ({
   <div
     key={name}
     className={cn(
-      'group relative col-span-3 flex flex-col justify-between overflow-hidden rounded-2xl border border-[#15120F]/10 bg-[#FDFBF7] p-6 shadow-2xs transition-all duration-300 hover:border-[#15120F]/25',
+      'group relative col-span-3 flex flex-col justify-between overflow-hidden rounded-2xl border border-[#FFFFFF]/10 bg-[#0B0B0B] p-6 shadow-2xs transition-all duration-300 hover:border-[#FFFFFF]/25',
       className
     )}
   >
     <div className="mb-5 flex-1">{background}</div>
     <div className="z-10 flex transform-gpu flex-col gap-1.5 transition-all duration-300">
       {Icon && (
-        <Icon className="h-6 w-6 origin-left transform-gpu text-[#15120F]/70 transition-all duration-300 ease-in-out" />
+        <Icon className="h-6 w-6 origin-left transform-gpu text-[#FFFFFF]/70 transition-all duration-300 ease-in-out" />
       )}
-      <h3 className="font-serif text-2xl text-[#15120F] tracking-tight">
+      <h3 className="font-serif text-2xl text-[#FFFFFF] tracking-tight">
         {name}
       </h3>
-      <p className="max-w-lg font-sans text-sm text-[#15120F]/70 leading-relaxed">
+      <p className="max-w-lg font-sans text-sm text-[#FFFFFF]/70 leading-relaxed">
         {description}
       </p>
     </div>
@@ -115,7 +115,7 @@ const BentoCard = ({
           variant="ghost"
           asChild
           size="sm"
-          className="px-0 text-[#15120F] hover:bg-transparent hover:underline"
+          className="px-0 text-[#FFFFFF] hover:bg-transparent hover:underline"
         >
           <a
             href={href}
