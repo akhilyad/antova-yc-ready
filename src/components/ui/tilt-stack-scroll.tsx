@@ -82,7 +82,7 @@ function pose(
       yPx: 0,
       rotate: ease * opts.leaveRotateDeg,
       scale: 1 - ease * 0.05,
-      opacity: clamp(1 - t * 1.6, 0, 1),
+      opacity: t < 0.65 ? 1 : clamp(1 - (t - 0.65) / 0.35, 0, 1),
     };
   }
 
@@ -225,7 +225,7 @@ export function TiltStackScroll({
       ref={sectionRef}
       style={{ height: `${sectionHeightVh}vh` }}
       className={cn(
-        "relative w-full bg-[#F6F2EA] text-[#15120F] border-t border-[#15120F]/10 scroll-mt-32",
+        "relative w-full bg-[#F6F2EA] text-[#15120F] border-t border-[#15120F]/10",
         className
       )}
     >
@@ -266,7 +266,7 @@ export function TiltStackScroll({
         </div>
 
         {/* Stacked Tilt Deck */}
-        <div className="relative mx-auto my-4 min-h-0 w-full max-w-6xl flex-1 md:my-auto md:h-[72vh] md:max-h-[540px] md:flex-none">
+        <div className="relative mx-auto my-4 min-h-0 w-full max-w-6xl flex-1 md:my-auto md:h-[72vh] md:max-h-[540px] md:flex-none lg:max-h-[600px]">
           {safeItems.map((item, i) => {
             const initial = pose(i, 0, {
               rotateStepDeg,

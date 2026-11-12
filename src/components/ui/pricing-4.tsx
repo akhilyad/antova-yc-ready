@@ -22,7 +22,7 @@ export const Pricing4 = ({
     <section
       id="pricing"
       className={cn(
-        'w-full bg-[#F6F2EA] text-[#15120F] border-t border-[#15120F]/10 py-20 sm:py-24 px-4 sm:px-6',
+        'scroll-mt-12 w-full bg-[#F6F2EA] text-[#15120F] border-t border-[#15120F]/10 py-20 sm:py-24 px-4 sm:px-6',
         className
       )}
     >
@@ -41,7 +41,7 @@ export const Pricing4 = ({
             <div
               key={plan.name}
               className={cn(
-                'relative flex flex-col justify-between rounded-2xl border bg-[#FDFBF7] p-6 sm:p-8 shadow-2xs transition-all',
+                'relative flex flex-col justify-between rounded-2xl border bg-[#FDFBF7] p-6 sm:p-8 shadow-2xs transition duration-200 hover:shadow-md motion-safe:hover:-translate-y-0.5',
                 plan.recommended
                   ? 'border-[#15120F] ring-1 ring-[#15120F]'
                   : 'border-[#15120F]/15'

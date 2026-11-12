@@ -92,7 +92,7 @@ export function OfferFormAndFaqSection() {
       {/* Final CTA & Lead Capture Section */}
       <section
         id="audit"
-        className="w-full bg-[#F6F2EA] text-[#15120F] border-t border-[#15120F]/10 py-20 sm:py-24 px-4 sm:px-6"
+        className="scroll-mt-12 w-full bg-[#F6F2EA] text-[#15120F] border-t border-[#15120F]/10 py-20 sm:py-24 px-4 sm:px-6"
       >
         <div className="max-w-4xl mx-auto">
           <div className="rounded-2xl border border-[#15120F]/15 bg-[#FDFBF7] p-6 sm:p-12 shadow-sm text-center">
