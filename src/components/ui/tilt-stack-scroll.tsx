@@ -9,6 +9,8 @@ export type TiltStackItem = {
   id?: string;
   phaseTag?: string;
   title: string;
+  /** Optional second line, set in italic serif. */
+  titleItalic?: string;
   description: string;
   image?: string;
   imageAlt?: string;
@@ -302,6 +304,12 @@ export function TiltStackScroll({
 
                       <h3 className="mt-3 font-serif md:mt-4 text-2xl leading-tight tracking-tight text-[#FFFFFF] sm:text-3xl md:text-4xl">
                         {item.title}
+                        {item.titleItalic && (
+                          <>
+                            {" "}
+                            <em className="italic text-[#FF7A45]">{item.titleItalic}</em>
+                          </>
+                        )}
                       </h3>
 
                       <p className="mt-3 font-sans text-sm leading-relaxed text-[#FFFFFF]/75 sm:text-base">
@@ -355,7 +363,7 @@ export function TiltStackScroll({
             />
           </div>
           <span className="hidden shrink-0 sm:inline">
-            TECHNICAL BID RISK BREAKDOWN
+            SAMPLE TENDER TENDER-2026-402
           </span>
         </div>
       </div>

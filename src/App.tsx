@@ -4,13 +4,15 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { FeatureBentoSection } from './components/FeatureBentoSection';
+import { AuditMatrixSection } from './components/AuditMatrixSection';
 import { HeroSection } from './components/HeroSection';
 import { Navbar, PageView } from './components/Navbar';
 import { OfferFormAndFaqSection } from './components/OfferFormAndFaqSection';
 import { ProblemStackSection } from './components/ProblemStackSection';
 import { SiteFooter } from './components/SiteFooter';
-import { SolutionMockupSection } from './components/SolutionMockupSection';
+import { IntroSection, ManifestoSection } from './components/NarrativeSections';
+import { PipelineSection } from './components/PipelineSection';
+import { PrecisionSection } from './components/PrecisionSection';
 import { TeamPage } from './components/TeamPage';
 import { DitheringPageBackground } from './components/ui/hero-dithering-card';
 
@@ -87,19 +89,28 @@ export default function App() {
           />
         ) : (
           <>
-            {/* Section 1: Hero & 3-State Interactive Pushback Widget */}
+            {/* Hero: headline, live ingest terminal, MR requirement ticker */}
             <HeroSection onAuditClick={scrollToAudit} />
 
-            {/* Section 2: Problem Stack (TiltStackScroll) */}
+            {/* Manifesto line */}
+            <ManifestoSection />
+
+            {/* Three problem chapters (TiltStackScroll) */}
             <ProblemStackSection />
 
-            {/* Section 3: Solution Transition & Product Mockup */}
-            <SolutionMockupSection />
+            {/* "Introducing Antova." */}
+            <IntroSection />
 
-            {/* Section 4: Feature Bento Grid */}
-            <FeatureBentoSection />
+            {/* Bid compliance matrix: the leveled price, cell by cell */}
+            <AuditMatrixSection />
 
-            {/* Sections 5, 6, 7: Additive Pricing, Objection Handling FAQ Pro, Final Banner CTA */}
+            {/* Ingest pipeline walkthrough */}
+            <PipelineSection />
+
+            {/* Why the numbers hold */}
+            <PrecisionSection />
+
+            {/* Pricing, FAQ, final CTA with intake form */}
             <OfferFormAndFaqSection />
           </>
         )}

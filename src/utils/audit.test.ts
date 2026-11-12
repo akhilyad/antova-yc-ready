@@ -1,152 +1,96 @@
 import { describe, it, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  BENTO_FEATURES,
   EQUIPMENT_OPTIONS,
   FAQ_ITEMS,
   FAQ_SECTION_COPY,
   FINAL_CTA_COPY,
-  HERO_CHART_COPY,
   HERO_COPY,
+  INTRO_COPY,
+  MANIFESTO_COPY,
+  MATRIX_COPY,
+  PIPELINE_COPY,
+  PRECISION_COPY,
   PRICING_PLANS,
   PRICING_SECTION_COPY,
   PROBLEM_STACK_SECTION,
-  SOLUTION_TRANSITION_COPY,
   TEAM_FOUNDER_DATA,
-  VENDOR_BIDS,
 } from '../constants';
 import {
-  formatEuro,
-  getVendorDisplayPrice,
-  getVendorPenaltyTotal,
-  sortVendorsByMode,
-  submitAuditRequest,
-  validateWorkEmail,
-} from './audit';
+  CELLS,
+  PARAMETERS,
+  TOTAL_PAGES,
+  VENDORS,
+  cellAdder,
+  vendorAdders,
+  vendorPrice,
+} from '../data/tender402';
+import { formatEuro, submitAuditRequest, validateWorkEmail } from './audit';
 
-describe('Antova bid evaluation & enterprise copy polish tests', () => {
-  it('computes Vendor B penalties and display prices accurately across all 3 modes', () => {
-    const vendorB = VENDOR_BIDS.find((v) => v.id === 'B')!;
-    const vendorA = VENDOR_BIDS.find((v) => v.id === 'A')!;
+const vendor = (id: string) => VENDORS.find((v) => v.id === id)!;
 
-    assert.equal(getVendorPenaltyTotal(vendorB, 'sticker'), 0);
-    assert.equal(getVendorPenaltyTotal(vendorB, 'true'), 64800);
-    assert.equal(getVendorPenaltyTotal(vendorB, 'pushback'), 18300);
-
-    assert.equal(getVendorDisplayPrice(vendorB, 'sticker'), 418000);
-    assert.equal(getVendorDisplayPrice(vendorB, 'true'), 482800);
-    assert.equal(getVendorDisplayPrice(vendorB, 'pushback'), 436300);
-
-    assert.equal(getVendorDisplayPrice(vendorA, 'sticker'), 452000);
-    assert.equal(getVendorDisplayPrice(vendorA, 'true'), 452000);
-    assert.equal(getVendorDisplayPrice(vendorA, 'pushback'), 452000);
+describe('Antova landing data and copy', () => {
+  // Figures from specclaw/samples/TENDER-2026-402/expected.json
+  it('reproduces the pipeline answer key adders per parameter', () => {
+    const b = CELLS['vendor-b'];
+    assert.equal(cellAdder(b['PARAM-01']), 18500);
+    assert.equal(cellAdder(b['PARAM-02']), 14200);
+    assert.equal(cellAdder(b['PARAM-03']), 8900);
+    assert.equal(cellAdder(b['PARAM-04']), 7400);
+    assert.equal(cellAdder(b['PARAM-05']), 6500);
+    assert.equal(cellAdder(b['PARAM-06']), 9300);
+    const c = CELLS['vendor-c'];
+    assert.equal(cellAdder(c['PARAM-01']), 6200);
+    assert.equal(cellAdder(c['PARAM-04']), 4100);
+    assert.equal(cellAdder(c['PARAM-05']), 2600);
+    assert.equal(cellAdder(c['PARAM-06']), 2100);
   });
 
-  it('sorts vendors from lowest to highest in each mode', () => {
-    const stickerOrder = sortVendorsByMode(VENDOR_BIDS, 'sticker');
-    assert.equal(stickerOrder[0].id, 'B');
-    assert.equal(stickerOrder[1].id, 'A');
-
-    const trueOrder = sortVendorsByMode(VENDOR_BIDS, 'true');
-    assert.equal(trueOrder[0].id, 'A');
-    assert.equal(trueOrder[1].id, 'B');
-
-    const pushbackOrder = sortVendorsByMode(VENDOR_BIDS, 'pushback');
-    assert.equal(pushbackOrder[0].id, 'B');
-    assert.equal(pushbackOrder[1].id, 'A');
+  it('reproduces the true evaluated prices and round 3 clawback', () => {
+    assert.equal(vendorAdders('vendor-a'), 0);
+    assert.equal(vendorAdders('vendor-b'), 64800);
+    assert.equal(vendorAdders('vendor-c'), 15000);
+    assert.equal(vendorPrice(vendor('vendor-a'), 'evaluated'), 452000);
+    assert.equal(vendorPrice(vendor('vendor-b'), 'evaluated'), 482800);
+    assert.equal(vendorPrice(vendor('vendor-c'), 'evaluated'), 454000);
+    assert.equal(vendorPrice(vendor('vendor-b'), 'round3'), 425400);
+    assert.equal(vendorPrice(vendor('vendor-c'), 'round3'), 454000);
+    assert.equal(vendorPrice(vendor('vendor-b'), 'headline'), 418000);
   });
 
-  it('formats euro amounts cleanly and validates work emails', () => {
+  it('covers every vendor x parameter cell and counts flagged cells', () => {
+    assert.equal(PARAMETERS.length, 8);
+    assert.equal(TOTAL_PAGES, 116);
+    let flagged = 0;
+    let conflicts = 0;
+    for (const v of VENDORS) {
+      for (const p of PARAMETERS) {
+        const cell = CELLS[v.id][p.id];
+        assert.ok(cell, `${v.id} ${p.id}`);
+        if (cell.status !== 'COMPLIANT') flagged += 1;
+        if (cell.status === 'CONFLICT_DOWNGRADE') {
+          conflicts += 1;
+          assert.ok(cell.secondary, 'conflicts keep both citations');
+        }
+        if (cell.status === 'COMPLIANT') assert.equal(cellAdder(cell), 0);
+      }
+    }
+    assert.equal(flagged, 10);
+    assert.equal(conflicts, 2);
+  });
+
+  it('formats euro amounts and validates work emails', () => {
     assert.equal(formatEuro(418000), '€418,000');
     assert.equal(formatEuro(482800), '€482,800');
-    assert.equal(formatEuro(436300), '€436,300');
-
     assert.equal(validateWorkEmail('').valid, false);
     assert.equal(validateWorkEmail('not-an-email').valid, false);
     assert.equal(validateWorkEmail('procurement@epc-grid.de').valid, true);
   });
 
-  it('matches all required copy invariants and zero em-dashes', () => {
-    assert.equal(
-      HERO_COPY.eyebrow,
-      'TECHNICAL BID EVALUATION FOR ELECTRICAL TENDERS'
-    );
-    assert.equal(HERO_COPY.headline, 'Audit tenders in minutes, not weeks.');
-    assert.equal(
-      HERO_COPY.subtext,
-      'Upload vendor bids. Antova verifies technical specifications against employer requirements, exposes unpriced scope gaps, and calculates true project cost before contract award.'
-    );
-    assert.equal(
-      HERO_COPY.subline,
-      'Results in minutes. Human-reviewed within 24 hours. Mutual NDA included.'
-    );
-    assert.equal(
-      HERO_CHART_COPY.packageHeader,
-      '33kV GIS SWITCHGEAR PACKAGE'
-    );
-    assert.equal(
-      HERO_CHART_COPY.subheads.true,
-      'Base Quote: €418,000 | Scope Gaps: +€64,800'
-    );
-    assert.equal(HERO_CHART_COPY.bannerTags.true, 'LEVELED AUDIT VIEW');
-    assert.equal(
-      HERO_CHART_COPY.callouts.true,
-      'Vendor B costs €30,800 more than Vendor A.'
-    );
-    assert.equal(
-      HERO_CHART_COPY.rightStats.true,
-      '5 scope exclusions priced (+€64,800)'
-    );
-
-    assert.equal(PROBLEM_STACK_SECTION.eyebrow, 'THE PROCUREMENT BOTTLENECK');
-    assert.equal(PROBLEM_STACK_SECTION.cards.length, 3);
-    assert.equal(PROBLEM_STACK_SECTION.cards[0].phaseTag, '01 / BID EVALUATION');
-    assert.equal(PROBLEM_STACK_SECTION.cards[1].phaseTag, '02 / TECHNICAL AUDIT');
-    assert.equal(
-      PROBLEM_STACK_SECTION.cards[2].phaseTag,
-      '03 / CONTRACT EXECUTION'
-    );
-
-    assert.equal(SOLUTION_TRANSITION_COPY.eyebrow, 'AUTOMATED TENDER AUDIT');
-    assert.equal(
-      SOLUTION_TRANSITION_COPY.depthCardMockup.calculatedDeltaPill,
-      '+€4,000 (FAT Excluded)'
-    );
-
-    assert.equal(BENTO_FEATURES.length, 4);
-    assert.equal(BENTO_FEATURES[0].kicker, 'FINANCIAL AUDITING');
-    assert.equal(BENTO_FEATURES[0].title, 'Audit-ready financial models');
-    assert.equal(BENTO_FEATURES[1].kicker, 'SPECIFICATION CHECKS');
-    assert.equal(BENTO_FEATURES[1].title, 'Rule-based verification');
-    assert.equal(BENTO_FEATURES[2].kicker, 'COST GOVERNANCE');
-    assert.equal(BENTO_FEATURES[2].title, 'Standardized cost benchmarks');
-    assert.equal(BENTO_FEATURES[3].kicker, 'COMMERCIAL WORKFLOWS');
-    assert.equal(BENTO_FEATURES[3].title, 'Structured supplier clarification');
-
-    assert.equal(PRICING_SECTION_COPY.eyebrow, 'PRICING PLANS');
-    assert.equal(PRICING_SECTION_COPY.headline, 'Simple, transparent pricing.');
+  it('keeps copy free of em-dashes, the old brand and ungrounded claims', () => {
     assert.equal(PRICING_PLANS.length, 3);
-    assert.equal(PRICING_PLANS[1].name, 'Per Tender');
     assert.equal(PRICING_PLANS[1].priceAmount, 1500);
-    assert.equal(PRICING_PLANS[2].name, 'Pack of Five');
     assert.equal(PRICING_PLANS[2].priceAmount, 6000);
-    assert.equal(
-      PRICING_PLANS.some((p) => /unlimited/i.test(p.name)),
-      false
-    );
-
-    assert.equal(FAQ_SECTION_COPY.eyebrow, 'VERIFICATION & INTEGRATION');
-    assert.equal(FAQ_ITEMS.length, 4);
-    assert.equal(
-      FAQ_ITEMS[0].question,
-      'Does Antova use generative AI to guess engineering values?'
-    );
-
-    assert.equal(FINAL_CTA_COPY.eyebrow, 'START YOUR AUDIT');
-    assert.equal(
-      FINAL_CTA_COPY.headline,
-      'Audit your first tender package for free.'
-    );
     assert.equal(FINAL_CTA_COPY.submitButtonText, 'Request Free Audit');
     assert.deepEqual(EQUIPMENT_OPTIONS, [
       'MV switchgear',
@@ -158,10 +102,12 @@ describe('Antova bid evaluation & enterprise copy polish tests', () => {
 
     const serialized = JSON.stringify({
       HERO_COPY,
-      HERO_CHART_COPY,
+      MANIFESTO_COPY,
       PROBLEM_STACK_SECTION,
-      SOLUTION_TRANSITION_COPY,
-      BENTO_FEATURES,
+      INTRO_COPY,
+      MATRIX_COPY,
+      PIPELINE_COPY,
+      PRECISION_COPY,
       PRICING_SECTION_COPY,
       PRICING_PLANS,
       FAQ_SECTION_COPY,
@@ -171,12 +117,10 @@ describe('Antova bid evaluation & enterprise copy polish tests', () => {
     });
     assert.equal(serialized.includes('—'), false);
     assert.equal(serialized.includes('SpecClaw'), false);
-    assert.equal(serialized.includes('OBJECTION HANDLING'), false);
-    assert.equal(
-      serialized.includes('Simulated commercial negotiation outcome'),
-      false
-    );
+    // v1 pipeline: text-based PDFs only, PDF report, no spreadsheet export
+    assert.equal(/excel|xlsx|scanned schematics|word addenda/i.test(serialized), false);
   });
+
   it('rejects intake submissions when no endpoint is configured', async () => {
     await assert.rejects(
       submitAuditRequest(
