@@ -1,0 +1,124 @@
+import React, { useState } from 'react';
+import { ArrowRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import type { PageView } from './Navbar';
+import {
+  DitheringBackground,
+  PulseBadge,
+  pillButtonClass,
+} from './ui/hero-dithering-card';
+
+interface SiteFooterProps {
+  onNavigate: (view: PageView, sectionId?: string) => void;
+  onAuditClick: () => void;
+}
+
+const FOOTER_LINKS: {
+  label: string;
+  href: string;
+  view: PageView;
+  sectionId?: string;
+}[] = [
+  { label: 'How It Works', href: '/#how-it-works', view: 'home', sectionId: 'how-it-works' },
+  { label: 'Verification', href: '/#verification', view: 'home', sectionId: 'verification' },
+  { label: 'Features', href: '/#features', view: 'home', sectionId: 'features' },
+  { label: 'Pricing', href: '/#pricing', view: 'home', sectionId: 'pricing' },
+  { label: 'FAQ', href: '/#faq', view: 'home', sectionId: 'faq' },
+  { label: 'Team', href: '/team', view: 'team' },
+];
+
+/** Footer card in the same dithering style as the hero and audit CTA. */
+export function SiteFooter({ onNavigate, onAuditClick }: SiteFooterProps) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <footer className="w-full bg-[#F6F2EA] px-4 pb-6 pt-4 text-[#15120F] md:px-6">
+      <div
+        className="relative mx-auto w-full max-w-7xl"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        <div className="relative overflow-hidden rounded-[32px] border border-border bg-card shadow-sm sm:rounded-[48px]">
+          {/* Fainter than the hero so the links stay readable */}
+          <DitheringBackground
+            colorFront="#D4400F"
+            active={hovered}
+            className="opacity-25"
+          />
+
+          <div className="relative z-10 grid gap-10 px-6 py-12 sm:px-10 md:grid-cols-12 md:py-16 lg:px-14">
+            <div className="flex flex-col items-start gap-6 md:col-span-7">
+              <PulseBadge className="text-xs">Taking tenders this week</PulseBadge>
+              <a
+                href="/"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onNavigate('home');
+                }}
+                className="font-serif text-6xl font-medium leading-none tracking-tight text-foreground md:text-8xl"
+              >
+                Antova
+              </a>
+              <p className="max-w-md font-sans text-base leading-relaxed text-muted-foreground">
+                Technical bid evaluation for electrical tenders. Every number
+                traced to the page it came from.
+              </p>
+              <button
+                type="button"
+                onClick={onAuditClick}
+                className={cn(pillButtonClass, 'h-12 px-8 text-sm')}
+              >
+                <span className="relative z-10">Audit a tender</span>
+                <ArrowRight className="relative z-10 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </button>
+            </div>
+
+            <nav
+              aria-label="Footer navigation"
+              className="md:col-span-5 md:justify-self-end"
+            >
+              <p className="mb-4 font-mono text-xs uppercase tracking-wider text-[#15120F]/60">
+                Explore
+              </p>
+              <ul className="grid grid-cols-2 gap-x-10 gap-y-3 font-sans text-base">
+                {FOOTER_LINKS.map((link) => (
+                  <li key={link.label}>
+                    <a
+                      href={link.href}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onNavigate(link.view, link.sectionId);
+                      }}
+                      className="text-[#15120F]/75 transition-colors hover:text-[#D4400F]"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+                <li>
+                  <a
+                    href="/#audit"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onAuditClick();
+                    }}
+                    className="text-[#15120F]/75 transition-colors hover:text-[#D4400F]"
+                  >
+                    Contact
+                  </a>
+                </li>
+              </ul>
+            </nav>
+
+            <div className="flex flex-col gap-2 border-t border-[#15120F]/10 pt-6 font-mono text-xs text-[#15120F]/55 sm:flex-row sm:items-center sm:justify-between md:col-span-12">
+              <span>© 2026 Antova</span>
+              <span>Mutual NDA on every tender · Engineer-reviewed within 24 hours</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+export default SiteFooter;

@@ -6,3 +6,28 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Secrets and local configuration: never committed, at any depth.
+# Only a documented .env.example (names, no values) may be.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+credentials*.json
+service-account*.json
+secrets/
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Separate repository (github.com/akhilyad/Antovaclaw), checked out here locally
+specclaw/
+
+# Local tool state
+.superpowers/
