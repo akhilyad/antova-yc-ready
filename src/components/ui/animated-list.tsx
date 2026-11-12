@@ -1,7 +1,7 @@
 "use client";
 
 import React, { ReactElement, useEffect, useMemo, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 
 export interface AnimatedListProps {
@@ -17,15 +17,16 @@ export const AnimatedList = React.memo(
       [children]
     );
     const [index, setIndex] = useState(childrenArray.length - 1);
+    const reduceMotion = useReducedMotion();
 
     useEffect(() => {
-      if (childrenArray.length <= 1) return;
+      if (childrenArray.length <= 1 || reduceMotion) return;
       const interval = setInterval(() => {
         setIndex((prevIndex) => (prevIndex + 1) % childrenArray.length);
       }, delay);
 
       return () => clearInterval(interval);
-    }, [childrenArray.length, delay]);
+    }, [childrenArray.length, delay, reduceMotion]);
 
     const itemsToShow = useMemo(() => {
       if (childrenArray.length === 0) return [];

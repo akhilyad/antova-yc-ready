@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 export type PageView = 'home' | 'team';
@@ -41,6 +41,15 @@ const NAV_ITEMS: {
 export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsMenuOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isMenuOpen]);
+
   const handleItemClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
     item: (typeof NAV_ITEMS)[number]
@@ -63,7 +72,7 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
         'top-4 lg:top-6'
       )}
     >
-      <div className="flex items-center justify-between gap-6 px-6 py-3">
+      <div className="flex items-center justify-between gap-4 py-2.5 pr-3 pl-5 sm:gap-6 sm:py-3 sm:pr-4 sm:pl-6">
         {/* Zone 1: Single brand wordmark */}
         <a
           href="/"
@@ -107,7 +116,7 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
               setIsMenuOpen(false);
               onAuditClick();
             }}
-            className="rounded-md bg-[#15120F] px-4 py-2 font-sans text-xs font-medium text-[#F6F2EA] hover:bg-[#15120F]/90 transition cursor-pointer"
+            className="rounded-md bg-[#15120F] px-4 py-2 font-sans text-xs font-medium text-[#F6F2EA] hover:bg-[#15120F]/90 transition cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15120F]"
           >
             Audit a tender
           </button>
@@ -116,10 +125,10 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
             type="button"
             aria-label={isMenuOpen ? 'Close main menu' : 'Open main menu'}
             aria-expanded={isMenuOpen}
-            className="text-[#15120F]/70 hover:text-[#15120F] relative flex size-8 items-center justify-center lg:hidden cursor-pointer"
+            aria-controls="mobile-nav"
+            className="text-[#15120F]/70 hover:text-[#15120F] relative flex size-9 items-center justify-center lg:hidden cursor-pointer"
             onClick={() => setIsMenuOpen((prev) => !prev)}
           >
-            <span className="sr-only">Open main menu</span>
             <div className="relative block w-[18px] h-3.5">
               <span
                 aria-hidden="true"
@@ -149,7 +158,10 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
 
       {/* Mobile Dropdown Menu */}
       {isMenuOpen && (
-        <div className="bg-[#FDFBF7] border-[#15120F]/15 absolute inset-x-0 top-[calc(100%+0.5rem)] flex flex-col rounded-2xl border p-5 shadow-lg lg:hidden">
+        <div
+          id="mobile-nav"
+          className="bg-[#FDFBF7] border-[#15120F]/15 absolute inset-x-0 top-[calc(100%+0.5rem)] flex flex-col rounded-2xl border p-5 shadow-lg lg:hidden"
+        >
           <nav
             aria-label="Mobile navigation"
             className="divide-[#15120F]/10 flex flex-col divide-y"

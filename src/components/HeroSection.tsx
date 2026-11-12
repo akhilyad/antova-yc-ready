@@ -62,7 +62,7 @@ export function HeroSection({ onAuditClick }: HeroSectionProps) {
             <button
               type="button"
               onClick={onAuditClick}
-              className="bg-[#15120F] text-[#F6F2EA] px-6 py-3 rounded-md font-sans text-sm font-medium hover:bg-[#15120F]/90 transition cursor-pointer"
+              className="bg-[#15120F] text-[#F6F2EA] px-6 py-3 rounded-md font-sans text-sm font-medium hover:bg-[#15120F]/90 transition cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15120F]"
             >
               {HERO_COPY.ctaLabel}
             </button>
@@ -89,8 +89,8 @@ export function HeroSection({ onAuditClick }: HeroSectionProps) {
             </div>
 
             <div
-              role="tablist"
-              aria-label="Bid price evaluation stages"
+              role="group"
+              aria-label="Bid price evaluation stage"
               className="inline-flex rounded-lg border border-[#15120F]/15 bg-[#EDE8DE] p-1 self-start sm:self-auto"
             >
               {MODE_TABS.map((tab) => {
@@ -99,10 +99,9 @@ export function HeroSection({ onAuditClick }: HeroSectionProps) {
                   <button
                     key={tab.mode}
                     type="button"
-                    role="tab"
-                    aria-selected={isSelected}
+                    aria-pressed={isSelected}
                     onClick={() => handleModeChange(tab.mode)}
-                    className={`px-3.5 py-1.5 rounded-md font-mono text-xs font-medium transition cursor-pointer ${
+                    className={`min-h-9 px-3.5 py-1.5 rounded-md font-mono text-xs font-medium transition cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15120F] ${
                       isSelected
                         ? 'bg-[#15120F] text-[#F6F2EA] shadow-2xs'
                         : 'text-[#15120F]/70 hover:text-[#15120F]'
@@ -208,6 +207,7 @@ export function HeroSection({ onAuditClick }: HeroSectionProps) {
                       key={dev.id}
                       type="button"
                       aria-label={`${dev.name} (+${formatEuro(dev.penalty)} · ${dev.page})`}
+                      aria-pressed={isSelected}
                       onClick={() =>
                         setSelectedDeviation(isSelected ? null : dev)
                       }
@@ -233,6 +233,7 @@ export function HeroSection({ onAuditClick }: HeroSectionProps) {
                         <button
                           key={dev.id}
                           type="button"
+                          aria-pressed={isSelected}
                           onClick={() =>
                             setSelectedDeviation(isSelected ? null : dev)
                           }

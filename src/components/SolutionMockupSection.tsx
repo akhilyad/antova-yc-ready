@@ -45,9 +45,9 @@ export function SolutionMockupSection() {
                 firstContent={
                   <div className="w-full h-full p-6 pt-14 flex flex-col justify-between bg-[#FDFBF7]">
                     <div className="space-y-4">
-                      <div className="flex items-center gap-2 border-b border-[#15120F]/10 pb-3">
-                        <FileText className="h-4 w-4 text-[#15120F]/60" />
-                        <span className="font-mono text-xs text-[#15120F]/70">
+                      <div className="flex min-w-0 items-center gap-2 border-b border-[#15120F]/10 pb-3">
+                        <FileText className="h-4 w-4 shrink-0 text-[#15120F]/60" />
+                        <span className="truncate font-mono text-xs text-[#15120F]/70">
                           {compareMockup.documentTitle}
                         </span>
                       </div>
@@ -78,14 +78,14 @@ export function SolutionMockupSection() {
                 secondContent={
                   <div className="w-full h-full p-6 pt-14 flex flex-col justify-between bg-[#F6F2EA]">
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between border-b border-[#15120F]/10 pb-3">
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-[#15120F]" />
-                          <span className="font-mono text-xs font-medium text-[#15120F]">
+                      <div className="flex items-center justify-between gap-3 border-b border-[#15120F]/10 pb-3">
+                        <div className="flex min-w-0 items-center gap-2">
+                          <FileText className="h-4 w-4 shrink-0 text-[#15120F]" />
+                          <span className="truncate font-mono text-xs font-medium text-[#15120F]">
                             {compareMockup.documentTitle}
                           </span>
                         </div>
-                        <span className="font-mono text-[11px] font-semibold text-[#15120F]">
+                        <span className="shrink-0 whitespace-nowrap font-mono text-[11px] font-semibold text-[#15120F]">
                           p. 147 §4.2
                         </span>
                       </div>
@@ -125,11 +125,11 @@ export function SolutionMockupSection() {
               <DepthCard3D
                 baseLayer={
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between border-b border-[#15120F]/10 pb-3">
+                    <div className="flex items-start justify-between gap-3 border-b border-[#15120F]/10 pb-3">
                       <span className="font-mono text-xs uppercase tracking-wider text-[#15120F]/60">
                         {depthCardMockup.documentTitle}
                       </span>
-                      <span className="font-mono text-xs text-[#15120F]/60">
+                      <span className="shrink-0 whitespace-nowrap font-mono text-xs text-[#15120F]/60">
                         IEC 62271-200
                       </span>
                     </div>
