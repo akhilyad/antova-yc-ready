@@ -2,6 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import { Suspense, lazy, useState, type ReactNode } from "react";
+import { useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 
 // Shader bundle is ~100 kB; load it only when the card mounts.
@@ -48,6 +49,58 @@ export function DitheringBackground({
   );
 }
 
+export interface DitheringPageBackgroundProps {
+  colorFront?: string;
+  /** Shader layer opacity. Keep it low so body copy stays readable. */
+  opacity?: number;
+  speed?: number;
+  className?: string;
+}
+
+/**
+ * Full-viewport version of the dither. Mount once at the layout root; it sits
+ * fixed behind everything (-z-10) so every section scrolls over one continuous
+ * live canvas. Ancestors must not paint an opaque background.
+ */
+export function DitheringPageBackground({
+  colorFront = "#EC4E02",
+  opacity = 0.4,
+  speed = 0.2,
+  className,
+}: DitheringPageBackgroundProps) {
+  const reduceMotion = useReducedMotion();
+
+  return (
+    <div
+      aria-hidden="true"
+      className={cn(
+        "pointer-events-none fixed inset-0 -z-10 bg-black",
+        className
+      )}
+    >
+      <Suspense fallback={null}>
+        <div className="absolute inset-0 mix-blend-screen" style={{ opacity }}>
+          <Dithering
+            colorBack="#00000000"
+            colorFront={colorFront}
+            shape="warp"
+            type="4x4"
+            speed={reduceMotion ? 0 : speed}
+            className="size-full"
+            minPixelRatio={1}
+          />
+        </div>
+      </Suspense>
+      {/* Soft vignette: keeps the centre column, where most copy sits, calmer */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_45%,rgba(0,0,0,0.45)_0%,rgba(0,0,0,0.1)_70%,transparent_100%)]" />
+    </div>
+  );
+}
+
+/** Frosted surface for content sitting over the page dither. */
+export const frostedSurfaceClass =
+  "border border-white/10 bg-black/40 backdrop-blur-md";
+
 /** Live-dot pill used above headlines on dithering cards. */
 export function PulseBadge({
   children,
@@ -88,6 +141,8 @@ export interface CTASectionProps {
   children?: ReactNode;
   /** Dither dot colour. Defaults to the original 21st.dev accent. */
   colorFront?: string;
+  /** Render the card's own dither. Turn off when a page-level dither is mounted. */
+  dither?: boolean;
   className?: string;
 }
 
@@ -101,6 +156,7 @@ export function CTASection({
   onButtonClick,
   children,
   colorFront = "#EC4E02",
+  dither = true,
   className,
 }: CTASectionProps) {
   const [isHovered, setIsHovered] = useState(false);
@@ -118,8 +174,13 @@ export function CTASection({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="relative overflow-hidden rounded-[48px] border border-border bg-card shadow-sm min-h-[600px] md:min-h-[600px] flex flex-col items-center justify-center duration-500">
-          <DitheringBackground colorFront={colorFront} active={isHovered} />
+        <div
+          className={cn(
+            "relative overflow-hidden rounded-[48px] border shadow-sm min-h-[600px] md:min-h-[600px] flex flex-col items-center justify-center duration-500",
+            dither ? "border-border bg-card" : frostedSurfaceClass
+          )}
+        >
+          {dither && <DitheringBackground colorFront={colorFront} active={isHovered} />}
 
           <div className="relative z-10 px-6 py-16 max-w-4xl mx-auto text-center flex flex-col items-center">
             <PulseBadge className="mb-8">{badge}</PulseBadge>

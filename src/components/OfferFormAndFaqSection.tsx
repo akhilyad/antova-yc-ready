@@ -94,17 +94,17 @@ export function OfferFormAndFaqSection() {
       {/* Final CTA & Lead Capture Section */}
       <CTASection
         id="audit"
-        className="scroll-mt-12 border-t border-[#FFFFFF]/10 bg-[#000000] py-20 sm:py-24"
+        className="scroll-mt-12 border-t border-[#FFFFFF]/10 py-20 sm:py-24"
         badge={FINAL_CTA_COPY.badge}
         heading={FINAL_CTA_COPY.headlineLead}
         headingMuted={FINAL_CTA_COPY.headlineMuted}
         description={FINAL_CTA_COPY.subtext}
-        colorFront="#D4400F"
+        dither={false}
       >
             {/* Intake form sits inside the dithering card, replacing its default button */}
             <div
               id="audit-form"
-              className="w-full max-w-xl rounded-3xl border border-[#FFFFFF]/15 bg-[#0B0B0B]/90 p-5 text-left shadow-sm backdrop-blur-sm sm:p-7"
+              className="w-full max-w-xl rounded-3xl border border-[#FFFFFF]/15 bg-black/50 p-5 text-left shadow-sm backdrop-blur-md sm:p-7"
             >
               <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
                 <span className="font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/70">
@@ -119,9 +119,9 @@ export function OfferFormAndFaqSection() {
                 <div
                   role="status"
                   aria-live="polite"
-                  className="rounded-xl border border-[#FFFFFF]/15 bg-[#000000] p-6 text-center"
+                  className="rounded-xl border border-[#FFFFFF]/15 bg-black/40 p-6 text-center"
                 >
-                  <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[#FFFFFF]/20 bg-[#0B0B0B]">
+                  <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[#FFFFFF]/20 bg-black/40">
                     <Check className="h-5 w-5 text-[#FFFFFF]" />
                   </div>
                   <p className="font-serif text-2xl text-[#FFFFFF]">
@@ -158,7 +158,7 @@ export function OfferFormAndFaqSection() {
                         emailError ? 'audit-email-error' : undefined
                       }
                       placeholder="name@company.com"
-                      className="mt-1.5 h-10 w-full rounded-md border border-[#FFFFFF]/20 bg-[#000000] px-3 py-2 font-sans text-sm text-[#FFFFFF] placeholder:text-[#FFFFFF]/60 outline-none focus:border-[#D4400F] focus:ring-1 focus:ring-[#D4400F]"
+                      className="mt-1.5 h-10 w-full rounded-md border border-[#FFFFFF]/20 bg-black/40 px-3 py-2 font-sans text-sm text-[#FFFFFF] placeholder:text-[#FFFFFF]/60 outline-none focus:border-[#D4400F] focus:ring-1 focus:ring-[#D4400F]"
                     />
                     {emailError && (
                       <p
@@ -184,7 +184,7 @@ export function OfferFormAndFaqSection() {
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
                       placeholder="EPC or developer name"
-                      className="mt-1.5 h-10 w-full rounded-md border border-[#FFFFFF]/20 bg-[#000000] px-3 py-2 font-sans text-sm text-[#FFFFFF] placeholder:text-[#FFFFFF]/60 outline-none focus:border-[#D4400F] focus:ring-1 focus:ring-[#D4400F]"
+                      className="mt-1.5 h-10 w-full rounded-md border border-[#FFFFFF]/20 bg-black/40 px-3 py-2 font-sans text-sm text-[#FFFFFF] placeholder:text-[#FFFFFF]/60 outline-none focus:border-[#D4400F] focus:ring-1 focus:ring-[#D4400F]"
                     />
                   </div>
 
@@ -201,7 +201,7 @@ export function OfferFormAndFaqSection() {
                       onChange={(e) =>
                         setEquipment(e.target.value as EquipmentOption)
                       }
-                      className="mt-1.5 h-10 w-full rounded-md border border-[#FFFFFF]/20 bg-[#000000] px-3 py-2 font-sans text-sm text-[#FFFFFF] outline-none focus:border-[#D4400F] focus:ring-1 focus:ring-[#D4400F] cursor-pointer"
+                      className="mt-1.5 h-10 w-full rounded-md border border-[#FFFFFF]/20 bg-black/40 px-3 py-2 font-sans text-sm text-[#FFFFFF] outline-none focus:border-[#D4400F] focus:ring-1 focus:ring-[#D4400F] cursor-pointer"
                     >
                       {EQUIPMENT_OPTIONS.map((option) => (
                         <option

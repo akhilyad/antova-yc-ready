@@ -12,6 +12,7 @@ import { ProblemStackSection } from './components/ProblemStackSection';
 import { SiteFooter } from './components/SiteFooter';
 import { SolutionMockupSection } from './components/SolutionMockupSection';
 import { TeamPage } from './components/TeamPage';
+import { DitheringPageBackground } from './components/ui/hero-dithering-card';
 
 function getInitialView(): PageView {
   if (typeof window !== 'undefined') {
@@ -70,7 +71,8 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#000000] text-[#FFFFFF] font-sans">
+    <div className="relative isolate min-h-screen text-[#FFFFFF] font-sans">
+      <DitheringPageBackground />
       <Navbar
         currentView={currentView}
         onNavigate={handleNavigate}

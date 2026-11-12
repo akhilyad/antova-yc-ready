@@ -226,7 +226,7 @@ export function TiltStackScroll({
       ref={sectionRef}
       style={{ height: `${sectionHeightVh}vh` }}
       className={cn(
-        "relative w-full bg-[#000000] text-[#FFFFFF] border-t border-[#FFFFFF]/10",
+        "relative w-full text-[#FFFFFF] border-t border-[#FFFFFF]/10",
         className
       )}
     >
@@ -256,7 +256,7 @@ export function TiltStackScroll({
                     "px-3 py-1.5 rounded-md font-mono text-xs transition border cursor-pointer",
                     isCurrent
                       ? "bg-[#D4400F] text-[#FFFFFF] border-[#D4400F]"
-                      : "bg-[#0B0B0B] text-[#FFFFFF]/70 border-[#FFFFFF]/15 hover:bg-[#171717] hover:text-[#FFFFFF]"
+                      : "bg-black/40 backdrop-blur-md text-[#FFFFFF]/70 border-[#FFFFFF]/15 hover:bg-white/10 hover:text-[#FFFFFF]"
                   )}
                 >
                   {pad2(idx + 1)} / {pad2(total)}
@@ -290,7 +290,7 @@ export function TiltStackScroll({
                   transformOrigin: "50% 0%",
                   willChange: "transform",
                 }}
-                className="absolute left-1/2 top-1/2 h-[94%] w-[96%] max-w-5xl select-none overflow-hidden rounded-3xl border border-[#FFFFFF]/10 bg-[#0B0B0B] p-5 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.45)] sm:p-8 md:h-[88%] md:p-10"
+                className="absolute left-1/2 top-1/2 h-[94%] w-[96%] max-w-5xl select-none overflow-hidden rounded-3xl border border-[#FFFFFF]/10 bg-black/85 backdrop-blur-xl p-5 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.45)] sm:p-8 md:h-[88%] md:p-10"
               >
                 {/* Darkens as newer cards pile on top */}
                 <div
@@ -305,7 +305,7 @@ export function TiltStackScroll({
                   {/* Left Narrative Column */}
                   <div className="flex flex-col justify-between md:col-span-5 md:h-full md:py-1">
                     <div>
-                      <div className="inline-flex items-center gap-2 rounded-md border border-[#FFFFFF]/15 bg-[#171717]/70 px-2.5 py-1 font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/80">
+                      <div className="inline-flex items-center gap-2 rounded-md border border-[#FFFFFF]/15 bg-white/[0.06] px-2.5 py-1 font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/80">
                         <span>{item.phaseTag ?? `PHASE ${pad2(i + 1)}`}</span>
                       </div>
 
@@ -332,7 +332,7 @@ export function TiltStackScroll({
                   </div>
 
                   {/* Right Engineering Visual Column */}
-                  <div className="relative flex flex-col justify-center overflow-hidden rounded-xl border border-[#FFFFFF]/15 bg-[#000000] p-3 sm:p-5 md:col-span-7 md:h-full md:min-h-[210px]">
+                  <div className="relative flex flex-col justify-center overflow-hidden rounded-xl border border-[#FFFFFF]/15 bg-black/40 p-3 sm:p-5 md:col-span-7 md:h-full md:min-h-[210px]">
                     {item.visual ? (
                       item.visual
                     ) : item.image ? (
