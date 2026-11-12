@@ -17,6 +17,7 @@ import {
 } from '../constants';
 import {
   CELLS,
+  COMPARE_KEYS,
   PARAMETERS,
   TOTAL_PAGES,
   VENDORS,
@@ -57,6 +58,16 @@ describe('Antova landing data and copy', () => {
     assert.equal(vendorPrice(vendor('vendor-b'), 'headline'), 418000);
   });
 
+  it('comparison table rows sum to each vendor total', () => {
+    for (const v of VENDORS) {
+      const rows = COMPARE_KEYS.reduce((s, k) => s + cellAdder(CELLS[v.id][k]), 0);
+      assert.equal(rows, vendorAdders(v.id), v.id);
+      assert.equal(v.headline + rows, vendorPrice(v, 'evaluated'), v.id);
+    }
+    assert.equal(COMPARE_KEYS.reduce((s, k) => s + cellAdder(CELLS['vendor-b'][k]), 0), 64800);
+    assert.equal(COMPARE_KEYS.reduce((s, k) => s + cellAdder(CELLS['vendor-c'][k]), 0), 15000);
+  });
+
   it('covers every vendor x parameter cell and counts flagged cells', () => {
     assert.equal(PARAMETERS.length, 8);
     assert.equal(TOTAL_PAGES, 116);
@@ -90,7 +101,7 @@ describe('Antova landing data and copy', () => {
     assert.equal(PRICING_PLANS.length, 3);
     assert.equal(PRICING_PLANS[1].priceAmount, 1500);
     assert.equal(PRICING_PLANS[2].priceAmount, 6000);
-    assert.equal(FINAL_CTA_COPY.submitButtonText, 'Request free audit');
+    assert.equal(FINAL_CTA_COPY.submitButtonText, 'Audit a tender free');
     // Impact stats must match the sample audit figures
     assert.equal(IMPACT_COPY.stats[0].value, formatEuro(vendorAdders('vendor-b')));
     assert.equal(IMPACT_COPY.stats[2].value, formatEuro(482800 - vendorPrice(vendor('vendor-b'), 'round3')));

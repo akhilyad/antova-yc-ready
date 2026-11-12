@@ -107,7 +107,7 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
             }}
             className={cn(pillButtonClass, 'h-9 gap-2 px-4 font-sans text-xs')}
           >
-            <span className="relative z-10">Audit a tender</span>
+            <span className="relative z-10">Audit a tender free</span>
             <ArrowRight className="relative z-10 h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
           </button>
 

@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
-import { IMPACT_COPY, INTRO_COPY, MANIFESTO_COPY, STATUS_PLAIN } from '../constants';
-import { CELLS, VENDORS, cellAdder, vendorPrice } from '../data/tender402';
+import { IMPACT_COPY, INTRO_COPY, MANIFESTO_COPY, SAMPLE_DATA_LABEL, STATUS_PLAIN } from '../constants';
+import { CELLS, COMPARE_KEYS, VENDORS, cellAdder, vendorPrice } from '../data/tender402';
 import { formatEuro } from '../utils/audit';
 
 /** Scroll reveal shared by the narrative beats. */
@@ -39,11 +39,13 @@ export function ManifestoSection() {
 const SHEET_ROWS: { label: string; cells: [string, string, string] }[] = [
   { label: 'Fault rating', cells: ['50 kA ok', 'Compliant', '50 kA?'] },
   { label: 'Busbar', cells: ['Cu', 'TBC', 'Cu'] },
+  { label: 'Enclosure protection', cells: ['IP54', 'IP4x?', 'IP54'] },
+  { label: 'Control network', cells: ['61850', 'Modbus?', '61850'] },
   { label: 'Factory test', cells: ['incl.', '', '3 days??'] },
   { label: 'Delivery', cells: ['DDP 36m', 'see p.21', 'DAP'] },
 ];
 
-const SHEET_ROW_KEYS = ['PARAM-01', 'PARAM-02', 'PARAM-05', 'PARAM-06'] as const;
+const SHEET_ROW_KEYS = COMPARE_KEYS;
 
 function BeforeAfter() {
   const order = VENDORS;
@@ -131,7 +133,7 @@ function BeforeAfter() {
   );
 }
 
-/** "Introducing Antova." beat: the manual sheet vs the leveled view. */
+/** Solution beat: the manual sheet vs the leveled view. */
 export function IntroSection() {
   return (
     <section id="compare" className="scroll-mt-12 px-4 py-32 text-ink sm:py-44 md:px-6">
@@ -166,6 +168,7 @@ export function ImpactSection() {
           ))}
         </div>
         <p className="mt-20 text-center font-mono text-[11px] text-ink/55">{IMPACT_COPY.footnote}</p>
+        <p className="mt-2 text-center font-mono text-[11px] text-ink/55">{SAMPLE_DATA_LABEL}</p>
       </div>
     </section>
   );

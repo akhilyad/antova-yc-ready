@@ -99,7 +99,7 @@ function BidPreview() {
               >
                 {view === 'headline'
                   ? isLowest
-                    ? 'looks cheapest'
+                    ? 'looks lowest'
                     : ' '
                   : gaps === 0
                     ? 'meets spec'

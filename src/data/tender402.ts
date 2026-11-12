@@ -455,6 +455,9 @@ export function vendorPrice(vendor: Vendor, view: PriceView): number {
 
 export const NEGOTIATING_VENDOR: VendorId = 'vendor-b';
 
+/** Rows of the spreadsheet-vs-Antova comparison: every check that carries a cost. */
+export const COMPARE_KEYS = ['PARAM-01', 'PARAM-02', 'PARAM-03', 'PARAM-04', 'PARAM-05', 'PARAM-06'] as const;
+
 export const PIPELINE_STAGES = [
   { pct: 5, name: 'Intake', detail: 'Manifest validated · SHA-256 per file' },
   { pct: 20, name: 'Parse', detail: 'Pages of words with boxes · sections tagged' },
