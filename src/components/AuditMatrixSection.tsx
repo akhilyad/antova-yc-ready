@@ -7,7 +7,6 @@ import {
   NEGOTIATING_VENDOR,
   PARAMETERS,
   SECTION_LABEL,
-  SECTION_TIER,
   STATUS_LABEL,
   TENDER,
   VENDORS,
@@ -21,6 +20,18 @@ import {
 import { formatEuro } from '../utils/audit';
 
 const VIEWS: PriceView[] = ['headline', 'evaluated', 'round3'];
+
+/** What the spec asks for, in plain words (paraphrases each MR quote). */
+const NEED: Record<string, string> = {
+  'PARAM-01': '50 kA for 3 s',
+  'PARAM-02': 'Copper, 2500 A',
+  'PARAM-03': 'IP54, arc-rated on all sides',
+  'PARAM-04': 'IEC 61850 PRP, pre-wired',
+  'PARAM-05': '5 witnessed test days in price',
+  'PARAM-06': 'Delivered to site, 36-month warranty',
+  'PARAM-07': '36 kV',
+  'PARAM-08': '+40 °C',
+};
 
 /** PARAM-04 is the only VoltSwitch adder not conceded in round 3. */
 const isConceded = (vendorId: VendorId, paramId: string, view: PriceView) =>
@@ -87,26 +98,23 @@ function CellDetail({ vendorId, paramId, view }: { vendorId: VendorId; paramId: 
   const conceded = isConceded(vendorId, paramId, view);
 
   return (
-    <div className="space-y-5 font-mono text-xs">
+    <div className="space-y-6 font-mono text-xs">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-white/55">
-          {vendor.short} · {param.id}
-        </span>
+        <span className="text-white/55">{vendor.short}</span>
         <StatusTag status={cell.status} />
       </div>
-      <h3 className="font-serif text-2xl leading-tight tracking-tight text-white">{param.name}</h3>
+      <h3 className="font-serif text-2xl leading-tight tracking-tight text-white">{param.short}</h3>
 
-      <div>
-        <p className="mb-1 text-[10px] uppercase tracking-wider text-white/45">
-          Requirement · MR p.{param.requirement.page}
-        </p>
-        <p className="font-sans text-sm leading-relaxed text-white/70">“{param.requirement.quote}”</p>
+      <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
+        <span className="text-white/45">Spec asks</span>
+        <span className="text-white">{NEED[param.id]}</span>
+        <span className="text-white/45">Bid offers</span>
+        <span className={cell.status === 'COMPLIANT' ? 'text-white' : 'text-[#FF7A45]'}>{cell.offered}</span>
       </div>
 
       <div className="border-l-2 border-[#D4400F] pl-3">
         <p className="mb-1 text-[10px] uppercase tracking-wider text-[#FF7A45]">
-          Governing · p.{cell.citation.page} · {SECTION_LABEL[cell.citation.section]} · tier{' '}
-          {SECTION_TIER[cell.citation.section]}
+          {SECTION_LABEL[cell.citation.section]} · p.{cell.citation.page}
         </p>
         <p className="font-sans text-sm leading-relaxed text-white">“{cell.citation.quote}”</p>
       </div>
@@ -114,8 +122,7 @@ function CellDetail({ vendorId, paramId, view }: { vendorId: VendorId; paramId: 
       {cell.secondary && (
         <div className="border-l-2 border-white/20 pl-3">
           <p className="mb-1 text-[10px] uppercase tracking-wider text-white/45">
-            Overridden · p.{cell.secondary.page} · {SECTION_LABEL[cell.secondary.section]} · tier{' '}
-            {SECTION_TIER[cell.secondary.section]}
+            Contradicts · {SECTION_LABEL[cell.secondary.section]} · p.{cell.secondary.page}
           </p>
           <p className="font-sans text-sm leading-relaxed text-white/55 line-through decoration-white/30">
             “{cell.secondary.quote}”
@@ -123,25 +130,13 @@ function CellDetail({ vendorId, paramId, view }: { vendorId: VendorId; paramId: 
         </div>
       )}
 
-      <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
-        <span className="text-white/45">Rule</span>
-        <span className="text-white">{param.rule}</span>
-        <span className="text-white/45">Offered</span>
-        <span className={cell.status === 'COMPLIANT' ? 'text-white' : 'text-[#FF7A45]'}>{cell.offered}</span>
-      </div>
-
       {cell.costLines.length > 0 && (
         <div>
-          <p className="mb-1.5 text-[10px] uppercase tracking-wider text-white/45">
-            Cost lines · {TENDER.rateTable}
-          </p>
-          <div className="divide-y divide-white/10 border-y border-white/10">
+          <p className="mb-1.5 text-[10px] uppercase tracking-wider text-white/45">Cost to bring to spec</p>
+          <div className="divide-y divide-white/10">
             {cell.costLines.map((l) => (
               <div key={l.label} className="flex items-baseline justify-between gap-3 py-1.5">
-                <span className="min-w-0 text-white/75">
-                  {l.qty.toLocaleString('en-US')} {l.unit} × €{l.rate.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  <span className="block truncate text-white/40">{l.label}</span>
-                </span>
+                <span className="min-w-0 truncate text-white/70">{l.label}</span>
                 <span className="shrink-0 text-white">
                   {formatEuro(Math.round(l.qty * l.rate * 100) / 100)}
                 </span>
@@ -149,14 +144,12 @@ function CellDetail({ vendorId, paramId, view }: { vendorId: VendorId; paramId: 
             ))}
           </div>
           <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-white/55">Adder</span>
+            <span className="text-white/55">Total</span>
             <span className={cn('text-sm', conceded ? 'text-white/40 line-through' : 'text-[#FF7A45]')}>
               +{formatEuro(adder)}
             </span>
           </div>
-          {conceded && (
-            <p className="mt-1 text-right text-[11px] text-white/55">Conceded by VoltSwitch in round 3</p>
-          )}
+          {conceded && <p className="mt-1 text-right text-[11px] text-white/55">Covered by VoltSwitch in negotiation</p>}
         </div>
       )}
     </div>
@@ -176,7 +169,7 @@ export function AuditMatrixSection() {
   const maxPrice = 500000;
 
   return (
-    <section id="verification" className="scroll-mt-12 px-4 py-24 text-white sm:py-32 md:px-6">
+    <section id="verification" className="scroll-mt-12 px-4 py-32 text-white sm:py-44 md:px-6">
       <div className="mx-auto max-w-6xl">
         <div className="mx-auto max-w-3xl text-center">
           <p className="font-mono text-xs uppercase tracking-wider text-[#D4400F]">{MATRIX_COPY.eyebrow}</p>
@@ -187,10 +180,8 @@ export function AuditMatrixSection() {
           <p className="mt-5 font-sans text-base leading-relaxed text-white/70">{MATRIX_COPY.subtext}</p>
         </div>
 
-        <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="font-mono text-[11px] text-white/55">
-            <span className="text-white">{TENDER.id}</span> · {TENDER.title} · {SAMPLE_DATA_LABEL}
-          </div>
+        <div className="mt-16 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="font-mono text-[11px] text-white/55">{SAMPLE_DATA_LABEL}</div>
           <ViewToggle view={view} onChange={setView} />
         </div>
 
@@ -201,7 +192,7 @@ export function AuditMatrixSection() {
               <table className="w-full min-w-[620px] border-collapse font-mono text-xs">
                 <thead>
                   <tr className="border-b border-white/15 text-left">
-                    <th className="py-3 pr-3 font-normal text-white/45">Parameter</th>
+                    <th className="py-3 pr-3 font-normal text-white/45">Check</th>
                     {VENDORS.map((v) => (
                       <th key={v.id} className="px-3 py-3 font-normal">
                         <span className="text-white">{v.short}</span>
@@ -214,7 +205,6 @@ export function AuditMatrixSection() {
                   {PARAMETERS.map((p) => (
                     <tr key={p.id} className="border-b border-white/10">
                       <td className="py-2.5 pr-3 align-top">
-                        <span className="block text-white/45">{p.id}</span>
                         <span className="block font-sans text-[13px] text-white/85">{p.short}</span>
                       </td>
                       {VENDORS.map((v) => {
@@ -256,7 +246,7 @@ export function AuditMatrixSection() {
                 </tbody>
                 <tfoot>
                   <tr className="border-b border-white/10">
-                    <td className="py-2.5 pr-3 text-white/45">Headline</td>
+                    <td className="py-2.5 pr-3 text-white/45">Quoted</td>
                     {VENDORS.map((v) => (
                       <td key={v.id} className="px-3 py-2.5 text-white/75">
                         {formatEuro(v.headline)}
@@ -264,7 +254,7 @@ export function AuditMatrixSection() {
                     ))}
                   </tr>
                   <tr className="border-b border-white/10">
-                    <td className="py-2.5 pr-3 text-white/45">Adders</td>
+                    <td className="py-2.5 pr-3 text-white/45">Gaps</td>
                     {VENDORS.map((v) => {
                       const a =
                         view === 'headline'
@@ -274,7 +264,7 @@ export function AuditMatrixSection() {
                             : vendorAdders(v.id);
                       return (
                         <td key={v.id} className="px-3 py-2.5 text-[#FF7A45]">
-                          {view === 'headline' ? <span className="text-white/35">not audited</span> : `+${formatEuro(a)}`}
+                          {view === 'headline' ? <span className="text-white/35">—</span> : `+${formatEuro(a)}`}
                         </td>
                       );
                     })}

@@ -20,7 +20,7 @@ function HeadlineTrap() {
         return (
           <div key={key}>
             <p className={`${mono} mb-2 text-white/55`}>
-              {key === 'headline' ? 'Ranked by headline' : 'Ranked by evaluated price'}
+              {key === 'headline' ? 'Ranked by quote' : 'Ranked by true cost'}
             </p>
             <div className="space-y-2">
               {order.map((r, i) => (
@@ -51,15 +51,15 @@ function HeadlineTrap() {
   );
 }
 
-/** 02: the two VoltSwitch PARAM-01 citations, tier 3 overridden by tier 1. */
+/** 02: the cover letter claim vs the drawing note that governs. */
 function BuriedConflict() {
   const cell = CELLS['vendor-b']['PARAM-01'];
   const claim = cell.secondary!;
   return (
-    <div className="flex w-full flex-col gap-4 font-mono text-xs">
+    <div className="flex w-full flex-col gap-5 font-mono text-xs">
       <div className="border-l-2 border-white/25 pl-4">
         <p className={`${mono} text-white/55`}>
-          p.{claim.page} · {SECTION_LABEL[claim.section]} · tier 3
+          {SECTION_LABEL[claim.section]} · p.{claim.page}
         </p>
         <p className="mt-1.5 font-sans text-sm leading-relaxed text-white/60 line-through decoration-white/40">
           “{claim.quote} …”
@@ -67,13 +67,13 @@ function BuriedConflict() {
       </div>
       <div className="border-l-2 border-[#D4400F] pl-4">
         <p className={`${mono} text-[#FF7A45]`}>
-          p.{cell.citation.page} · {SECTION_LABEL[cell.citation.section]} · tier 1 · governs
+          {SECTION_LABEL[cell.citation.section]} · p.{cell.citation.page}
         </p>
         <p className="mt-1.5 font-sans text-sm leading-relaxed text-white">“{cell.citation.quote}”</p>
       </div>
       <p className="text-white/60">
-        Ik 31.5 kA &lt; 50 kA · t 1 s &lt; 3 s →{' '}
-        <span className="text-[#FF7A45]">CONFLICT · +{formatEuro(cellAdder(cell))}</span>
+        31.5 kA offered, 50 kA required →{' '}
+        <span className="text-[#FF7A45]">+{formatEuro(cellAdder(cell))} to fix</span>
       </p>
     </div>
   );
@@ -83,9 +83,9 @@ function BuriedConflict() {
 function VariationOrders() {
   const b = CELLS['vendor-b'];
   const items = [
-    { id: 'PARAM-05', label: 'Witnessed FAT not in price', cell: b['PARAM-05'] },
-    { id: 'PARAM-06', label: 'EXW Izmir, 18-month warranty', cell: b['PARAM-06'] },
-    { id: 'PARAM-02', label: 'Aluminium busbar for Cu-ETP', cell: b['PARAM-02'] },
+    { id: 'PARAM-05', label: 'Witnessed factory test not in price', cell: b['PARAM-05'] },
+    { id: 'PARAM-06', label: 'Freight to site, 18-month warranty', cell: b['PARAM-06'] },
+    { id: 'PARAM-02', label: 'Aluminium busbars, copper specified', cell: b['PARAM-02'] },
   ];
   const total = items.reduce((s, i) => s + cellAdder(i.cell), 0);
   return (
@@ -96,14 +96,14 @@ function VariationOrders() {
           className="flex items-center justify-between gap-4 border-b border-white/10 py-3"
         >
           <div className="min-w-0">
-            <p className="text-white/50">VO-{String(i + 1).padStart(2, '0')} · {it.id} · p.{it.cell.citation.page}</p>
+            <p className="text-white/50">Change order {i + 1} · p.{it.cell.citation.page}</p>
             <p className="mt-0.5 truncate text-white">{it.label}</p>
           </div>
           <span className="shrink-0 text-[#FF7A45]">+{formatEuro(cellAdder(it.cell))}</span>
         </div>
       ))}
       <div className="flex items-center justify-between pt-3">
-        <span className="text-white/60">Unpriced at award</span>
+        <span className="text-white/60">Billed after award</span>
         <span className="text-white">{formatEuro(total)}</span>
       </div>
     </div>

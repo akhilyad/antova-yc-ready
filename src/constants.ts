@@ -54,13 +54,13 @@ export interface TeamFounderData {
 export const SAMPLE_DATA_LABEL = 'Sample tender · synthetic documents';
 
 export const HERO_COPY = {
-  badge: 'Technical bid evaluation · electrical tenders',
-  headlineLead: 'Audit electrical tenders in minutes.',
-  headlineItalic: 'Every gap cited.',
+  eyebrow: 'Bid audits for electrical tenders',
+  headlineLead: 'Find what the cheapest bid',
+  headlineItalic: 'left out.',
   subtext:
-    'Antova reads the material requisition and every vendor bid, checks each parameter with deterministic unit rules, and prices each deviation from a versioned rate table. Every number links to the page it came from.',
-  ctaLabel: 'Audit a tender',
-  subline: 'First tender free · mutual NDA · engineer sign-off within 24 hours',
+    'Drop in your spec and every vendor quote. See each missing item and price gap, with the page it came from.',
+  ctaLabel: 'Audit a tender free',
+  subline: 'First tender free · under NDA · results in 24 hours',
 };
 
 export const MANIFESTO_COPY = {
@@ -69,34 +69,31 @@ export const MANIFESTO_COPY = {
 };
 
 export const PROBLEM_STACK_SECTION = {
-  eyebrow: 'WHERE BID EVALUATIONS BREAK',
+  eyebrow: 'WHERE BIDS GO WRONG',
   heading: 'The cheapest bid is a claim, not a price.',
   cards: [
     {
       id: 'card-01',
-      phaseTag: '01 / HEADLINE PRICE',
-      title: 'You compared headline prices.',
-      titleItalic: 'The cheapest bid wasn’t.',
-      description:
-        'VoltSwitch quoted €418,000, €34,000 under Nordwerk. Priced against the MR, it costs €482,800: €30,800 more.',
+      phaseTag: '01 / THE QUOTE',
+      title: 'You picked the lowest quote.',
+      titleItalic: 'It wasn’t the lowest price.',
+      description: 'VoltSwitch quoted €34,000 under Nordwerk. Brought up to spec, it costs €30,800 more.',
       visualType: 'headline-trap',
     },
     {
       id: 'card-02',
-      phaseTag: '02 / BURIED CONFLICT',
+      phaseTag: '02 / THE FINE PRINT',
       title: 'The cover letter said compliant.',
       titleItalic: 'The drawing didn’t.',
-      description:
-        'Page 2 claims 50 kA / 3 s. Note 7 on SLD sheet 2, page 11, rates the bay 31.5 kA / 1 s and excludes the upgrade from the base price.',
+      description: 'Page 2 promises 50 kA. A note on page 11 says 31.5 kA.',
       visualType: 'buried-conflict',
     },
     {
       id: 'card-03',
       phaseTag: '03 / AFTER AWARD',
       title: 'You signed the PO.',
-      titleItalic: 'Then the variations arrived.',
-      description:
-        'Witnessed FAT charged at €1,300 a day. Ex-Works Izmir instead of DDP. An 18-month warranty from dispatch. Each one becomes a change order once your leverage is gone.',
+      titleItalic: 'Then the extras arrived.',
+      description: 'Factory testing, freight and copper busbars, all outside the price. €30,000 in change orders.',
       visualType: 'variation-orders',
     },
   ] as ProblemStackItem[],
@@ -104,71 +101,36 @@ export const PROBLEM_STACK_SECTION = {
 
 export const INTRO_COPY = {
   heading: 'Introducing Antova.',
-  body: 'Every bid leveled against the MR, parameter by parameter. No spreadsheets. No email chains. No unpriced scope.',
+  body: 'Every bid checked against your spec, line by line. Every gap priced.',
+  before: 'Your spreadsheet',
+  after: 'With Antova',
 };
 
 export const MATRIX_COPY = {
-  eyebrow: 'BID COMPLIANCE MATRIX',
-  headlineLead: 'Three bids. Eight parameters.',
-  headlineItalic: 'One leveled price.',
-  subtext:
-    'Pick any cell. You get the governing quote, its page, the check it failed and the cost lines behind the adder.',
+  eyebrow: 'TRY IT',
+  headlineLead: 'Three bids. Eight checks.',
+  headlineItalic: 'Click a flagged cell.',
+  subtext: 'A full audit of a sample 33 kV switchgear tender.',
   views: {
-    headline: 'Headline',
-    evaluated: 'Evaluated',
-    round3: 'After round 3',
+    headline: 'Quoted',
+    evaluated: 'True cost',
+    round3: 'After negotiation',
   },
   viewNotes: {
-    headline: 'As quoted. VoltSwitch looks €34,000 cheapest.',
-    evaluated: 'Headline + priced deviations. Nordwerk is lowest at €452,000.',
-    round3: 'VoltSwitch concedes every adder except PARAM-04: €57,400 clawed back.',
+    headline: 'As quoted, VoltSwitch looks €34,000 cheapest.',
+    evaluated: 'With every gap priced, Nordwerk is cheapest at €452,000.',
+    round3: 'Shown its gaps, VoltSwitch covers €57,400 of them. Now it wins at €425,400.',
   },
 };
 
-export const PIPELINE_COPY = {
-  eyebrow: 'INGEST PIPELINE',
-  headlineLead: 'From tender folder',
-  headlineItalic: 'to cited ledger.',
-  subtext:
-    'Eight stages, one job. The model locates passages; code reads the values, checks the units and does the arithmetic.',
-};
-
-export const PRECISION_COPY = {
-  eyebrow: 'WHY THE NUMBERS HOLD',
-  headlineLead: 'Deterministic',
-  headlineItalic: 'where it counts.',
-  items: [
-    {
-      kicker: 'NO MODEL ARITHMETIC',
-      title: 'The model never decides a number.',
-      body: 'Claude only locates passages. Parsing, unit conversion, comparison and pass/fail run in code.',
-    },
-    {
-      kicker: 'CITATIONS',
-      title: 'Every value has a page.',
-      body: 'Document, page, bounding box, verbatim quote. A quote that doesn’t match the page word for word is rejected.',
-    },
-    {
-      kicker: 'EVIDENCE PRECEDENCE',
-      title: 'Drawings outrank cover letters.',
-      body: 'Drawings, BOMs, datasheets and test plans govern compliance tables, which govern cover letters. Overridden claims stay on the record.',
-    },
-    {
-      kicker: 'RATE TABLE',
-      title: 'Priced from a versioned table.',
-      body: 'Each adder is built from cost lines in decimal arithmetic. A deviation with no rate is listed as unpriced, never counted as zero.',
-    },
-    {
-      kicker: 'MISSING EVIDENCE',
-      title: 'Silence is not compliance.',
-      body: 'A required value no document states is marked for manual inspection, not passed.',
-    },
-    {
-      kicker: 'REPRODUCIBLE',
-      title: 'Same input, same answer.',
-      body: 'Model responses are stored against each file’s SHA-256 and prompt version. Replay runs re-check against an answer key.',
-    },
+export const IMPACT_COPY = {
+  heading: 'What one audit found.',
+  stats: [
+    { value: '€64,800', label: 'missing from the cheapest quote' },
+    { value: '10 of 24', label: 'checks flagged across three bids' },
+    { value: '€57,400', label: 'won back in negotiation' },
   ],
+  footnote: 'Every number links to the page it came from.',
 };
 
 export const PRICING_SECTION_COPY = {
@@ -182,16 +144,14 @@ export const PRICING_PLANS: PricingPlan[] = [
     priceAmount: 0,
     priceDisplay: '€0',
     suffix: '/ first tender',
-    billingTerms: 'Free under mutual NDA',
-    audienceInfo: 'Run it beside your own evaluation',
+    billingTerms: 'Under NDA',
+    audienceInfo: 'Run it next to your own evaluation',
     features: [
-      '1 equipment package, 3 to 5 competing bids',
-      'Every parameter checked against the MR, with page citations',
-      'Deviations priced from the standard rate table',
-      'Cover letters and compliance tables cross-checked against drawings and BOMs',
-      'Engineer review and sign-off within 24 hours',
+      'One package, 3 to 5 bids',
+      'Every gap cited and priced',
+      'Engineer sign-off in 24 hours',
     ],
-    buttonText: 'Audit a tender for free',
+    buttonText: 'Audit a tender free',
     href: '#audit',
   },
   {
@@ -200,14 +160,13 @@ export const PRICING_PLANS: PricingPlan[] = [
     priceAmount: 1500,
     priceDisplay: '€1,500',
     suffix: '/ tender',
-    audienceInfo: 'Single-project EPC procurement',
+    audienceInfo: 'One project, one package',
     featuresHeader: 'EVERYTHING IN SHADOW AUDIT, PLUS:',
     features: [
-      'Up to 8 vendor bids',
-      'Your own rates for labour, freight and copper',
-      'Clarification rounds tracked against each adder',
-      'PDF evaluation report with page citations',
-      'Re-run on revised bids',
+      'Up to 8 bids',
+      'Your own rates',
+      'Negotiation rounds tracked',
+      'PDF report, re-runs on revised bids',
     ],
     buttonText: 'Audit a tender',
     href: '#audit',
@@ -217,13 +176,9 @@ export const PRICING_PLANS: PricingPlan[] = [
     priceAmount: 6000,
     priceDisplay: '€6,000',
     suffix: '/ 5 tenders',
-    audienceInfo: 'Teams running several tenders a year (€1,200 each)',
-    featuresHeader: 'EVERYTHING IN PER TENDER, FOR FIVE PACKAGES:',
-    features: [
-      'Five tender packages at €1,200 each, 20% below the per-tender rate',
-      'Same checks, report and re-runs on every package',
-      'Same engineer sign-off under NDA',
-    ],
+    audienceInfo: '€1,200 per tender',
+    featuresHeader: 'EVERYTHING IN PER TENDER, FOR FIVE PACKAGES',
+    features: ['20% below the per-tender rate', 'Same engineer, same NDA'],
     buttonText: 'Request a pack of five',
     href: '#audit',
   },
@@ -231,54 +186,50 @@ export const PRICING_PLANS: PricingPlan[] = [
 
 export const FAQ_SECTION_COPY = {
   eyebrow: 'QUESTIONS',
-  heading: 'Technical & commercial questions.',
-  description: 'What Antova checks, what it doesn’t yet, and how your bids are handled.',
+  heading: 'Questions buyers ask.',
+  description: '',
   supportHeading: 'Still have a question about your tender?',
-  supportDescription:
-    'Ask the founder directly. You get an engineer who has reviewed switchgear bids, usually within the same working day.',
+  supportDescription: 'Ask the founder. Usually answered the same day.',
   supportButtonText: 'Message Akhil on LinkedIn',
 };
 
 export const FAQ_ITEMS: FaqItem[] = [
   {
     id: 'faq-1',
-    question: 'Does an AI model decide whether a bid is compliant?',
+    question: 'Does AI decide if a bid is compliant?',
     answer:
-      'No. Claude locates the passages that state each value and returns verbatim quotes. Code then checks each quote against the page, parses the value, converts units with Pint and compares it with the requirement. Pass, fail and every euro are computed, not generated.',
+      'No. AI finds the passage in the bid. Plain code checks the value against your spec and does every sum.',
   },
   {
     id: 'faq-2',
-    question: 'What happens when two documents in one bid disagree?',
+    question: 'What if a bid contradicts itself?',
     answer:
-      'Specific delivery evidence governs: drawings, BOMs, datasheets, test plans and commercial terms outrank compliance tables, which outrank cover letters. The cell is marked as a conflict and both citations are kept, so you can show the vendor exactly where they contradict themselves.',
+      'Drawings and BOMs beat cover letters. We flag the conflict and show you both pages.',
   },
   {
     id: 'faq-3',
-    question: 'What file formats are supported?',
-    answer:
-      'Text-based PDFs: MR specs, datasheets, SLD drawing sheets, BOMs, test plans, compliance tables and commercial terms. Scanned pages without a text layer are flagged in the run warnings; OCR is not supported yet.',
+    question: 'What files can I send?',
+    answer: 'Text-based PDFs: specs, datasheets, drawings, BOMs, test plans and commercial terms. Scanned pages are flagged for manual review.',
   },
   {
     id: 'faq-4',
-    question: 'Which equipment packages are covered?',
+    question: 'Which equipment is covered?',
     answer:
-      '33kV-class GIS switchgear has the full parameter set and rate table today. For other packages, tell us what you have and we’ll confirm what the pipeline covers before you send bids.',
+      '33 kV-class GIS switchgear today. Send us your package and we’ll confirm coverage before you share bids.',
   },
   {
     id: 'faq-5',
-    question: 'How is tender confidentiality handled?',
-    answer:
-      'Every evaluation runs under a mutual NDA. Bid documents are used only for your evaluation and are not used to train models.',
+    question: 'Are my bids kept confidential?',
+    answer: 'Yes. Every audit runs under mutual NDA, and your documents are never used to train models.',
   },
 ];
 
 export const FINAL_CTA_COPY = {
-  badge: 'First tender audited free',
+  badge: 'First tender free',
   headlineLead: 'Send the bids.',
-  headlineMuted: 'Get the leveled price.',
-  subtext:
-    'Upload the MR and the vendor bids under mutual NDA. An engineer signs off the evaluation within 24 hours.',
-  submitButtonText: 'Request Free Audit',
+  headlineMuted: 'Get the real price.',
+  subtext: 'Spec and vendor quotes in, under NDA. Signed-off results in 24 hours.',
+  submitButtonText: 'Request free audit',
 };
 
 export const EQUIPMENT_OPTIONS = [

@@ -18,9 +18,8 @@ const FOOTER_LINKS: {
   view: PageView;
   sectionId?: string;
 }[] = [
-  { label: 'Matrix', href: '/#verification', view: 'home', sectionId: 'verification' },
-  { label: 'Pipeline', href: '/#how-it-works', view: 'home', sectionId: 'how-it-works' },
-  { label: 'Precision', href: '/#features', view: 'home', sectionId: 'features' },
+  { label: 'Compare', href: '/#compare', view: 'home', sectionId: 'compare' },
+  { label: 'Try it', href: '/#verification', view: 'home', sectionId: 'verification' },
   { label: 'Pricing', href: '/#pricing', view: 'home', sectionId: 'pricing' },
   { label: 'FAQ', href: '/#faq', view: 'home', sectionId: 'faq' },
   { label: 'Team', href: '/team', view: 'team' },

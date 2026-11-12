@@ -10,9 +10,7 @@ import { Navbar, PageView } from './components/Navbar';
 import { OfferFormAndFaqSection } from './components/OfferFormAndFaqSection';
 import { ProblemStackSection } from './components/ProblemStackSection';
 import { SiteFooter } from './components/SiteFooter';
-import { IntroSection, ManifestoSection } from './components/NarrativeSections';
-import { PipelineSection } from './components/PipelineSection';
-import { PrecisionSection } from './components/PrecisionSection';
+import { ImpactSection, IntroSection, ManifestoSection } from './components/NarrativeSections';
 import { TeamPage } from './components/TeamPage';
 import { DitheringPageBackground } from './components/ui/hero-dithering-card';
 
@@ -89,26 +87,21 @@ export default function App() {
           />
         ) : (
           <>
-            {/* Hero: headline, live ingest terminal, MR requirement ticker */}
+            {/* 1. Hook: one promise + live bid preview */}
             <HeroSection onAuditClick={scrollToAudit} />
-
-            {/* Manifesto line */}
             <ManifestoSection />
 
-            {/* Three problem chapters (TiltStackScroll) */}
+            {/* 2. Pain: three ways a bid comparison goes wrong */}
             <ProblemStackSection />
 
-            {/* "Introducing Antova." */}
+            {/* 2b. Fix: manual sheet vs leveled view */}
             <IntroSection />
 
-            {/* Bid compliance matrix: the leveled price, cell by cell */}
+            {/* 3. Interactive proof: click through the sample audit */}
             <AuditMatrixSection />
 
-            {/* Ingest pipeline walkthrough */}
-            <PipelineSection />
-
-            {/* Why the numbers hold */}
-            <PrecisionSection />
+            {/* 4. Bottom line */}
+            <ImpactSection />
 
             {/* Pricing, FAQ, final CTA with intake form */}
             <OfferFormAndFaqSection />
