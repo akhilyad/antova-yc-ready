@@ -88,12 +88,12 @@ export const MANIFESTO_COPY = {
 };
 
 export const PROBLEM_STACK_SECTION = {
-  eyebrow: 'WHERE BIDS GO WRONG',
+  eyebrow: 'Where bids go wrong',
   heading: 'The cheapest bid is a claim, not a price.',
   cards: [
     {
       id: 'card-01',
-      phaseTag: '01 / THE QUOTE',
+      phaseTag: '01 · The quote',
       title: 'You picked the lowest quote.',
       titleItalic: 'It wasn’t the lowest price.',
       description: 'VoltSwitch quoted €34,000 under Nordwerk. Brought up to spec, it costs €30,800 more.',
@@ -101,7 +101,7 @@ export const PROBLEM_STACK_SECTION = {
     },
     {
       id: 'card-02',
-      phaseTag: '02 / THE FINE PRINT',
+      phaseTag: '02 · The fine print',
       title: 'The cover letter said compliant.',
       titleItalic: 'The drawing didn’t.',
       description: 'Page 2 promises 50 kA. A note on page 11 says 31.5 kA.',
@@ -109,7 +109,7 @@ export const PROBLEM_STACK_SECTION = {
     },
     {
       id: 'card-03',
-      phaseTag: '03 / AFTER AWARD',
+      phaseTag: '03 · After award',
       title: 'You signed the PO.',
       titleItalic: 'Then the extras arrived.',
       description: 'Factory testing, freight and copper busbars, all outside the price. €30,000 in change orders.',
@@ -126,7 +126,7 @@ export const INTRO_COPY = {
 };
 
 export const MATRIX_COPY = {
-  eyebrow: 'TRY IT',
+  eyebrow: 'Try it',
   headlineLead: 'Three bids. Eight checks.',
   headlineItalic: 'Click a flagged cell.',
   subtext: 'A sample 33 kV switchgear tender, audited.',
@@ -153,7 +153,7 @@ export const IMPACT_COPY = {
 };
 
 export const PRICING_SECTION_COPY = {
-  eyebrow: 'PRICING',
+  eyebrow: 'Pricing',
   headline: 'Priced per tender.',
 };
 
@@ -201,7 +201,7 @@ export const PRICING_PLANS: PricingPlan[] = [
 ];
 
 export const FAQ_SECTION_COPY = {
-  eyebrow: 'QUESTIONS',
+  eyebrow: 'Questions',
   heading: 'Questions buyers ask.',
   description: '',
   supportHeading: 'Still have a question about your tender?',

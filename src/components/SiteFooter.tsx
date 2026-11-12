@@ -2,10 +2,7 @@ import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PageView } from './Navbar';
-import {
-  PulseBadge,
-  pillButtonClass,
-} from './ui/hero-dithering-card';
+import { pillButtonClass } from './ui/hero-dithering-card';
 
 interface SiteFooterProps {
   onNavigate: (view: PageView, sectionId?: string) => void;
@@ -28,7 +25,7 @@ const FOOTER_LINKS: {
 /** Frosted footer card over the page-wide dither. */
 export function SiteFooter({ onNavigate, onAuditClick }: SiteFooterProps) {
   return (
-    <footer className="w-full px-4 pb-6 pt-4 text-[#FFFFFF] md:px-6">
+    <footer className="w-full px-4 pb-6 pt-4 text-ink md:px-6">
       <div
         className="relative mx-auto w-full max-w-7xl"
       >
@@ -36,14 +33,13 @@ export function SiteFooter({ onNavigate, onAuditClick }: SiteFooterProps) {
 
           <div className="relative z-10 grid gap-10 px-6 py-12 sm:px-10 md:grid-cols-12 md:py-16 lg:px-14">
             <div className="flex flex-col items-start gap-6 md:col-span-7">
-              <PulseBadge className="text-xs">Taking tenders this week</PulseBadge>
               <a
                 href="/"
                 onClick={(e) => {
                   e.preventDefault();
                   onNavigate('home');
                 }}
-                className="font-serif text-6xl font-medium leading-none tracking-tight text-foreground md:text-8xl"
+                className="font-serif text-6xl font-normal leading-none tracking-tight text-foreground md:text-8xl"
               >
                 Antova
               </a>
@@ -65,7 +61,7 @@ export function SiteFooter({ onNavigate, onAuditClick }: SiteFooterProps) {
               aria-label="Footer navigation"
               className="md:col-span-5 md:justify-self-end"
             >
-              <p className="mb-4 font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/60">
+              <p className="mb-4 font-mono text-xs text-ink/60">
                 Explore
               </p>
               <ul className="grid grid-cols-2 gap-x-10 gap-y-3 font-sans text-base">
@@ -77,7 +73,7 @@ export function SiteFooter({ onNavigate, onAuditClick }: SiteFooterProps) {
                         e.preventDefault();
                         onNavigate(link.view, link.sectionId);
                       }}
-                      className="text-[#FFFFFF]/75 transition-colors hover:text-[#D4400F]"
+                      className="text-ink/75 transition-colors hover:text-ink"
                     >
                       {link.label}
                     </a>
@@ -90,7 +86,7 @@ export function SiteFooter({ onNavigate, onAuditClick }: SiteFooterProps) {
                       e.preventDefault();
                       onAuditClick();
                     }}
-                    className="text-[#FFFFFF]/75 transition-colors hover:text-[#D4400F]"
+                    className="text-ink/75 transition-colors hover:text-ink"
                   >
                     Contact
                   </a>
@@ -98,7 +94,7 @@ export function SiteFooter({ onNavigate, onAuditClick }: SiteFooterProps) {
               </ul>
             </nav>
 
-            <div className="flex flex-col gap-2 border-t border-[#FFFFFF]/10 pt-6 font-mono text-xs text-[#FFFFFF]/60 sm:flex-row sm:items-center sm:justify-between md:col-span-12">
+            <div className="flex flex-col gap-2 border-t border-ink/10 pt-6 font-mono text-xs text-ink/60 sm:flex-row sm:items-center sm:justify-between md:col-span-12">
               <span>© 2026 Antova</span>
               <span>Mutual NDA on every tender · Engineer-reviewed within 24 hours</span>
             </div>

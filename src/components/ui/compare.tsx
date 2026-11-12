@@ -147,7 +147,7 @@ export const Compare = ({
         setSliderXPercent(Math.max(5, Math.min(95, next)));
       }}
       className={cn(
-        "relative w-full h-[320px] overflow-hidden rounded-2xl select-none outline-none focus-visible:ring-2 focus-visible:ring-[#D4400F] focus-visible:ring-offset-0",
+        "relative w-full h-[320px] overflow-hidden rounded-2xl select-none outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-0",
         className
       )}
       style={{
@@ -169,11 +169,11 @@ export const Compare = ({
       }}
     >
       {/* Top Handle Labels */}
-      <div className="pointer-events-none absolute inset-x-4 top-3.5 z-30 flex items-center justify-between font-mono text-[11px] uppercase tracking-wider">
-        <span className="rounded border border-[#FFFFFF]/20 px-2.5 py-1 text-[#FFFFFF]/75">
+      <div className="pointer-events-none absolute inset-x-4 top-3.5 z-30 flex items-center justify-between font-mono text-[11px]">
+        <span className="rounded border border-ink/20 px-2.5 py-1 text-ink/75">
           {firstLabel}
         </span>
-        <span className="rounded border border-[#FFFFFF]/20 bg-[#D4400F] px-2.5 py-1 font-semibold text-[#FFFFFF]">
+        <span className="rounded border border-ink/20 bg-brand-strong px-2.5 py-1 font-semibold text-ink">
           {secondLabel}
         </span>
       </div>
@@ -183,17 +183,17 @@ export const Compare = ({
           light washes that trail to the right of the handle. */}
       <motion.div
           aria-hidden="true"
-          className="h-full w-px absolute top-0 m-auto z-40 bg-gradient-to-b from-transparent from-[5%] via-[#D4400F] to-transparent to-[95%]"
+          className="h-full w-px absolute top-0 m-auto z-40 bg-gradient-to-b from-transparent from-[5%] via-brand to-transparent to-[95%]"
           style={{
             left: `${sliderXPercent}%`,
           }}
           transition={{ duration: 0 }}
         >
-          <div className="pointer-events-none absolute left-0 top-1/2 z-20 h-full w-36 -translate-y-1/2 bg-gradient-to-r from-[#D4400F] via-transparent to-transparent opacity-70 [mask-image:radial-gradient(100px_at_left,white,transparent)]" />
-          <div className="pointer-events-none absolute left-0 top-1/2 z-10 h-1/2 w-10 -translate-y-1/2 bg-gradient-to-r from-[#D4400F] via-transparent to-transparent opacity-60 [mask-image:radial-gradient(50px_at_left,white,transparent)]" />
+          <div className="pointer-events-none absolute left-0 top-1/2 z-20 h-full w-36 -translate-y-1/2 bg-gradient-to-r from-brand via-transparent to-transparent opacity-70 [mask-image:radial-gradient(100px_at_left,white,transparent)]" />
+          <div className="pointer-events-none absolute left-0 top-1/2 z-10 h-1/2 w-10 -translate-y-1/2 bg-gradient-to-r from-brand via-transparent to-transparent opacity-60 [mask-image:radial-gradient(50px_at_left,white,transparent)]" />
           {showHandlebar && (
-            <div className="absolute -right-2.5 top-1/2 z-30 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md border border-[#FFFFFF]/30 bg-[#D4400F]">
-              <GripVertical className="h-3.5 w-3.5 text-[#FFFFFF]" />
+            <div className="absolute -right-2.5 top-1/2 z-30 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md border border-ink/30 bg-brand-strong">
+              <GripVertical className="h-3.5 w-3.5 text-ink" />
             </div>
           )}
         </motion.div>

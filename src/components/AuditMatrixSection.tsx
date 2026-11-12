@@ -17,6 +17,7 @@ import {
   type VendorId,
 } from '../data/tender402';
 import { formatEuro } from '../utils/audit';
+import { Reveal } from './NarrativeSections';
 
 const VIEWS: PriceView[] = ['headline', 'evaluated', 'round3'];
 
@@ -37,10 +38,10 @@ const isConceded = (vendorId: VendorId, paramId: string, view: PriceView) =>
   view === 'round3' && vendorId === NEGOTIATING_VENDOR && paramId !== 'PARAM-04';
 
 const STATUS_CLASS: Record<CellStatus, string> = {
-  COMPLIANT: 'text-white/45',
-  DEVIATION_DOWNGRADE: 'text-[#FF7A45]',
-  CONFLICT_DOWNGRADE: 'text-[#FF7A45]',
-  OMITTED: 'text-[#FF7A45]',
+  COMPLIANT: 'text-ink/55',
+  DEVIATION_DOWNGRADE: 'text-brand-text',
+  CONFLICT_DOWNGRADE: 'text-brand-text',
+  OMITTED: 'text-brand-text',
 };
 
 function StatusTag({ status }: { status: CellStatus }) {
@@ -53,7 +54,7 @@ function StatusTag({ status }: { status: CellStatus }) {
     >
       <span
         aria-hidden="true"
-        className={cn('h-1.5 w-1.5 rounded-full', status === 'COMPLIANT' ? 'bg-white/30' : 'bg-[#D4400F]')}
+        className={cn('h-1.5 w-1.5 rounded-full', status === 'COMPLIANT' ? 'bg-ink/30' : 'bg-brand-strong')}
       />
       {STATUS_PLAIN[status]}
     </span>
@@ -62,7 +63,7 @@ function StatusTag({ status }: { status: CellStatus }) {
 
 function ViewToggle({ view, onChange }: { view: PriceView; onChange: (v: PriceView) => void }) {
   return (
-    <div role="group" aria-label="Price view" className="inline-flex rounded-full bg-white/[0.06] p-1">
+    <div role="group" aria-label="Price view" className="inline-flex rounded-full bg-ink/[0.06] p-1">
       {VIEWS.map((v) => {
         const active = v === view;
         return (
@@ -73,15 +74,15 @@ function ViewToggle({ view, onChange }: { view: PriceView; onChange: (v: PriceVi
             onClick={() => onChange(v)}
             className={cn(
               'relative z-10 cursor-pointer whitespace-nowrap rounded-full px-3 py-1.5 font-mono text-[11px] transition-colors sm:px-4 sm:text-xs',
-              'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D4400F]',
-              active ? 'text-white' : 'text-white/60 hover:text-white'
+              'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
+              active ? 'text-ink' : 'text-ink/60 hover:text-ink'
             )}
           >
             {active && (
               <motion.span
                 layoutId="matrix-view-pill"
                 transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-                className="absolute inset-0 -z-10 rounded-full bg-[#D4400F]"
+                className="absolute inset-0 -z-10 rounded-full bg-brand-strong"
               />
             )}
             {MATRIX_COPY.views[v]}
@@ -102,31 +103,31 @@ function CellDetail({ vendorId, paramId, view }: { vendorId: VendorId; paramId: 
   return (
     <div className="space-y-6 font-mono text-xs">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-white/55">{vendor.short}</span>
+        <span className="text-ink/55">{vendor.short}</span>
         <StatusTag status={cell.status} />
       </div>
-      <h3 className="font-serif text-3xl leading-tight tracking-tight text-white">{CHECK_LABEL[param.id]}</h3>
+      <h3 className="font-serif text-3xl leading-tight tracking-tight text-ink">{CHECK_LABEL[param.id]}</h3>
 
       <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
-        <span className="text-white/45">Spec asks</span>
-        <span className="text-white">{NEED[param.id]}</span>
-        <span className="text-white/45">Bid offers</span>
-        <span className={cell.status === 'COMPLIANT' ? 'text-white' : 'text-[#FF7A45]'}>{cell.offered}</span>
+        <span className="text-ink/55">Spec asks</span>
+        <span className="text-ink">{NEED[param.id]}</span>
+        <span className="text-ink/55">Bid offers</span>
+        <span className={cell.status === 'COMPLIANT' ? 'text-ink' : 'text-brand-text'}>{cell.offered}</span>
       </div>
 
-      <div className="border-l-2 border-[#D4400F] pl-3">
-        <p className="mb-1 text-[10px] uppercase tracking-wider text-[#FF7A45]">
+      <div className="border-l-2 border-brand pl-3">
+        <p className="mb-1 text-[10px] text-brand-text">
           {SECTION_LABEL[cell.citation.section]} · p.{cell.citation.page}
         </p>
-        <p className="font-sans text-sm leading-relaxed text-white">“{cell.citation.quote}”</p>
+        <p className="font-sans text-sm leading-relaxed text-ink">“{cell.citation.quote}”</p>
       </div>
 
       {cell.secondary && (
-        <div className="border-l-2 border-white/20 pl-3">
-          <p className="mb-1 text-[10px] uppercase tracking-wider text-white/45">
+        <div className="border-l-2 border-ink/20 pl-3">
+          <p className="mb-1 text-[10px] text-ink/55">
             Contradicts · {SECTION_LABEL[cell.secondary.section]} · p.{cell.secondary.page}
           </p>
-          <p className="font-sans text-sm leading-relaxed text-white/55 line-through decoration-white/30">
+          <p className="font-sans text-sm leading-relaxed text-ink/55 line-through decoration-ink/30">
             “{cell.secondary.quote}”
           </p>
         </div>
@@ -134,24 +135,24 @@ function CellDetail({ vendorId, paramId, view }: { vendorId: VendorId; paramId: 
 
       {cell.costLines.length > 0 && (
         <div>
-          <p className="mb-1.5 text-[10px] uppercase tracking-wider text-white/45">Cost to bring to spec</p>
-          <div className="divide-y divide-white/10">
+          <p className="mb-1.5 text-[10px] text-ink/55">Cost to bring to spec</p>
+          <div className="divide-y divide-ink/10">
             {cell.costLines.map((l) => (
               <div key={l.label} className="flex items-baseline justify-between gap-3 py-1.5">
-                <span className="min-w-0 truncate text-white/70">{l.label}</span>
-                <span className="shrink-0 text-white">
+                <span className="min-w-0 truncate text-ink/70">{l.label}</span>
+                <span className="shrink-0 text-ink">
                   {formatEuro(Math.round(l.qty * l.rate * 100) / 100)}
                 </span>
               </div>
             ))}
           </div>
           <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-white/55">Total</span>
-            <span className={cn('text-sm', conceded ? 'text-white/40 line-through' : 'text-[#FF7A45]')}>
+            <span className="text-ink/55">Total</span>
+            <span className={cn('text-sm', conceded ? 'text-ink/55 line-through' : 'text-brand-text')}>
               +{formatEuro(adder)}
             </span>
           </div>
-          {conceded && <p className="mt-1 text-right text-[11px] text-white/55">Covered by VoltSwitch in negotiation</p>}
+          {conceded && <p className="mt-1 text-right text-[11px] text-ink/55">Covered by VoltSwitch in negotiation</p>}
         </div>
       )}
     </div>
@@ -170,19 +171,20 @@ export function AuditMatrixSection() {
   const lowest = Math.min(...prices.map((p) => p.price));
 
   return (
-    <section id="verification" className="scroll-mt-12 px-4 py-32 text-white sm:py-44 md:px-6">
+    <section id="verification" className="scroll-mt-12 px-4 py-32 text-ink sm:py-44 md:px-6">
       <div className="mx-auto max-w-6xl">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="font-mono text-xs uppercase tracking-wider text-[#D4400F]">{MATRIX_COPY.eyebrow}</p>
+        <Reveal className="mx-auto max-w-3xl text-center">
+          <p className="font-mono text-xs text-brand-soft">{MATRIX_COPY.eyebrow}</p>
           <h2 className="mt-4 font-serif text-4xl tracking-tight sm:text-5xl md:text-6xl">
             {MATRIX_COPY.headlineLead}{' '}
-            <em className="italic text-white/85">{MATRIX_COPY.headlineItalic}</em>
+            <em className="italic text-ink/85">{MATRIX_COPY.headlineItalic}</em>
           </h2>
-          <p className="mt-5 font-sans text-base leading-relaxed text-white/70">{MATRIX_COPY.subtext}</p>
-        </div>
+          <p className="mt-5 font-sans text-base leading-relaxed text-ink/70">{MATRIX_COPY.subtext}</p>
+        </Reveal>
 
-        <div className="mt-20 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="font-mono text-[11px] text-white/55">{SAMPLE_DATA_LABEL}</div>
+        <Reveal className="surface mt-20 p-5 sm:p-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="font-mono text-[11px] text-ink/55">{SAMPLE_DATA_LABEL}</div>
           <ViewToggle view={view} onChange={setView} />
         </div>
 
@@ -193,10 +195,10 @@ export function AuditMatrixSection() {
               <table className="w-full min-w-[620px] border-collapse font-mono text-xs">
                 <thead>
                   <tr className="text-left">
-                    <th className="py-3 pr-3 font-normal text-white/45">Check</th>
+                    <th className="py-3 pr-3 font-normal text-ink/55">Check</th>
                     {VENDORS.map((v) => (
                       <th key={v.id} className="px-3 py-3 font-normal">
-                        <span className="text-white">{v.short}</span>
+                        <span className="text-ink">{v.short}</span>
                         
                       </th>
                     ))}
@@ -204,9 +206,9 @@ export function AuditMatrixSection() {
                 </thead>
                 <tbody>
                   {PARAMETERS.map((p) => (
-                    <tr key={p.id} className="border-t border-white/[0.07]">
+                    <tr key={p.id} className="border-t border-ink/[0.07]">
                       <td className="py-3 pr-3 align-middle">
-                        <span className="block font-sans text-sm text-white/85">{CHECK_LABEL[p.id]}</span>
+                        <span className="block font-sans text-sm text-ink/85">{CHECK_LABEL[p.id]}</span>
                       </td>
                       {VENDORS.map((v) => {
                         const cell = CELLS[v.id][p.id];
@@ -222,8 +224,8 @@ export function AuditMatrixSection() {
                               aria-label={`${v.short}, ${CHECK_LABEL[p.id]}: ${STATUS_PLAIN[cell.status]}`}
                               className={cn(
                                 'flex w-full cursor-pointer flex-col items-start gap-0.5 rounded-md px-2 py-2 text-left transition-colors',
-                                'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#D4400F]',
-                                isSel ? 'bg-[#D4400F]/15' : 'hover:bg-white/5'
+                                'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand',
+                                isSel ? 'bg-brand-strong/15' : 'hover:bg-ink/5'
                               )}
                             >
                               <StatusTag status={cell.status} />
@@ -231,7 +233,7 @@ export function AuditMatrixSection() {
                                 <span
                                   className={cn(
                                     'text-[11px]',
-                                    conceded ? 'text-white/35 line-through' : 'text-[#FF7A45]'
+                                    conceded ? 'text-ink/55 line-through' : 'text-brand-text'
                                   )}
                                 >
                                   +{formatEuro(adder)}
@@ -245,16 +247,16 @@ export function AuditMatrixSection() {
                   ))}
                 </tbody>
                 <tfoot>
-                  <tr className="border-b border-white/10">
-                    <td className="py-2.5 pr-3 text-white/45">Quoted</td>
+                  <tr className="border-b border-ink/10">
+                    <td className="py-2.5 pr-3 text-ink/55">Quoted</td>
                     {VENDORS.map((v) => (
-                      <td key={v.id} className="px-3 py-2.5 text-white/75">
+                      <td key={v.id} className="px-3 py-2.5 text-ink/75">
                         {formatEuro(v.headline)}
                       </td>
                     ))}
                   </tr>
-                  <tr className="border-b border-white/10">
-                    <td className="py-2.5 pr-3 text-white/45">Gaps</td>
+                  <tr className="border-b border-ink/10">
+                    <td className="py-2.5 pr-3 text-ink/55">Gaps</td>
                     {VENDORS.map((v) => {
                       const a =
                         view === 'headline'
@@ -263,21 +265,21 @@ export function AuditMatrixSection() {
                             ? vendorAdders(v.id) - TENDER.clawbackRound3
                             : vendorAdders(v.id);
                       return (
-                        <td key={v.id} className="px-3 py-2.5 text-[#FF7A45]">
-                          {view === 'headline' ? <span className="text-white/35">—</span> : `+${formatEuro(a)}`}
+                        <td key={v.id} className="px-3 py-2.5 text-brand-text">
+                          {view === 'headline' ? <span className="text-ink/55">—</span> : `+${formatEuro(a)}`}
                         </td>
                       );
                     })}
                   </tr>
                   <tr>
-                    <td className="py-3 pr-3 text-white">{MATRIX_COPY.views[view]}</td>
+                    <td className="py-3 pr-3 text-ink">{MATRIX_COPY.views[view]}</td>
                     {prices.map((p) => (
                       <td key={p.id} className="px-3 py-3">
-                        <span className={cn('text-sm', p.price === lowest ? 'text-white' : 'text-white/70')}>
+                        <span className={cn('text-sm', p.price === lowest ? 'text-ink' : 'text-ink/70')}>
                           {formatEuro(p.price)}
                         </span>
                         {p.price === lowest && (
-                          <span className="ml-2 text-[11px] text-[#FF7A45]">lowest</span>
+                          <span className="ml-2 text-[11px] text-brand-text">lowest</span>
                         )}
                       </td>
                     ))}
@@ -286,7 +288,7 @@ export function AuditMatrixSection() {
               </table>
             </div>
 
-            <p className="mt-8 font-sans text-base text-white">{MATRIX_COPY.viewNotes[view]}</p>
+            <p className="mt-8 font-sans text-base text-ink">{MATRIX_COPY.viewNotes[view]}</p>
           </div>
 
           {/* Cell detail */}
@@ -305,6 +307,7 @@ export function AuditMatrixSection() {
             </AnimatePresence>
           </aside>
         </div>
+        </Reveal>
       </div>
     </section>
   );

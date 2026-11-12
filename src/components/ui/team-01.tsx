@@ -33,7 +33,7 @@ interface TeamProps {
 
 export const Team = ({ onBackHome, onAuditClick }: TeamProps) => {
   return (
-    <section className="min-h-[calc(100vh-120px)] text-[#FFFFFF]">
+    <section className="min-h-[calc(100vh-120px)] text-ink">
       <div className="pt-28 pb-20 sm:pt-32 sm:pb-24 lg:pt-40 lg:pb-32">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center gap-10 md:gap-14">
           {/* Header Block */}
@@ -49,12 +49,12 @@ export const Team = ({ onBackHome, onAuditClick }: TeamProps) => {
           >
             <Badge
               variant="outline"
-              className="border-[#FFFFFF]/20 text-[#FFFFFF] bg-transparent font-mono text-xs tracking-wider uppercase px-3 py-1 h-auto"
+              className="border-ink/20 text-ink bg-transparent font-mono text-xs px-3 py-1 h-auto"
             >
               {TEAM_FOUNDER_DATA.badge}
             </Badge>
             <h1
-              className="font-serif-editorial text-4xl sm:text-5xl md:text-6xl font-normal tracking-tight text-[#FFFFFF] leading-[1.06]"
+              className="font-serif-editorial text-4xl sm:text-5xl md:text-6xl font-normal tracking-tight text-ink leading-[1.06]"
               style={{ textWrap: 'balance' }}
             >
               {TEAM_FOUNDER_DATA.headingPrefix}
@@ -80,7 +80,7 @@ export const Team = ({ onBackHome, onAuditClick }: TeamProps) => {
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-center">
               {/* Left Column: Founder Photo */}
               <div className="md:col-span-5 flex justify-center">
-                <div className="group/photo w-full max-w-[260px] aspect-square overflow-hidden rounded-xl border border-[#FFFFFF]/15">
+                <div className="group/photo w-full max-w-[260px] aspect-square overflow-hidden rounded-xl border border-ink/15">
                   <img
                     className="w-full h-full object-cover object-top grayscale-[35%] transition-all duration-500 motion-safe:group-hover/photo:scale-105 group-hover/photo:grayscale-0"
                     src={TEAM_FOUNDER_DATA.image}
@@ -94,10 +94,10 @@ export const Team = ({ onBackHome, onAuditClick }: TeamProps) => {
               <div className="md:col-span-7 flex flex-col items-start text-left gap-5">
                 <div className="flex w-full items-start justify-between gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <h2 className="font-serif-editorial text-2xl md:text-3xl font-normal text-[#FFFFFF]">
+                    <h2 className="font-serif-editorial text-2xl md:text-3xl font-normal text-ink">
                       {TEAM_FOUNDER_DATA.name}
                     </h2>
-                    <p className="font-mono-cite text-xs uppercase tracking-wider text-[#FFFFFF]/70">
+                    <p className="font-mono-cite text-xs text-ink/70">
                       {TEAM_FOUNDER_DATA.role}
                     </p>
                   </div>
@@ -105,7 +105,7 @@ export const Team = ({ onBackHome, onAuditClick }: TeamProps) => {
                   <a
                     href={TEAM_FOUNDER_DATA.socials.linkedin}
                     aria-label={`${TEAM_FOUNDER_DATA.name} on LinkedIn`}
-                    className="inline-flex items-center gap-2 rounded-full border border-[#FFFFFF]/15 px-3 py-2 text-xs font-mono-cite text-[#FFFFFF] hover:bg-[#D4400F] hover:text-[#FFFFFF] transition-colors shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFFFFF]"
+                    className="inline-flex items-center gap-2 rounded-full border border-ink/15 px-3 py-2 text-xs font-mono-cite text-ink hover:bg-brand-strong hover:text-ink transition-colors shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -114,9 +114,9 @@ export const Team = ({ onBackHome, onAuditClick }: TeamProps) => {
                   </a>
                 </div>
 
-                <div className="h-px w-full bg-[#FFFFFF]/10" />
+                <div className="h-px w-full bg-ink/10" />
 
-                <blockquote className="font-sans-body text-base md:text-[17px] leading-[1.65] text-[#FFFFFF]/85">
+                <blockquote className="font-sans-body text-base md:text-[17px] leading-[1.65] text-ink/85">
                   “{TEAM_FOUNDER_DATA.bio}”
                 </blockquote>
 
@@ -125,7 +125,7 @@ export const Team = ({ onBackHome, onAuditClick }: TeamProps) => {
                     <button
                       type="button"
                       onClick={onBackHome}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-[#FFFFFF]/15 bg-transparent px-4 py-2.5 text-sm font-medium text-[#FFFFFF] hover:bg-[#FFFFFF]/5 transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFFFFF]"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-ink/15 bg-transparent px-4 py-2.5 text-sm font-medium text-ink hover:bg-ink/5 transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
                     >
                       <ArrowLeft className="size-4" />
                       Back to overview

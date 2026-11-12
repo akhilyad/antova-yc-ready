@@ -80,15 +80,15 @@ export function Terminal({
     <div
       ref={ref}
       className={cn(
-        "w-full overflow-hidden rounded-xl border border-white/15 text-left font-mono text-[11px] leading-relaxed sm:text-xs",
+        "w-full overflow-hidden rounded-xl border border-ink/15 text-left font-mono text-[11px] leading-relaxed sm:text-xs",
         className
       )}
     >
-      <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5">
-        <span className="h-2.5 w-2.5 rounded-full bg-[#D4400F]" />
-        <span className="h-2.5 w-2.5 rounded-full bg-white/25" />
-        <span className="h-2.5 w-2.5 rounded-full bg-white/25" />
-        <span className="ml-2 truncate text-white/50">{title}</span>
+      <div className="flex items-center gap-2 border-b border-ink/10 px-4 py-2.5">
+        <span className="h-2.5 w-2.5 rounded-full bg-brand-strong" />
+        <span className="h-2.5 w-2.5 rounded-full bg-ink/25" />
+        <span className="h-2.5 w-2.5 rounded-full bg-ink/25" />
+        <span className="ml-2 truncate text-ink/55">{title}</span>
       </div>
       {/* Every line is always rendered so the frame never changes height. */}
       <div className="overflow-x-auto px-4 py-4">
@@ -99,10 +99,10 @@ export function Terminal({
               const text = i < active ? line.text : i === active ? line.text.slice(0, typed) : "";
               return (
                 <div key={i} className={cn("min-h-[1.6em] whitespace-pre", line.className)}>
-                  <span className="text-[#D4400F]">$ </span>
-                  <span className="text-white">{text}</span>
+                  <span className="text-brand-text">$ </span>
+                  <span className="text-ink">{text}</span>
                   {i === active && (
-                    <span className="ml-px inline-block h-[1em] w-[0.5em] translate-y-[2px] bg-white/70 motion-safe:animate-pulse" />
+                    <span className="ml-px inline-block h-[1em] w-[0.5em] translate-y-[2px] bg-ink/70 motion-safe:animate-pulse" />
                   )}
                 </div>
               );

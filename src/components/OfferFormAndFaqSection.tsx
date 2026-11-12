@@ -13,7 +13,8 @@ import {
 import { submitAuditRequest, validateWorkEmail } from '../utils/audit';
 import { Pricing4 } from './ui/pricing-4';
 import { Faq3 } from './ui/faq3';
-import { CTASection } from './ui/hero-dithering-card';
+import { CTASection, pillButtonClass } from './ui/hero-dithering-card';
+import { cn } from '@/lib/utils';
 
 export function OfferFormAndFaqSection() {
   const [email, setEmail] = useState('');
@@ -99,7 +100,6 @@ export function OfferFormAndFaqSection() {
         heading={FINAL_CTA_COPY.headlineLead}
         headingMuted={FINAL_CTA_COPY.headlineMuted}
         description={FINAL_CTA_COPY.subtext}
-        dither={false}
       >
             {/* Intake form sits inside the dithering card, replacing its default button */}
             <div
@@ -107,11 +107,11 @@ export function OfferFormAndFaqSection() {
               className="w-full max-w-xl rounded-3xl p-5 text-left sm:p-7"
             >
               <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
-                <span className="font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/70">
+                <span className="font-mono text-xs text-ink/70">
                   Send us a tender
                 </span>
-                <span className="bg-[#D4400F] text-[#FFFFFF] font-mono text-xs px-2.5 py-1 rounded">
-                  Selected: {selectedPlanObj.name} ({selectedPlanObj.priceDisplay})
+                <span className="font-mono text-xs text-brand-soft">
+                  {selectedPlanObj.name} · {selectedPlanObj.priceDisplay}
                 </span>
               </div>
 
@@ -121,13 +121,13 @@ export function OfferFormAndFaqSection() {
                   aria-live="polite"
                   className="rounded-xl p-6 text-center"
                 >
-                  <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[#FFFFFF]/20">
-                    <Check className="h-5 w-5 text-[#FFFFFF]" />
+                  <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-ink/20">
+                    <Check className="h-5 w-5 text-ink" />
                   </div>
-                  <p className="font-serif text-2xl text-[#FFFFFF]">
+                  <p className="font-serif text-2xl text-ink">
                     Thanks. We&apos;ll reply within one business day.
                   </p>
-                  <p className="mt-1 font-sans text-sm text-[#FFFFFF]/70">
+                  <p className="mt-1 font-sans text-sm text-ink/70">
                     We will email {email} with a mutual NDA and an upload link.
                   </p>
                 </div>
@@ -140,7 +140,7 @@ export function OfferFormAndFaqSection() {
                   <div className="sm:col-span-2">
                     <label
                       htmlFor="audit-email"
-                      className="block font-sans text-xs font-medium text-[#FFFFFF]"
+                      className="block font-sans text-xs font-medium text-ink"
                     >
                       Work email
                     </label>
@@ -158,7 +158,7 @@ export function OfferFormAndFaqSection() {
                         emailError ? 'audit-email-error' : undefined
                       }
                       placeholder="name@company.com"
-                      className="mt-1.5 h-10 w-full rounded-md border border-[#FFFFFF]/20 px-3 py-2 font-sans text-sm text-[#FFFFFF] placeholder:text-[#FFFFFF]/60 outline-none focus:border-[#D4400F] focus:ring-1 focus:ring-[#D4400F]"
+                      className="mt-1.5 h-10 w-full rounded-md border border-ink/20 px-3 py-2 font-sans text-sm text-ink placeholder:text-ink/60 outline-none focus:border-brand focus:ring-1 focus:ring-brand"
                     />
                     {emailError && (
                       <p
@@ -174,7 +174,7 @@ export function OfferFormAndFaqSection() {
                   <div>
                     <label
                       htmlFor="audit-company"
-                      className="block font-sans text-xs font-medium text-[#FFFFFF]"
+                      className="block font-sans text-xs font-medium text-ink"
                     >
                       Company name
                     </label>
@@ -184,14 +184,14 @@ export function OfferFormAndFaqSection() {
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
                       placeholder="EPC or developer name"
-                      className="mt-1.5 h-10 w-full rounded-md border border-[#FFFFFF]/20 px-3 py-2 font-sans text-sm text-[#FFFFFF] placeholder:text-[#FFFFFF]/60 outline-none focus:border-[#D4400F] focus:ring-1 focus:ring-[#D4400F]"
+                      className="mt-1.5 h-10 w-full rounded-md border border-ink/20 px-3 py-2 font-sans text-sm text-ink placeholder:text-ink/60 outline-none focus:border-brand focus:ring-1 focus:ring-brand"
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor="audit-equipment"
-                      className="block font-sans text-xs font-medium text-[#FFFFFF]"
+                      className="block font-sans text-xs font-medium text-ink"
                     >
                       Equipment package
                     </label>
@@ -201,13 +201,13 @@ export function OfferFormAndFaqSection() {
                       onChange={(e) =>
                         setEquipment(e.target.value as EquipmentOption)
                       }
-                      className="mt-1.5 h-10 w-full rounded-md border border-[#FFFFFF]/20 px-3 py-2 font-sans text-sm text-[#FFFFFF] outline-none focus:border-[#D4400F] focus:ring-1 focus:ring-[#D4400F] cursor-pointer"
+                      className="mt-1.5 h-10 w-full rounded-md border border-ink/20 px-3 py-2 font-sans text-sm text-ink outline-none focus:border-brand focus:ring-1 focus:ring-brand cursor-pointer"
                     >
                       {EQUIPMENT_OPTIONS.map((option) => (
                         <option
                           key={option}
                           value={option}
-                          className="bg-[#0B0B0B] text-[#FFFFFF]"
+                          className="bg-canvas text-ink"
                         >
                           {option}
                         </option>
@@ -234,7 +234,7 @@ export function OfferFormAndFaqSection() {
                     <button
                       type="submit"
                       disabled={sending}
-                      className="group inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#D4400F] font-sans text-sm font-medium text-[#FFFFFF] transition-all duration-300 hover:bg-[#D4400F]/90 hover:ring-4 hover:ring-[#D4400F]/25 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                      className={cn(pillButtonClass, "h-12 w-full gap-2 text-sm")}
                     >
                       {sending ? 'Sending...' : FINAL_CTA_COPY.submitButtonText}
                       {!sending && (

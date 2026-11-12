@@ -102,7 +102,7 @@ export function TiltStackScroll({
   heading = "Where project margins disappear.",
   items = [],
   className = "",
-  accentColor = "#D4400F",
+  accentColor = "#C4552D",
   scrollPerItemVh = 95,
   arriveRotateDeg = 7,
   arriveOffsetVh = 95,
@@ -227,7 +227,7 @@ export function TiltStackScroll({
       ref={sectionRef}
       style={{ height: `${sectionHeightVh}vh` }}
       className={cn(
-        "relative w-full text-[#FFFFFF]",
+        "relative w-full text-ink",
         className
       )}
     >
@@ -235,10 +235,10 @@ export function TiltStackScroll({
         {/* Top Header + Progress Step Selector */}
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/60">
+            <p className="font-mono text-xs text-brand-soft">
               {eyebrow}
             </p>
-            <h2 className="mt-2 font-serif text-3xl tracking-tight text-[#FFFFFF] md:text-5xl">
+            <h2 className="mt-2 font-serif text-3xl font-normal tracking-tight text-ink md:text-5xl">
               {heading}
             </h2>
           </div>
@@ -256,8 +256,8 @@ export function TiltStackScroll({
                   className={cn(
                     "px-2 py-1.5 font-mono text-xs transition-colors cursor-pointer",
                     isCurrent
-                      ? "text-[#FF7A45]"
-                      : "text-[#FFFFFF]/40 hover:text-[#FFFFFF]"
+                      ? "text-brand-text"
+                      : "text-ink/55 hover:text-ink"
                   )}
                 >
                   {pad2(idx + 1)}
@@ -298,28 +298,28 @@ export function TiltStackScroll({
                   {/* Left Narrative Column */}
                   <div className="flex flex-col justify-between md:col-span-5 md:h-full md:py-1">
                     <div>
-                      <p className="font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/50">
+                      <p className="font-mono text-xs text-ink/55">
                         {item.phaseTag ?? pad2(i + 1)}
                       </p>
 
-                      <h3 className="mt-3 font-serif md:mt-4 text-2xl leading-tight tracking-tight text-[#FFFFFF] sm:text-3xl md:text-4xl">
+                      <h3 className="mt-3 font-serif md:mt-4 text-2xl leading-tight tracking-tight text-ink sm:text-3xl md:text-4xl">
                         {item.title}
                         {item.titleItalic && (
                           <>
                             {" "}
-                            <em className="italic text-[#FF7A45]">{item.titleItalic}</em>
+                            <em className="italic text-brand-text">{item.titleItalic}</em>
                           </>
                         )}
                       </h3>
 
-                      <p className="mt-3 font-sans text-sm leading-relaxed text-[#FFFFFF]/75 sm:text-base">
+                      <p className="mt-3 font-sans text-sm leading-relaxed text-ink/75 sm:text-base">
                         {item.description}
                       </p>
                     </div>
                   </div>
 
                   {/* Right Engineering Visual Column */}
-                  <div className="relative flex flex-col justify-center overflow-hidden rounded-xl p-3 sm:p-5 md:col-span-7 md:h-full md:min-h-[210px]">
+                  <div className="surface relative flex flex-col justify-center overflow-hidden p-5 sm:p-8 md:col-span-7 md:h-full md:min-h-[210px]">
                     {item.visual ? (
                       item.visual
                     ) : item.image ? (
@@ -338,12 +338,12 @@ export function TiltStackScroll({
         </div>
 
         {/* Counter + progress rail */}
-        <div className="mx-auto flex w-full max-w-6xl items-center gap-4 font-mono text-xs text-[#FFFFFF]/60">
+        <div className="mx-auto flex w-full max-w-6xl items-center gap-4 font-mono text-xs text-ink/60">
           <span className="shrink-0 tabular-nums">
-            <span className="text-[#FFFFFF]">{pad2(activeIndex + 1)}</span> /{" "}
+            <span className="text-ink">{pad2(activeIndex + 1)}</span> /{" "}
             {pad2(total)}
           </span>
-          <div className="relative h-px flex-1 overflow-hidden bg-[#FFFFFF]/15">
+          <div className="relative h-px flex-1 overflow-hidden bg-ink/15">
             <div
               ref={railRef}
               style={{ backgroundColor: accentColor, transform: "scaleX(0)" }}
