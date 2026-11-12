@@ -1,4 +1,4 @@
-import { describe, it } from 'node:test';
+import { describe, it, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   BENTO_FEATURES,
@@ -20,6 +20,7 @@ import {
   getVendorDisplayPrice,
   getVendorPenaltyTotal,
   sortVendorsByMode,
+  submitAuditRequest,
   validateWorkEmail,
 } from './audit';
 
@@ -126,6 +127,13 @@ describe('Antova bid evaluation & enterprise copy polish tests', () => {
     assert.equal(PRICING_SECTION_COPY.headline, 'Simple, transparent pricing.');
     assert.equal(PRICING_PLANS.length, 3);
     assert.equal(PRICING_PLANS[1].name, 'Per Tender');
+    assert.equal(PRICING_PLANS[1].priceAmount, 1500);
+    assert.equal(PRICING_PLANS[2].name, 'Pack of Five');
+    assert.equal(PRICING_PLANS[2].priceAmount, 6000);
+    assert.equal(
+      PRICING_PLANS.some((p) => /unlimited/i.test(p.name)),
+      false
+    );
 
     assert.equal(FAQ_SECTION_COPY.eyebrow, 'VERIFICATION & INTEGRATION');
     assert.equal(FAQ_ITEMS.length, 4);
@@ -168,5 +176,41 @@ describe('Antova bid evaluation & enterprise copy polish tests', () => {
       serialized.includes('Simulated commercial negotiation outcome'),
       false
     );
+  });
+  it('rejects intake submissions when no endpoint is configured', async () => {
+    await assert.rejects(
+      submitAuditRequest(
+        { email: 'a@b.de', company: 'X', equipment: 'MV switchgear', plan: 'Per Tender' },
+        undefined
+      ),
+      /not configured/
+    );
+  });
+
+  it('posts intake submissions as JSON and surfaces HTTP failures', async () => {
+    const original = globalThis.fetch;
+    try {
+      const ok = mock.fn(async () => new Response('{}', { status: 200 }));
+      globalThis.fetch = ok as unknown as typeof fetch;
+      await submitAuditRequest(
+        { email: 'a@b.de', company: 'X', equipment: 'MV switchgear', plan: 'Per Tender' },
+        'https://example.test/f/abc'
+      );
+      const [url, init] = ok.mock.calls[0].arguments as unknown as [string, RequestInit];
+      assert.equal(url, 'https://example.test/f/abc');
+      assert.equal(init.method, 'POST');
+      assert.equal(JSON.parse(init.body as string).email, 'a@b.de');
+
+      globalThis.fetch = (async () => new Response('no', { status: 500 })) as typeof fetch;
+      await assert.rejects(
+        submitAuditRequest(
+          { email: 'a@b.de', company: 'X', equipment: 'MV switchgear', plan: 'Per Tender' },
+          'https://example.test/f/abc'
+        ),
+        /500/
+      );
+    } finally {
+      globalThis.fetch = original;
+    }
   });
 });

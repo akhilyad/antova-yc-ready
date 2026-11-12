@@ -9,6 +9,7 @@ export interface AuditRequestData {
   email: string;
   company: string;
   equipment: EquipmentOption;
+  plan: string;
 }
 
 export function getVendorActiveDeviations(
@@ -76,6 +77,30 @@ export function validateWorkEmail(email: string): {
   return { valid: true };
 }
 
-export function submitAuditRequest(data: AuditRequestData): void {
-  console.log('Antova Shadow Audit Request:', data);
+/**
+ * Sends the intake form to a Formspree-compatible endpoint (JSON POST).
+ * Throws if no endpoint is configured or the request fails, so the UI can
+ * show an error instead of silently dropping the request.
+ */
+export async function submitAuditRequest(
+  data: AuditRequestData,
+  endpoint: string | undefined
+): Promise<void> {
+  if (!endpoint) {
+    throw new Error('Intake endpoint is not configured.');
+  }
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({
+      _subject: `Antova tender request: ${data.plan}`,
+      email: data.email,
+      company: data.company,
+      equipment: data.equipment,
+      plan: data.plan,
+    }),
+  });
+  if (!response.ok) {
+    throw new Error(`Intake request failed with status ${response.status}.`);
+  }
 }

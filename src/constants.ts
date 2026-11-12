@@ -163,6 +163,8 @@ export const VENDOR_BIDS: VendorBid[] = [
   },
 ];
 
+export const SAMPLE_DATA_LABEL = 'Sample tender, illustrative data';
+
 export const HERO_CHART_COPY = {
   packageHeader: '33kV GIS SWITCHGEAR PACKAGE',
   subheads: {
@@ -335,22 +337,18 @@ export const PRICING_PLANS: PricingPlan[] = [
     href: '#audit',
   },
   {
-    name: 'Unlimited',
-    priceAmount: 4500,
-    priceDisplay: '€4,500',
-    suffix: '/ month',
-    audienceInfo: 'For active solar, wind, and grid project pipelines',
-    featuresHeader: 'EVERYTHING IN PER TENDER, PLUS:',
+    name: 'Pack of Five',
+    priceAmount: 6000,
+    priceDisplay: '€6,000',
+    suffix: '/ 5 tenders',
+    audienceInfo: 'For teams running several tenders a year (€1,200 each)',
+    featuresHeader: 'EVERYTHING IN PER TENDER, FOR FIVE PACKAGES:',
     features: [
-      'Unlimited tender packages across all project sites and disciplines',
-      'Clause-level verification against IEC standards and regional grid codes',
-      'Centralized cost benchmark catalogs shared across project teams',
-      'Multi-stage approval workflows for package engineers and commercial leads',
-      'Custom spreadsheet schemas formatted to your corporate finance models',
-      'Automated diff tracking across vendor revision rounds (Rev A to Rev C)',
-      'Priority 24-hour engineering turnaround with dedicated onboarding',
+      'Five tender packages at €1,200 each, 20% below the per-tender rate',
+      'Same verification, Excel export, and re-audit of revised bids on every package',
+      'Same engineering review and sign-off under NDA',
     ],
-    buttonText: 'Request team access',
+    buttonText: 'Request a pack of five',
     href: '#audit',
   },
 ];
@@ -413,7 +411,7 @@ export const TEAM_FOUNDER_DATA: TeamFounderData = {
   headingSuffix: ' the problem.',
   name: 'Akhil Yadav',
   role: 'Founder & CEO',
-  image: '/123.png',
+  image: '/founder.png',
   bio: 'I spent five years reviewing electrical bids at ABB, Yokogawa, and ib vogt. I kept seeing the same problem: vendors leave key equipment out of 300-page quotes, so a cheap bid turns into huge surprise bills after you sign. I built Antova to check bids in minutes, catch what was missed, and show the real price before you buy.',
   socials: {
     linkedin: 'https://www.linkedin.com/in/akhilyad/',
