@@ -53,7 +53,7 @@ export function HeroSection({ onAuditClick }: HeroSectionProps) {
       <div
         className="relative mx-auto w-full max-w-7xl"
       >
-        <div className="relative flex min-h-[560px] flex-col items-center justify-center overflow-hidden rounded-[32px] border border-white/10 bg-black/30 shadow-sm backdrop-blur-[2px] sm:rounded-[48px] md:min-h-[620px]">
+        <div className="relative flex min-h-[560px] flex-col items-center justify-center overflow-hidden md:min-h-[620px]">
 
           <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-6 pt-20 pb-28 text-center sm:pt-24 sm:pb-36">
             <PulseBadge className="mb-8 whitespace-nowrap px-3 text-[11px] sm:px-4 sm:text-sm">
@@ -86,14 +86,14 @@ export function HeroSection({ onAuditClick }: HeroSectionProps) {
 
       <div className="relative z-10 mx-auto -mt-20 max-w-5xl sm:-mt-24">
         {/* Interactive Comparison Widget */}
-        <div className="rounded-3xl border border-[#FFFFFF]/15 bg-black/40 backdrop-blur-md p-4 sm:p-6 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.35)] max-w-4xl mx-auto">
+        <div className="rounded-3xl p-4 sm:p-6 max-w-4xl mx-auto">
           {/* Card Top Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#FFFFFF]/10 pb-5">
             <div>
               <span className="font-mono text-xs text-[#FFFFFF]/60 block uppercase tracking-wider">
                 {HERO_CHART_COPY.packageHeader}
               </span>
-              <span className="mt-1 inline-block rounded border border-[#FFFFFF]/20 bg-black/40 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#FFFFFF]/70">
+              <span className="mt-1 inline-block rounded border border-[#FFFFFF]/20 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#FFFFFF]/70">
                 {SAMPLE_DATA_LABEL}
               </span>
               <p className="mt-1 font-mono text-xs font-semibold text-[#FFFFFF]">
@@ -104,7 +104,7 @@ export function HeroSection({ onAuditClick }: HeroSectionProps) {
             <div
               role="group"
               aria-label="Bid price evaluation stage"
-              className="inline-flex rounded-lg border border-[#FFFFFF]/15 bg-white/[0.06] p-1 self-start sm:self-auto"
+              className="inline-flex rounded-lg p-1 self-start sm:self-auto"
             >
               {MODE_TABS.map((tab) => {
                 const isSelected = chartMode === tab.mode;
@@ -128,7 +128,7 @@ export function HeroSection({ onAuditClick }: HeroSectionProps) {
           </div>
 
           {/* Metric Banner */}
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#FFFFFF]/15 bg-black/40 px-4 py-3">
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl px-4 py-3">
             <div className="flex flex-wrap items-center gap-2.5">
               <span className="bg-[#D4400F] text-[#FFFFFF] font-mono text-xs px-2 py-0.5 rounded font-semibold">
                 {HERO_CHART_COPY.bannerTags[chartMode]}
@@ -146,13 +146,13 @@ export function HeroSection({ onAuditClick }: HeroSectionProps) {
           {/* Vendor Bars (Cleaned Layout) */}
           <div className="mt-6 space-y-5">
             {/* Vendor A Row */}
-            <div className="rounded-xl border border-[#FFFFFF]/10 bg-black/40 p-4">
+            <div className="rounded-xl p-4">
               <div className="flex flex-wrap items-baseline justify-between gap-2 mb-2.5">
                 <div className="flex flex-wrap items-center gap-2.5">
                   <span className="font-serif text-lg font-medium text-[#FFFFFF]">
                     {vendorA.name}
                   </span>
-                  <span className="rounded border border-[#FFFFFF]/15 bg-black/40 px-2 py-0.5 font-mono text-[11px] text-[#FFFFFF]/70">
+                  <span className="rounded border border-[#FFFFFF]/15 px-2 py-0.5 font-mono text-[11px] text-[#FFFFFF]/70">
                     Full IEC 62271-200 compliance, zero deviations
                   </span>
                 </div>
@@ -161,7 +161,7 @@ export function HeroSection({ onAuditClick }: HeroSectionProps) {
                 </span>
               </div>
 
-              <div className="h-7 w-full rounded-md bg-white/[0.06] overflow-hidden p-0.5 border border-[#FFFFFF]/10">
+              <div className="h-7 w-full rounded-md overflow-hidden p-0.5 border border-[#FFFFFF]/10">
                 <div
                   style={{
                     width: `${(vendorA.stickerPrice / MAX_AXIS_EUR) * 100}%`,
@@ -174,14 +174,14 @@ export function HeroSection({ onAuditClick }: HeroSectionProps) {
             </div>
 
             {/* Vendor B Row */}
-            <div className="rounded-xl border border-[#FFFFFF]/20 bg-black/40 p-4">
+            <div className="rounded-xl p-4">
               <div className="flex flex-wrap items-baseline justify-between gap-2 mb-2.5">
                 <div className="flex flex-wrap items-center gap-2.5">
                   <span className="font-serif text-lg font-medium text-[#FFFFFF]">
                     {vendorB.name}
                   </span>
                   {chartMode === 'sticker' && (
-                    <span className="rounded border border-[#FFFFFF]/15 bg-black/40 px-2 py-0.5 font-mono text-[11px] text-[#FFFFFF]/70">
+                    <span className="rounded border border-[#FFFFFF]/15 px-2 py-0.5 font-mono text-[11px] text-[#FFFFFF]/70">
                       Base Quote: €418,000
                     </span>
                   )}
@@ -202,7 +202,7 @@ export function HeroSection({ onAuditClick }: HeroSectionProps) {
               </div>
 
               {/* Clean Segmented Progress Bar (No cramped text inside deviation segments) */}
-              <div className="h-8 w-full rounded-md bg-white/[0.06] overflow-hidden p-0.5 border border-[#FFFFFF]/15 flex gap-1">
+              <div className="h-8 w-full rounded-md overflow-hidden p-0.5 border border-[#FFFFFF]/15 flex gap-1">
                 <div
                   style={{
                     width: `${(vendorB.stickerPrice / MAX_AXIS_EUR) * 100}%`,
@@ -253,7 +253,7 @@ export function HeroSection({ onAuditClick }: HeroSectionProps) {
                           className={`inline-flex items-center rounded-md border px-2.5 py-1 font-mono text-xs transition cursor-pointer ${
                             isSelected
                               ? 'border-[#D4400F] bg-[#D4400F] text-[#FFFFFF]'
-                              : 'border-[#FFFFFF]/15 bg-black/40 text-[#FFFFFF] hover:bg-white/10'
+                              : 'border-[#FFFFFF]/15 text-[#FFFFFF] hover:bg-white/10'
                           }`}
                         >
                           <span>
@@ -269,7 +269,7 @@ export function HeroSection({ onAuditClick }: HeroSectionProps) {
 
               {/* Selected PDF Clause Popover Card */}
               {selectedDeviation && (
-                <div className="mt-3 rounded-lg border border-[#FFFFFF]/25 bg-black/40 p-3.5 shadow-2xs">
+                <div className="mt-3 rounded-lg p-3.5">
                   <div className="flex items-center justify-between gap-2 border-b border-[#FFFFFF]/10 pb-2">
                     <div className="flex items-center gap-2">
                       <span className="rounded bg-[#D4400F] px-2 py-0.5 font-mono text-xs font-semibold text-[#FFFFFF]">

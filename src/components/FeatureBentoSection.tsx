@@ -18,7 +18,7 @@ import {
 function renderBentoGraphic(graphicType: BentoFeatureItem['graphicType']) {
   if (graphicType === 'excel-export') {
     return (
-      <div className="flex flex-col justify-between rounded-xl border border-[#FFFFFF]/10 bg-black/40 p-4 h-full min-h-[150px]">
+      <div className="flex flex-col justify-between rounded-xl p-4 h-full min-h-[150px]">
         {/* Formula Bar */}
         <div className="flex items-center justify-between gap-2">
           <code className="font-mono text-xs bg-[#FFFFFF]/5 px-3 py-1.5 rounded border border-[#FFFFFF]/10 text-[#FFFFFF]">
@@ -30,7 +30,7 @@ function renderBentoGraphic(graphicType: BentoFeatureItem['graphicType']) {
         </div>
 
         {/* Table Row */}
-        <div className="mt-4 flex items-center justify-between rounded-lg border border-[#FFFFFF]/10 bg-black/40 px-4 py-3 font-mono text-xs">
+        <div className="mt-4 flex items-center justify-between rounded-lg px-4 py-3 font-mono text-xs">
           <span className="font-semibold text-[#FFFFFF]">
             Cell D20: +€4,000
           </span>
@@ -44,7 +44,7 @@ function renderBentoGraphic(graphicType: BentoFeatureItem['graphicType']) {
 
   if (graphicType === 'code-checks') {
     return (
-      <div className="flex flex-col justify-between rounded-xl border border-[#FFFFFF]/10 bg-black/40 p-4 h-full min-h-[150px] font-mono text-xs text-[#FFFFFF]">
+      <div className="flex flex-col justify-between rounded-xl p-4 h-full min-h-[150px] font-mono text-xs text-[#FFFFFF]">
         <div className="space-y-2">
           <div className="flex items-center justify-between border-b border-[#FFFFFF]/10 pb-1.5">
             <span className="text-[#FFFFFF]/70">Required:</span>
@@ -67,7 +67,7 @@ function renderBentoGraphic(graphicType: BentoFeatureItem['graphicType']) {
 
   if (graphicType === 'rate-tables') {
     return (
-      <div className="flex flex-col justify-between rounded-xl border border-[#FFFFFF]/10 bg-black/40 p-4 h-full min-h-[150px]">
+      <div className="flex flex-col justify-between rounded-xl p-4 h-full min-h-[150px]">
         <div className="flex items-center justify-between gap-2">
           <span className="font-mono text-[11px] uppercase tracking-wider text-[#FFFFFF]/60">
             BENCHMARK SCHEDULE
@@ -88,7 +88,7 @@ function renderBentoGraphic(graphicType: BentoFeatureItem['graphicType']) {
   }
 
   return (
-    <div className="flex h-full min-h-[200px] flex-col justify-between rounded-xl border border-[#FFFFFF]/10 bg-black/40 p-3">
+    <div className="flex h-full min-h-[200px] flex-col justify-between rounded-xl p-3">
       {/* Magic UI notification stream: newest clarification lands on top */}
       <div className="relative h-[176px] overflow-hidden">
         <AnimatedList delay={2200} className="gap-2.5">
@@ -127,7 +127,7 @@ function PushbackNotification({
   request: string;
 }) {
   return (
-    <figure className="relative mx-auto w-full cursor-default overflow-hidden rounded-2xl bg-black/40 p-3 transition-all duration-200 ease-in-out hover:scale-[102%] [box-shadow:0_0_0_1px_rgba(0,0,0,.06),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]">
+    <figure className="relative mx-auto w-full cursor-default overflow-hidden rounded-2xl p-3 transition-all duration-200 ease-in-out hover:scale-[102%]">
       <div className="flex flex-row items-center gap-3">
         <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#D4400F]">
           <FileText className="size-4 text-[#FFFFFF]" />
@@ -164,7 +164,7 @@ export function FeatureBentoSection() {
   return (
     <section
       id="features"
-      className="scroll-mt-12 w-full text-[#FFFFFF] border-t border-[#FFFFFF]/10 py-20 sm:py-24 px-4 sm:px-6"
+      className="scroll-mt-12 w-full text-[#FFFFFF] py-20 sm:py-24 px-4 sm:px-6"
     >
       <div className="max-w-6xl mx-auto">
         <div className="max-w-3xl mb-12">

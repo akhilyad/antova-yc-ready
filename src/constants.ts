@@ -247,7 +247,7 @@ export const SOLUTION_TRANSITION_COPY = {
   flaggedDeviations: {
     eyebrow: 'FLAGGED IN VENDOR B',
     heading: 'Three clauses, one leveled price.',
-    body: 'Each deviation is pinned to the page that caused it, so the clarification letter writes itself. Hover the stack to bring a finding forward.',
+    body: 'Each deviation is pinned to the page that caused it, so the clarification letter writes itself.',
     cards: [
       {
         title: 'p. 147 §4.2',

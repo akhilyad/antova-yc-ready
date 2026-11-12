@@ -147,7 +147,7 @@ export const Compare = ({
         setSliderXPercent(Math.max(5, Math.min(95, next)));
       }}
       className={cn(
-        "relative w-full h-[320px] overflow-hidden rounded-2xl border border-[#FFFFFF]/15 bg-[#0B0B0B] select-none outline-none focus-visible:ring-2 focus-visible:ring-[#D4400F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0B0B]",
+        "relative w-full h-[320px] overflow-hidden rounded-2xl select-none outline-none focus-visible:ring-2 focus-visible:ring-[#D4400F] focus-visible:ring-offset-0",
         className
       )}
       style={{
@@ -170,7 +170,7 @@ export const Compare = ({
     >
       {/* Top Handle Labels */}
       <div className="pointer-events-none absolute inset-x-4 top-3.5 z-30 flex items-center justify-between font-mono text-[11px] uppercase tracking-wider">
-        <span className="rounded border border-[#FFFFFF]/15 bg-[#000000] px-2.5 py-1 text-[#FFFFFF]/75">
+        <span className="rounded border border-[#FFFFFF]/20 px-2.5 py-1 text-[#FFFFFF]/75">
           {firstLabel}
         </span>
         <span className="rounded border border-[#FFFFFF]/20 bg-[#D4400F] px-2.5 py-1 font-semibold text-[#FFFFFF]">
@@ -192,7 +192,7 @@ export const Compare = ({
           <div className="pointer-events-none absolute left-0 top-1/2 z-20 h-full w-36 -translate-y-1/2 bg-gradient-to-r from-[#D4400F] via-transparent to-transparent opacity-70 [mask-image:radial-gradient(100px_at_left,white,transparent)]" />
           <div className="pointer-events-none absolute left-0 top-1/2 z-10 h-1/2 w-10 -translate-y-1/2 bg-gradient-to-r from-[#D4400F] via-transparent to-transparent opacity-60 [mask-image:radial-gradient(50px_at_left,white,transparent)]" />
           {showHandlebar && (
-            <div className="absolute -right-2.5 top-1/2 z-30 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md border border-[#FFFFFF]/15 bg-[#0B0B0B] shadow-[0_1px_3px_rgba(0,0,0,0.25)]">
+            <div className="absolute -right-2.5 top-1/2 z-30 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md border border-[#FFFFFF]/30 bg-[#D4400F]">
               <GripVertical className="h-3.5 w-3.5 text-[#FFFFFF]" />
             </div>
           )}
@@ -202,7 +202,7 @@ export const Compare = ({
       <div className="overflow-hidden w-full h-full relative z-20 pointer-events-none">
         <motion.div
           className={cn(
-            "absolute inset-0 z-20 w-full h-full select-none overflow-hidden bg-[#0B0B0B]",
+            "absolute inset-0 z-20 w-full h-full select-none overflow-hidden",
             firstImageClassName
           )}
           style={{
@@ -229,9 +229,10 @@ export const Compare = ({
       {/* Second Layer (Right Handle - "Audited") */}
       <div
         className={cn(
-          "absolute inset-0 z-10 w-full h-full select-none bg-[#000000]",
+          "absolute inset-0 z-10 w-full h-full select-none",
           secondImageClassname
         )}
+        style={{ clipPath: `inset(0 0 0 ${sliderXPercent}%)` }}
       >
         {secondContent ? (
           secondContent
