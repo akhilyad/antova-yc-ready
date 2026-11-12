@@ -254,13 +254,13 @@ export function TiltStackScroll({
                   aria-label={`Show problem ${idx + 1} of ${total}: ${item.title}`}
                   aria-pressed={isCurrent}
                   className={cn(
-                    "px-3 py-1.5 rounded-md font-mono text-xs transition border cursor-pointer",
+                    "px-2 py-1.5 font-mono text-xs transition-colors cursor-pointer",
                     isCurrent
-                      ? "bg-[#D4400F] text-[#FFFFFF] border-[#D4400F]"
-                      : "text-[#FFFFFF]/70 border-[#FFFFFF]/15 hover:bg-white/10 hover:text-[#FFFFFF]"
+                      ? "text-[#FF7A45]"
+                      : "text-[#FFFFFF]/40 hover:text-[#FFFFFF]"
                   )}
                 >
-                  {pad2(idx + 1)} / {pad2(total)}
+                  {pad2(idx + 1)}
                 </button>
               );
             })}
@@ -298,9 +298,9 @@ export function TiltStackScroll({
                   {/* Left Narrative Column */}
                   <div className="flex flex-col justify-between md:col-span-5 md:h-full md:py-1">
                     <div>
-                      <div className="inline-flex items-center gap-2 rounded-md border border-[#FFFFFF]/15 px-2.5 py-1 font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/80">
-                        <span>{item.phaseTag ?? `PHASE ${pad2(i + 1)}`}</span>
-                      </div>
+                      <p className="font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/50">
+                        {item.phaseTag ?? pad2(i + 1)}
+                      </p>
 
                       <h3 className="mt-3 font-serif md:mt-4 text-2xl leading-tight tracking-tight text-[#FFFFFF] sm:text-3xl md:text-4xl">
                         {item.title}
@@ -315,18 +315,6 @@ export function TiltStackScroll({
                       <p className="mt-3 font-sans text-sm leading-relaxed text-[#FFFFFF]/75 sm:text-base">
                         {item.description}
                       </p>
-                    </div>
-
-                    <div className="mt-4 hidden items-center justify-between border-t border-[#FFFFFF]/10 pt-3 md:flex">
-                      <span
-                        style={{ color: accentColor }}
-                        className="font-mono text-xs font-medium tracking-wider uppercase"
-                      >
-                        CARD {pad2(i + 1)} OF {pad2(total)}
-                      </span>
-                      <span className="font-mono text-xs text-[#FFFFFF]/60">
-                        Scroll or pick a step
-                      </span>
                     </div>
                   </div>
 
@@ -362,9 +350,6 @@ export function TiltStackScroll({
               className="absolute inset-0 origin-left"
             />
           </div>
-          <span className="hidden shrink-0 sm:inline">
-            SAMPLE TENDER TENDER-2026-402
-          </span>
         </div>
       </div>
     </section>

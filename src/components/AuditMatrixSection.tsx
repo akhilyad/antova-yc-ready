@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
-import { MATRIX_COPY, SAMPLE_DATA_LABEL } from '../constants';
+import { CHECK_LABEL, MATRIX_COPY, SAMPLE_DATA_LABEL, STATUS_PLAIN } from '../constants';
 import {
   CELLS,
   NEGOTIATING_VENDOR,
   PARAMETERS,
   SECTION_LABEL,
-  STATUS_LABEL,
   TENDER,
   VENDORS,
   cellAdder,
@@ -38,29 +37,32 @@ const isConceded = (vendorId: VendorId, paramId: string, view: PriceView) =>
   view === 'round3' && vendorId === NEGOTIATING_VENDOR && paramId !== 'PARAM-04';
 
 const STATUS_CLASS: Record<CellStatus, string> = {
-  COMPLIANT: 'text-white/50',
+  COMPLIANT: 'text-white/45',
   DEVIATION_DOWNGRADE: 'text-[#FF7A45]',
-  CONFLICT_DOWNGRADE: 'bg-[#D4400F] text-white px-1.5',
-  OMITTED: 'border border-dashed border-[#FF7A45] text-[#FF7A45] px-1.5',
+  CONFLICT_DOWNGRADE: 'text-[#FF7A45]',
+  OMITTED: 'text-[#FF7A45]',
 };
 
 function StatusTag({ status }: { status: CellStatus }) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-sm font-mono text-[10px] uppercase tracking-wider',
+        'inline-flex items-center gap-1.5 font-sans text-[13px]',
         STATUS_CLASS[status]
       )}
     >
-      {status === 'COMPLIANT' && <span className="h-1.5 w-1.5 rounded-full bg-white/40" />}
-      {STATUS_LABEL[status]}
+      <span
+        aria-hidden="true"
+        className={cn('h-1.5 w-1.5 rounded-full', status === 'COMPLIANT' ? 'bg-white/30' : 'bg-[#D4400F]')}
+      />
+      {STATUS_PLAIN[status]}
     </span>
   );
 }
 
 function ViewToggle({ view, onChange }: { view: PriceView; onChange: (v: PriceView) => void }) {
   return (
-    <div role="group" aria-label="Price view" className="inline-flex rounded-full border border-white/15 p-1">
+    <div role="group" aria-label="Price view" className="inline-flex rounded-full bg-white/[0.06] p-1">
       {VIEWS.map((v) => {
         const active = v === view;
         return (
@@ -103,7 +105,7 @@ function CellDetail({ vendorId, paramId, view }: { vendorId: VendorId; paramId: 
         <span className="text-white/55">{vendor.short}</span>
         <StatusTag status={cell.status} />
       </div>
-      <h3 className="font-serif text-2xl leading-tight tracking-tight text-white">{param.short}</h3>
+      <h3 className="font-serif text-3xl leading-tight tracking-tight text-white">{CHECK_LABEL[param.id]}</h3>
 
       <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
         <span className="text-white/45">Spec asks</span>
@@ -166,7 +168,6 @@ export function AuditMatrixSection() {
 
   const prices = VENDORS.map((v) => ({ id: v.id, price: vendorPrice(v, view) }));
   const lowest = Math.min(...prices.map((p) => p.price));
-  const maxPrice = 500000;
 
   return (
     <section id="verification" className="scroll-mt-12 px-4 py-32 text-white sm:py-44 md:px-6">
@@ -180,32 +181,32 @@ export function AuditMatrixSection() {
           <p className="mt-5 font-sans text-base leading-relaxed text-white/70">{MATRIX_COPY.subtext}</p>
         </div>
 
-        <div className="mt-16 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-20 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="font-mono text-[11px] text-white/55">{SAMPLE_DATA_LABEL}</div>
           <ViewToggle view={view} onChange={setView} />
         </div>
 
-        <div className="mt-6 grid gap-10 lg:grid-cols-12">
+        <div className="mt-8 grid gap-12 lg:grid-cols-12 lg:gap-16">
           {/* Matrix */}
           <div className="min-w-0 lg:col-span-8">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[620px] border-collapse font-mono text-xs">
                 <thead>
-                  <tr className="border-b border-white/15 text-left">
+                  <tr className="text-left">
                     <th className="py-3 pr-3 font-normal text-white/45">Check</th>
                     {VENDORS.map((v) => (
                       <th key={v.id} className="px-3 py-3 font-normal">
                         <span className="text-white">{v.short}</span>
-                        <span className="ml-1.5 text-white/40">{v.country}</span>
+                        
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {PARAMETERS.map((p) => (
-                    <tr key={p.id} className="border-b border-white/10">
-                      <td className="py-2.5 pr-3 align-top">
-                        <span className="block font-sans text-[13px] text-white/85">{p.short}</span>
+                    <tr key={p.id} className="border-t border-white/[0.07]">
+                      <td className="py-3 pr-3 align-middle">
+                        <span className="block font-sans text-sm text-white/85">{CHECK_LABEL[p.id]}</span>
                       </td>
                       {VENDORS.map((v) => {
                         const cell = CELLS[v.id][p.id];
@@ -213,20 +214,19 @@ export function AuditMatrixSection() {
                         const adder = cellAdder(cell);
                         const conceded = isConceded(v.id, p.id, view);
                         return (
-                          <td key={v.id} className="p-1 align-top">
+                          <td key={v.id} className="p-1 align-middle">
                             <button
                               type="button"
                               onClick={() => setSelected({ vendorId: v.id, paramId: p.id })}
                               aria-pressed={isSel}
-                              aria-label={`${v.short} ${p.short}: ${STATUS_LABEL[cell.status]}`}
+                              aria-label={`${v.short}, ${CHECK_LABEL[p.id]}: ${STATUS_PLAIN[cell.status]}`}
                               className={cn(
-                                'flex w-full cursor-pointer flex-col items-start gap-1 rounded-md px-2 py-1.5 text-left transition-colors',
+                                'flex w-full cursor-pointer flex-col items-start gap-0.5 rounded-md px-2 py-2 text-left transition-colors',
                                 'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#D4400F]',
-                                isSel ? 'ring-1 ring-[#D4400F] bg-[#D4400F]/10' : 'hover:bg-white/5'
+                                isSel ? 'bg-[#D4400F]/15' : 'hover:bg-white/5'
                               )}
                             >
                               <StatusTag status={cell.status} />
-                              <span className="text-[11px] text-white/75">{cell.offered}</span>
                               {adder > 0 && view !== 'headline' && (
                                 <span
                                   className={cn(
@@ -277,9 +277,7 @@ export function AuditMatrixSection() {
                           {formatEuro(p.price)}
                         </span>
                         {p.price === lowest && (
-                          <span className="ml-2 rounded-sm bg-[#D4400F] px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-white">
-                            lowest
-                          </span>
+                          <span className="ml-2 text-[11px] text-[#FF7A45]">lowest</span>
                         )}
                       </td>
                     ))}
@@ -288,27 +286,7 @@ export function AuditMatrixSection() {
               </table>
             </div>
 
-            {/* Spread bars */}
-            <div className="mt-8 space-y-2.5">
-              {VENDORS.map((v) => {
-                const price = vendorPrice(v, view);
-                return (
-                  <div key={v.id} className="flex items-center gap-3 font-mono text-[11px]">
-                    <span className="w-20 shrink-0 text-white/70">{v.short}</span>
-                    <div className="relative h-5 flex-1">
-                      <motion.div
-                        className={cn('h-full rounded-sm', price === lowest ? 'bg-[#D4400F]' : 'bg-white/20')}
-                        initial={false}
-                        animate={{ width: `${(price / maxPrice) * 100}%` }}
-                        transition={{ duration: reduced ? 0 : 0.5, ease: [0.21, 0.47, 0.32, 0.98] }}
-                      />
-                    </div>
-                    <span className="w-20 shrink-0 text-right text-white">{formatEuro(price)}</span>
-                  </div>
-                );
-              })}
-              <p className="pt-2 font-mono text-[11px] text-white/55">{MATRIX_COPY.viewNotes[view]}</p>
-            </div>
+            <p className="mt-8 font-sans text-base text-white">{MATRIX_COPY.viewNotes[view]}</p>
           </div>
 
           {/* Cell detail */}

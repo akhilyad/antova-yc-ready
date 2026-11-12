@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
-import { IMPACT_COPY, INTRO_COPY, MANIFESTO_COPY } from '../constants';
-import { CELLS, STATUS_LABEL, VENDORS, cellAdder, vendorPrice } from '../data/tender402';
+import { IMPACT_COPY, INTRO_COPY, MANIFESTO_COPY, STATUS_PLAIN } from '../constants';
+import { CELLS, VENDORS, cellAdder, vendorPrice } from '../data/tender402';
 import { formatEuro } from '../utils/audit';
 
 /** Scroll reveal shared by the narrative beats. */
@@ -109,7 +109,7 @@ function BeforeAfter() {
                     <span key={v.id} className="text-white/45">✓ meets spec</span>
                   ) : (
                     <span key={v.id} className="text-[#FF7A45]">
-                      {adder > 0 ? `+${formatEuro(adder)}` : STATUS_LABEL[cell.status]}
+                      {adder > 0 ? `+${formatEuro(adder)}` : STATUS_PLAIN[cell.status]}
                     </span>
                   );
                 })}

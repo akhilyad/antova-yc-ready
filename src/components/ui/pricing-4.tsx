@@ -22,12 +22,12 @@ export const Pricing4 = ({
     <section
       id="pricing"
       className={cn(
-        'scroll-mt-12 w-full text-[#FFFFFF] py-20 sm:py-24 px-4 sm:px-6',
+        'scroll-mt-12 w-full text-[#FFFFFF] py-32 sm:py-44 px-4 sm:px-6',
         className
       )}
     >
       <div className="max-w-6xl mx-auto">
-        <div className="text-center max-w-3xl mx-auto mb-12">
+        <div className="text-center max-w-3xl mx-auto mb-20">
           <p className="font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/60">
             {eyebrow}
           </p>
@@ -49,12 +49,10 @@ export const Pricing4 = ({
                     {plan.name}
                   </h3>
                   {plan.recommended && (
-                    <span className="inline-block shrink-0 rounded-md bg-[#D4400F] px-2.5 py-0.5 font-mono text-xs font-semibold text-[#FFFFFF] border border-[#FFFFFF]/20">
-                      Recommended
-                    </span>
+                    <span className="shrink-0 pt-1.5 font-mono text-xs text-[#FF7A45]">Recommended</span>
                   )}
                   {!plan.recommended && plan.billingTerms && (
-                    <span className="inline-block shrink-0 rounded-md px-2.5 py-0.5 font-mono text-xs font-medium text-[#FFFFFF] border border-[#FFFFFF]/15">
+                    <span className="shrink-0 pt-1.5 font-mono text-xs text-[#FFFFFF]/50">
                       {plan.billingTerms}
                     </span>
                   )}
@@ -71,7 +69,7 @@ export const Pricing4 = ({
                 </div>
 
                 {/* Subtext */}
-                <div className="mt-3 pb-5 border-b border-[#FFFFFF]/10">
+                <div className="mt-3 pb-3">
                   <p className="font-sans text-xs text-[#FFFFFF]/70">
                     {plan.audienceInfo}
                   </p>
@@ -93,9 +91,7 @@ export const Pricing4 = ({
                 >
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2.5">
-                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-[#FFFFFF]/20 text-[#FFFFFF]">
-                        <Check className="h-2.5 w-2.5" />
-                      </span>
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#FF7A45]" />
                       <span className="leading-snug">{feature}</span>
                     </li>
                   ))}
@@ -103,7 +99,7 @@ export const Pricing4 = ({
               </div>
 
               {/* Action Button */}
-              <div className="mt-8 pt-4 border-t border-[#FFFFFF]/10">
+              <div className="mt-10">
                 <a
                   href={plan.href}
                   onClick={(e) => {
@@ -113,10 +109,10 @@ export const Pricing4 = ({
                     }
                   }}
                   className={cn(
-                    'flex w-full items-center justify-center rounded-md px-5 py-3 font-sans text-sm font-medium transition cursor-pointer',
+                    'flex w-full items-center justify-center rounded-full px-5 py-3 font-sans text-sm font-medium transition cursor-pointer',
                     plan.recommended
                       ? 'bg-[#D4400F] text-[#FFFFFF] hover:bg-[#D4400F]/90'
-                      : 'border border-[#FFFFFF]/25 text-[#FFFFFF] hover:bg-white/10'
+                      : 'bg-white/[0.08] text-[#FFFFFF] hover:bg-white/15'
                   )}
                 >
                   {plan.buttonText}

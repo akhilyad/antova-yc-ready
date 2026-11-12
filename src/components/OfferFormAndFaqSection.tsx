@@ -94,7 +94,7 @@ export function OfferFormAndFaqSection() {
       {/* Final CTA & Lead Capture Section */}
       <CTASection
         id="audit"
-        className="scroll-mt-12 py-20 sm:py-24"
+        className="scroll-mt-12 py-32 sm:py-44"
         badge={FINAL_CTA_COPY.badge}
         heading={FINAL_CTA_COPY.headlineLead}
         headingMuted={FINAL_CTA_COPY.headlineMuted}
