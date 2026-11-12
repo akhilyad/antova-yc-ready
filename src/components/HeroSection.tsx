@@ -13,7 +13,13 @@ import {
   getActiveDeviations,
   MAX_AXIS_EUR,
 } from '../utils/audit';
-import { X } from 'lucide-react';
+import { ArrowRight, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import {
+  DitheringBackground,
+  PulseBadge,
+  pillButtonClass,
+} from './ui/hero-dithering-card';
 
 interface HeroSectionProps {
   onAuditClick: () => void;
@@ -27,6 +33,7 @@ const MODE_TABS: { mode: ChartMode; label: string }[] = [
 
 export function HeroSection({ onAuditClick }: HeroSectionProps) {
   const [chartMode, setChartMode] = useState<ChartMode>('true');
+  const [heroHovered, setHeroHovered] = useState(false);
   const [selectedDeviation, setSelectedDeviation] =
     useState<DeviationItem | null>(null);
 
@@ -43,37 +50,53 @@ export function HeroSection({ onAuditClick }: HeroSectionProps) {
   };
 
   return (
-    <section className="w-full bg-[#F6F2EA] text-[#15120F] pt-32 pb-20 sm:pt-36 sm:pb-24 px-4 sm:px-6">
-      <div className="max-w-5xl mx-auto">
-        {/* Hero Header */}
-        <div className="text-center">
-          <p className="font-mono text-xs uppercase tracking-wider text-[#15120F]/60">
-            {HERO_COPY.eyebrow}
-          </p>
-          <h1 className="mt-4 font-serif text-4xl sm:text-6xl text-[#15120F] max-w-4xl text-center mx-auto tracking-tight leading-[1.08]">
-            {HERO_COPY.headline}
-          </h1>
-          <p className="font-sans text-base sm:text-lg text-[#15120F]/75 max-w-2xl text-center mx-auto mt-4 leading-relaxed">
-            {HERO_COPY.subtext}
-          </p>
+    <section className="w-full bg-[#F6F2EA] text-[#15120F] pt-24 pb-20 sm:pt-28 sm:pb-24 px-4 md:px-6">
+      {/* Hero card: same dithering treatment as the closing audit CTA */}
+      <div
+        className="relative mx-auto w-full max-w-7xl"
+        onMouseEnter={() => setHeroHovered(true)}
+        onMouseLeave={() => setHeroHovered(false)}
+      >
+        <div className="relative flex min-h-[560px] flex-col items-center justify-center overflow-hidden rounded-[32px] border border-border bg-card shadow-sm sm:rounded-[48px] md:min-h-[620px]">
+          <DitheringBackground colorFront="#D4400F" active={heroHovered} />
+          {/* Cream wash behind the copy so body text stays legible over the dither */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_55%_45%_at_50%_52%,rgba(253,251,247,0.92)_0%,rgba(253,251,247,0.6)_55%,transparent_100%)]"
+          />
 
-          {/* CTA Block */}
-          <div className="mt-8 flex flex-col items-center">
+          <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-6 pt-20 pb-28 text-center sm:pt-24 sm:pb-36">
+            <PulseBadge className="mb-8 whitespace-nowrap px-3 text-[11px] sm:px-4 sm:text-sm">
+              {HERO_COPY.badge}
+            </PulseBadge>
+
+            <h1 className="mb-8 font-serif text-[2.6rem] font-medium leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-7xl lg:text-8xl">
+              {HERO_COPY.headlineLead} <br />
+              <span className="text-foreground/80">{HERO_COPY.headlineMuted}</span>
+            </h1>
+
+            <p className="mb-10 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
+              {HERO_COPY.subtext}
+            </p>
+
             <button
               type="button"
               onClick={onAuditClick}
-              className="bg-[#15120F] text-[#F6F2EA] px-6 py-3 rounded-md font-sans text-sm font-medium hover:bg-[#15120F]/90 transition cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15120F]"
+              className={cn(pillButtonClass, 'h-14 px-10 text-base sm:px-12')}
             >
-              {HERO_COPY.ctaLabel}
+              <span className="relative z-10">{HERO_COPY.ctaLabel}</span>
+              <ArrowRight className="relative z-10 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
             </button>
-            <span className="font-mono text-xs text-[#15120F]/60 mt-2 block text-center">
+            <span className="mt-4 block text-center font-mono text-xs text-[#15120F]/60">
               {HERO_COPY.subline}
             </span>
           </div>
         </div>
+      </div>
 
+      <div className="relative z-10 mx-auto -mt-20 max-w-5xl sm:-mt-24">
         {/* Interactive Comparison Widget */}
-        <div className="rounded-2xl border border-[#15120F]/15 bg-[#FDFBF7] p-6 shadow-sm max-w-4xl mx-auto mt-10">
+        <div className="rounded-3xl border border-[#15120F]/15 bg-[#FDFBF7] p-4 sm:p-6 shadow-[0_30px_60px_-30px_rgba(21,18,15,0.35)] max-w-4xl mx-auto">
           {/* Card Top Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#15120F]/10 pb-5">
             <div>

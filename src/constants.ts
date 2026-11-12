@@ -74,6 +74,10 @@ export interface TeamFounderData {
 export const HERO_COPY = {
   eyebrow: 'TECHNICAL BID EVALUATION FOR ELECTRICAL TENDERS',
   headline: 'Audit tenders in minutes, not weeks.',
+  // Two-line split used by the dithering hero card.
+  headlineLead: 'Audit tenders in minutes,',
+  headlineMuted: 'not weeks.',
+  badge: 'Technical bid evaluation · electrical tenders',
   subtext:
     'Upload vendor bids. Antova verifies technical specifications against employer requirements, exposes unpriced scope gaps, and calculates true project cost before contract award.',
   ctaLabel: 'Audit a tender',

@@ -9,6 +9,7 @@ import { HeroSection } from './components/HeroSection';
 import { Navbar, PageView } from './components/Navbar';
 import { OfferFormAndFaqSection } from './components/OfferFormAndFaqSection';
 import { ProblemStackSection } from './components/ProblemStackSection';
+import { SiteFooter } from './components/SiteFooter';
 import { SolutionMockupSection } from './components/SolutionMockupSection';
 import { TeamPage } from './components/TeamPage';
 
@@ -102,118 +103,7 @@ export default function App() {
         )}
       </main>
 
-      {/* Footer with Antova navigation & Team link */}
-      <footer className="w-full bg-[#F6F2EA] text-[#15120F] border-t border-[#15120F]/10 py-12 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto flex flex-col items-center justify-between gap-6 text-sm text-[#15120F]/70 md:flex-row">
-          <div className="flex flex-wrap items-baseline gap-3">
-            <a
-              href="/"
-              onClick={(e) => {
-                e.preventDefault();
-                handleNavigate('home');
-              }}
-              className="font-serif text-xl text-[#15120F]"
-            >
-              Antova
-            </a>
-            <span className="font-mono text-xs uppercase tracking-wider text-[#15120F]/60">
-              Technical bid evaluation for electrical tenders
-            </span>
-          </div>
-
-          <nav aria-label="Footer navigation">
-            <ul className="flex flex-wrap items-center justify-center gap-6 font-sans text-xs sm:text-sm">
-              <li>
-                <a
-                  href="/#how-it-works"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleNavigate('home', 'how-it-works');
-                  }}
-                  className="hover:text-[#15120F] transition-colors"
-                >
-                  How It Works
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/#verification"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleNavigate('home', 'verification');
-                  }}
-                  className="hover:text-[#15120F] transition-colors"
-                >
-                  Verification
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/#features"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleNavigate('home', 'features');
-                  }}
-                  className="hover:text-[#15120F] transition-colors"
-                >
-                  Features
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/#pricing"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleNavigate('home', 'pricing');
-                  }}
-                  className="hover:text-[#15120F] transition-colors"
-                >
-                  Pricing
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/#faq"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleNavigate('home', 'faq');
-                  }}
-                  className="hover:text-[#15120F] transition-colors"
-                >
-                  FAQ
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/team"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleNavigate('team');
-                  }}
-                  className="hover:text-[#15120F] transition-colors"
-                >
-                  Team
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/#audit"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    scrollToAudit();
-                  }}
-                  className="hover:text-[#15120F] transition-colors"
-                >
-                  Contact
-                </a>
-              </li>
-              <li className="font-mono text-xs text-[#15120F]/55">
-                © 2026 Antova
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </footer>
+      <SiteFooter onNavigate={handleNavigate} onAuditClick={scrollToAudit} />
     </div>
   );
 }

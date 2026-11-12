@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { pillButtonClass } from './ui/hero-dithering-card';
 
 export type PageView = 'home' | 'team';
 
@@ -68,7 +70,7 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
   return (
     <header
       className={cn(
-        'bg-[#FDFBF7]/90 fixed left-1/2 z-50 w-[min(92%,860px)] -translate-x-1/2 rounded-full border border-[#15120F]/15 shadow-2xs backdrop-blur-md transition-all duration-200',
+        'bg-card/85 fixed left-1/2 z-50 w-[min(92%,880px)] -translate-x-1/2 rounded-full border border-border shadow-sm backdrop-blur-md transition-all duration-200',
         'top-4 lg:top-6'
       )}
     >
@@ -77,15 +79,19 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
         <a
           href="/"
           onClick={handleBrandClick}
-          className="font-serif text-2xl tracking-tight text-[#15120F] whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#15120F]"
+          className="inline-flex items-center gap-2 font-serif text-2xl tracking-tight text-[#15120F] whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#15120F]"
         >
+          <span aria-hidden="true" className="relative flex h-2 w-2">
+            <span className="motion-safe:animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D4400F] opacity-60"></span>
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-[#D4400F]"></span>
+          </span>
           Antova
         </a>
 
         {/* Zone 2: Desktop Navigation Links */}
         <nav
           aria-label="Primary navigation"
-          className="hidden lg:flex items-center gap-6"
+          className="hidden lg:flex items-center gap-1"
         >
           {NAV_ITEMS.map((item) => {
             const isActive = item.view === 'team' && currentView === 'team';
@@ -96,10 +102,10 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
                 aria-current={isActive ? 'page' : undefined}
                 onClick={(e) => handleItemClick(e, item)}
                 className={cn(
-                  'font-sans text-sm font-medium transition-colors hover:text-[#15120F] hover:underline hover:underline-offset-4 whitespace-nowrap shrink-0',
+                  'rounded-full px-3 py-1.5 font-sans text-sm font-medium transition-colors whitespace-nowrap shrink-0',
                   isActive
-                    ? 'text-[#15120F] underline underline-offset-4'
-                    : 'text-[#15120F]/70'
+                    ? 'bg-primary/5 text-[#15120F]'
+                    : 'text-[#15120F]/70 hover:bg-primary/5 hover:text-[#15120F]'
                 )}
               >
                 {item.label}
@@ -116,9 +122,10 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
               setIsMenuOpen(false);
               onAuditClick();
             }}
-            className="rounded-md bg-[#15120F] px-4 py-2 font-sans text-xs font-medium text-[#F6F2EA] hover:bg-[#15120F]/90 transition cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15120F]"
+            className={cn(pillButtonClass, 'h-9 gap-2 px-4 font-sans text-xs')}
           >
-            Audit a tender
+            <span className="relative z-10">Audit a tender</span>
+            <ArrowRight className="relative z-10 h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
           </button>
 
           <button
@@ -160,7 +167,7 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
       {isMenuOpen && (
         <div
           id="mobile-nav"
-          className="bg-[#FDFBF7] border-[#15120F]/15 absolute inset-x-0 top-[calc(100%+0.5rem)] flex flex-col rounded-2xl border p-5 shadow-lg lg:hidden"
+          className="bg-card border-border absolute inset-x-0 top-[calc(100%+0.5rem)] flex flex-col rounded-3xl border p-5 shadow-lg lg:hidden"
         >
           <nav
             aria-label="Mobile navigation"
