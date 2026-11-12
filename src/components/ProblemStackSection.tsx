@@ -6,12 +6,12 @@ import { AlertTriangle, FileWarning, Receipt } from 'lucide-react';
 function renderProblemVisual(visualType: ProblemStackItem['visualType']) {
   if (visualType === 'sticker-illusion') {
     return (
-      <div className="flex flex-col justify-between gap-4 w-full rounded-xl border border-[#15120F]/15 bg-[#FDFBF7] p-5">
-        <div className="flex items-center justify-between border-b border-[#15120F]/10 pb-3">
+      <div className="flex flex-col justify-between gap-4 w-full rounded-xl border border-[#15120F]/15 bg-[#FDFBF7] p-4 sm:p-5">
+        <div className="flex items-center justify-between gap-3 border-b border-[#15120F]/10 pb-3">
           <span className="font-mono text-xs uppercase tracking-wider text-[#15120F]/60">
             Vendor B Bid Evaluation
           </span>
-          <AlertTriangle className="h-4 w-4 text-[#15120F]/70" />
+          <AlertTriangle className="h-4 w-4 shrink-0 text-[#15120F]/70" />
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 py-2">
@@ -20,7 +20,7 @@ function renderProblemVisual(visualType: ProblemStackItem['visualType']) {
               Base Quote
             </span>
             <span className="mt-1 inline-block font-mono text-base font-semibold text-[#15120F]">
-              Base Quote: €418,000
+              €418,000
             </span>
           </div>
 
@@ -29,7 +29,7 @@ function renderProblemVisual(visualType: ProblemStackItem['visualType']) {
               Unpriced Scope Gaps
             </span>
             <span className="mt-1 inline-block font-mono text-base font-bold text-[#15120F]">
-              Unpriced Scope Gaps: +€64,800
+              +€64,800
             </span>
           </div>
         </div>
@@ -39,12 +39,12 @@ function renderProblemVisual(visualType: ProblemStackItem['visualType']) {
 
   if (visualType === 'document-avalanche') {
     return (
-      <div className="flex flex-col justify-between gap-3.5 w-full rounded-xl border border-[#15120F]/15 bg-[#FDFBF7] p-5">
-        <div className="flex items-center justify-between border-b border-[#15120F]/10 pb-2.5">
+      <div className="flex flex-col justify-between gap-3.5 w-full rounded-xl border border-[#15120F]/15 bg-[#FDFBF7] p-4 sm:p-5">
+        <div className="flex items-center justify-between gap-3 border-b border-[#15120F]/10 pb-2.5">
           <span className="font-mono text-xs uppercase tracking-wider text-[#15120F]/60">
             Cross-Document Conflict
           </span>
-          <FileWarning className="h-4 w-4 text-[#15120F]/70" />
+          <FileWarning className="h-4 w-4 shrink-0 text-[#15120F]/70" />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -71,12 +71,12 @@ function renderProblemVisual(visualType: ProblemStackItem['visualType']) {
   }
 
   return (
-    <div className="flex flex-col justify-between gap-4 w-full rounded-xl border border-[#15120F]/15 bg-[#FDFBF7] p-5">
-      <div className="flex items-center justify-between border-b border-[#15120F]/10 pb-3">
+    <div className="flex flex-col justify-between gap-4 w-full rounded-xl border border-[#15120F]/15 bg-[#FDFBF7] p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-3 border-b border-[#15120F]/10 pb-3">
         <span className="font-mono text-xs uppercase tracking-wider text-[#15120F]/60">
           Post-Award Variation Notice
         </span>
-        <Receipt className="h-4 w-4 text-[#15120F]/70" />
+        <Receipt className="h-4 w-4 shrink-0 text-[#15120F]/70" />
       </div>
 
       <div className="rounded-lg border border-[#15120F]/20 bg-[#F6F2EA] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">

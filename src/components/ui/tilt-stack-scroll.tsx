@@ -82,7 +82,7 @@ function pose(
       yPx: 0,
       rotate: ease * opts.leaveRotateDeg,
       scale: 1 - ease * 0.05,
-      opacity: 1 - Math.pow(t, 1.35),
+      opacity: clamp(1 - t * 1.6, 0, 1),
     };
   }
 
@@ -121,25 +121,24 @@ export function TiltStackScroll({
 
   const sectionRef = useRef<HTMLElement | null>(null);
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
+  const triggerRef = useRef<ScrollTrigger | null>(null);
   const activeRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
 
+  const prefersReducedMotion = () =>
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // The deck is driven by scroll position, so a step button has to move the
+  // page; setting card styles directly gets overwritten on the next scroll tick.
   const jumpToCard = (targetIdx: number) => {
-    setActiveIndex(targetIdx);
-    activeRef.current = targetIdx;
-    cardRefs.current.forEach((card, i) => {
-      if (!card) return;
-      const p = pose(i, targetIdx, {
-        rotateStepDeg,
-        offsetStepPx,
-        scaleStep,
-        leaveXPercent,
-        leaveYPercent,
-        leaveRotateDeg,
-      });
-      card.style.transform = toTransform(p);
-      card.style.opacity = String(p.opacity);
-      card.style.pointerEvents = i === targetIdx ? "auto" : "none";
+    const st = triggerRef.current;
+    if (!st) return;
+    const steps = Math.max(1, total - 1);
+    const top = st.start + ((st.end - st.start) * targetIdx) / steps;
+    window.scrollTo({
+      top: Math.ceil(top) + 1,
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
     });
   };
 
@@ -177,12 +176,23 @@ export function TiltStackScroll({
 
     apply(0);
 
+    const reduced = prefersReducedMotion();
     const ctx = gsap.context(() => {
-      ScrollTrigger.create({
+      triggerRef.current = ScrollTrigger.create({
         trigger: section,
         start: "top top",
         end: "bottom bottom",
-        scrub,
+        scrub: reduced ? true : scrub,
+        // Settle on a whole card instead of resting mid-transition.
+        snap:
+          total > 1 && !reduced
+            ? {
+                snapTo: 1 / steps,
+                duration: { min: 0.2, max: 0.45 },
+                delay: 0.08,
+                ease: "power1.inOut",
+              }
+            : undefined,
         invalidateOnRefresh: true,
         onUpdate: (self) => apply(self.progress * steps),
       });
@@ -192,6 +202,7 @@ export function TiltStackScroll({
 
     return () => {
       cancelAnimationFrame(id);
+      triggerRef.current = null;
       ctx.revert();
     };
   }, [
@@ -238,7 +249,7 @@ export function TiltStackScroll({
                   key={item.id ?? idx}
                   type="button"
                   onClick={() => jumpToCard(idx)}
-                  aria-label={`View problem phase ${pad2(idx + 1)}`}
+                  aria-label={`Show problem ${idx + 1} of ${total}: ${item.title}`}
                   aria-pressed={isCurrent}
                   className={cn(
                     "px-3 py-1.5 rounded-md font-mono text-xs transition border cursor-pointer",
@@ -255,7 +266,7 @@ export function TiltStackScroll({
         </div>
 
         {/* Stacked Tilt Deck */}
-        <div className="relative mx-auto my-auto h-[72vh] max-h-[540px] w-full max-w-6xl">
+        <div className="relative mx-auto my-4 min-h-0 w-full max-w-6xl flex-1 md:my-auto md:h-[72vh] md:max-h-[540px] md:flex-none">
           {safeItems.map((item, i) => {
             const initial = pose(i, 0, {
               rotateStepDeg,
@@ -278,17 +289,17 @@ export function TiltStackScroll({
                   opacity: initial.opacity,
                   willChange: "transform, opacity",
                 }}
-                className="absolute left-1/2 top-1/2 h-[88%] w-[96%] max-w-5xl select-none rounded-2xl border border-[#15120F]/10 bg-[#FDFBF7] p-6 shadow-md sm:p-8 md:p-10"
+                className="absolute left-1/2 top-1/2 h-[94%] w-[96%] max-w-5xl select-none overflow-hidden rounded-2xl border border-[#15120F]/10 bg-[#FDFBF7] p-5 shadow-md sm:p-8 md:h-[88%] md:p-10"
               >
-                <div className="grid h-full grid-cols-1 gap-6 md:grid-cols-12 md:gap-8 items-center">
+                <div className="grid h-full grid-cols-1 content-start gap-5 md:grid-cols-12 md:content-center md:gap-8 md:items-center">
                   {/* Left Narrative Column */}
-                  <div className="flex flex-col justify-between md:col-span-5 h-full py-1">
+                  <div className="flex flex-col justify-between md:col-span-5 md:h-full md:py-1">
                     <div>
                       <div className="inline-flex items-center gap-2 rounded-md border border-[#15120F]/15 bg-[#EDE8DE]/70 px-2.5 py-1 font-mono text-xs uppercase tracking-wider text-[#15120F]/80">
                         <span>{item.phaseTag ?? `PHASE ${pad2(i + 1)}`}</span>
                       </div>
 
-                      <h3 className="mt-4 font-serif text-2xl leading-tight tracking-tight text-[#15120F] sm:text-3xl md:text-4xl">
+                      <h3 className="mt-3 font-serif md:mt-4 text-2xl leading-tight tracking-tight text-[#15120F] sm:text-3xl md:text-4xl">
                         {item.title}
                       </h3>
 
@@ -297,7 +308,7 @@ export function TiltStackScroll({
                       </p>
                     </div>
 
-                    <div className="mt-4 flex items-center justify-between border-t border-[#15120F]/10 pt-3">
+                    <div className="mt-4 hidden items-center justify-between border-t border-[#15120F]/10 pt-3 md:flex">
                       <span
                         style={{ color: accentColor }}
                         className="font-mono text-xs font-medium tracking-wider uppercase"
@@ -305,13 +316,13 @@ export function TiltStackScroll({
                         CARD {pad2(i + 1)} OF {pad2(total)}
                       </span>
                       <span className="font-mono text-xs text-[#15120F]/55">
-                        Scroll or click step buttons
+                        Scroll or pick a step
                       </span>
                     </div>
                   </div>
 
                   {/* Right Engineering Visual Column */}
-                  <div className="relative h-full min-h-[210px] overflow-hidden rounded-xl border border-[#15120F]/15 bg-[#F6F2EA] p-4 sm:p-5 md:col-span-7 flex flex-col justify-center">
+                  <div className="relative flex flex-col justify-center overflow-hidden rounded-xl border border-[#15120F]/15 bg-[#F6F2EA] p-3 sm:p-5 md:col-span-7 md:h-full md:min-h-[210px]">
                     {item.visual ? (
                       item.visual
                     ) : item.image ? (
@@ -330,7 +341,7 @@ export function TiltStackScroll({
         </div>
 
         {/* Bottom Status Bar */}
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between font-mono text-xs text-[#15120F]/60">
+        <div className="mx-auto hidden w-full max-w-6xl items-center justify-between font-mono text-xs text-[#15120F]/60 sm:flex">
           <span>
             ACTIVE PHASE: {pad2(activeIndex + 1)} / {pad2(total)}
           </span>

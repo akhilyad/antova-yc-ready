@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { GripVertical } from "lucide-react";
 
@@ -120,10 +120,27 @@ export const Compare = ({
   return (
     <div
       ref={sliderRef}
-      role="region"
+      role="slider"
+      tabIndex={0}
       aria-label={`Before and after comparison: ${firstLabel} versus ${secondLabel}`}
+      aria-valuemin={5}
+      aria-valuemax={95}
+      aria-valuenow={Math.round(sliderXPercent)}
+      aria-valuetext={`${Math.round(sliderXPercent)}% ${firstLabel}`}
+      onKeyDown={(e) => {
+        const step = e.shiftKey ? 15 : 5;
+        let next: number | null = null;
+        if (e.key === "ArrowLeft" || e.key === "ArrowDown") next = sliderXPercent - step;
+        if (e.key === "ArrowRight" || e.key === "ArrowUp") next = sliderXPercent + step;
+        if (e.key === "Home") next = 5;
+        if (e.key === "End") next = 95;
+        if (next === null) return;
+        e.preventDefault();
+        stopAutoplay();
+        setSliderXPercent(Math.max(5, Math.min(95, next)));
+      }}
       className={cn(
-        "relative w-full h-[320px] overflow-hidden rounded-2xl border border-[#15120F]/15 bg-[#FDFBF7] select-none",
+        "relative w-full h-[320px] overflow-hidden rounded-2xl border border-[#15120F]/15 bg-[#FDFBF7] select-none outline-none focus-visible:ring-2 focus-visible:ring-[#15120F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FDFBF7]",
         className
       )}
       style={{
@@ -155,8 +172,8 @@ export const Compare = ({
       </div>
 
       {/* Vertical Divider Line + Handlebar */}
-      <AnimatePresence initial={false}>
-        <motion.div
+      <motion.div
+          aria-hidden="true"
           className="h-full w-px absolute top-0 z-40 bg-[#15120F]/40"
           style={{
             left: `${sliderXPercent}%`,
@@ -169,7 +186,6 @@ export const Compare = ({
             </div>
           )}
         </motion.div>
-      </AnimatePresence>
 
       {/* First Layer (Left Handle - "As Quoted") */}
       <div className="overflow-hidden w-full h-full relative z-20 pointer-events-none">

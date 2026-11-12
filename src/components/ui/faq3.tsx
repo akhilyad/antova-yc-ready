@@ -20,8 +20,11 @@ export const Faq3 = ({
   items = FAQ_ITEMS,
 }: Faq3Props) => {
   return (
-    <section id="faq" className="scroll-mt-24 py-20 lg:py-28 bg-[#F6F2EA]">
-      <div className="container space-y-12">
+    <section
+      id="faq"
+      className="scroll-mt-24 w-full border-t border-[#15120F]/10 bg-[#F6F2EA] px-4 py-20 sm:px-6 sm:py-24"
+    >
+      <div className="mx-auto max-w-6xl space-y-12">
         <div className="mx-auto flex max-w-3xl flex-col text-left md:text-center">
           <p className="font-mono text-xs uppercase tracking-wider text-[#15120F]/60 mb-3">
             {eyebrow}
