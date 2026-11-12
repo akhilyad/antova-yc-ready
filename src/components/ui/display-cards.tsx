@@ -4,9 +4,11 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Display Cards (21st.dev). Three skewed cards share one grid cell and fan out
- * diagonally; the back cards stay greyed out until hovered. Recoloured for the
- * Antova cream palette.
+ * Display Cards (21st.dev), reworked for the page-wide dither background.
+ * The original fanned three skewed cards over one grid cell, which only reads
+ * when each card has an opaque fill. With no card surfaces on the page, the
+ * entries are laid out as an open list instead: orange icon, mono title,
+ * finding, citation, separated by spacing and a thin accent rule.
  */
 
 export interface DisplayCardProps {
@@ -31,16 +33,14 @@ export function DisplayCard({
   return (
     <div
       className={cn(
-        "relative flex h-32 w-[14rem] -skew-y-[8deg] sm:h-36 select-none flex-col justify-between rounded-xl border-2 border-[#FFFFFF]/15 bg-black/50 px-4 py-3 backdrop-blur-sm transition-all duration-700",
-        "after:absolute after:-right-1 after:top-[-5%] after:h-[110%] after:w-[6rem] after:bg-gradient-to-l after:from-[#0B0B0B] after:to-transparent after:content-[''] sm:w-[22rem] sm:after:w-[8rem]",
-        "hover:border-[#FFFFFF]/30 hover:bg-black/60 [&>*]:flex [&>*]:items-center [&>*]:gap-2",
+        "group relative flex flex-col gap-1.5 border-l-2 border-[#D4400F]/40 py-1 pl-4 transition-colors duration-300 hover:border-[#D4400F]",
         className
       )}
     >
-      <div>
+      <div className="flex items-center gap-2">
         <span
           className={cn(
-            "relative inline-block rounded-full bg-[#D4400F] p-1 text-[#FFFFFF]",
+            "inline-flex rounded-full bg-[#D4400F] p-1 text-[#FFFFFF]",
             iconClassName
           )}
         >
@@ -55,25 +55,13 @@ export function DisplayCard({
           {title}
         </p>
       </div>
-      <p className="whitespace-nowrap font-sans text-sm text-[#FFFFFF] sm:text-lg">
+      <p className="font-sans text-base text-[#FFFFFF] sm:text-lg">
         {description}
       </p>
       <p className="font-mono text-xs text-[#FFFFFF]/60">{date}</p>
     </div>
   );
 }
-
-const backCard =
-  "before:absolute before:left-0 before:top-0 before:h-full before:w-full before:rounded-xl before:bg-black/50 before:bg-blend-overlay before:outline-1 before:outline-[#FFFFFF]/10 before:transition-opacity before:duration-700 before:content-[''] grayscale-[100%] hover:before:opacity-0 hover:grayscale-0";
-
-const stackPositions = [
-  cn("[grid-area:stack] hover:-translate-y-10", backCard),
-  cn(
-    "[grid-area:stack] translate-x-4 translate-y-10 hover:-translate-y-1 sm:translate-x-16",
-    backCard
-  ),
-  "[grid-area:stack] translate-x-8 translate-y-20 hover:translate-y-10 sm:translate-x-32",
-];
 
 export interface DisplayCardsProps {
   cards?: DisplayCardProps[];
@@ -84,18 +72,9 @@ export default function DisplayCards({ cards, className }: DisplayCardsProps) {
   const list = cards ?? [{}, {}, {}];
 
   return (
-    <div
-      className={cn(
-        "grid place-items-center [grid-template-areas:'stack']",
-        className
-      )}
-    >
+    <div className={cn("flex flex-col gap-6", className)}>
       {list.slice(0, 3).map((card, i) => (
-        <DisplayCard
-          key={i}
-          {...card}
-          className={cn(stackPositions[i], card.className)}
-        />
+        <DisplayCard key={i} {...card} />
       ))}
     </div>
   );
@@ -106,15 +85,10 @@ export interface DisplayCardFrameProps {
   className?: string;
 }
 
-/** Plain editorial container the Solution section uses around its demos. */
+/** Plain wrapper the Solution section uses around its demos (no surface). */
 export function DisplayCardFrame({ children, className }: DisplayCardFrameProps) {
   return (
-    <div
-      className={cn(
-        "relative mx-auto max-w-5xl rounded-3xl border border-[#FFFFFF]/15 bg-black/40 backdrop-blur-md p-4 shadow-2xs sm:p-8",
-        className
-      )}
-    >
+    <div className={cn("relative mx-auto max-w-5xl", className)}>
       {children}
     </div>
   );

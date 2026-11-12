@@ -31,7 +31,7 @@ export type TiltStackScrollProps = {
   /** Per-layer upward peek (px) so buried card edges stay visible. */
   peekPx?: number;
   scaleStep?: number;
-  /** Per-layer darkening of buried cards (0-1). */
+  /** Per-layer fade-out of buried cards (0-1). */
   darkenStep?: number;
   scrub?: number;
 };
@@ -42,7 +42,8 @@ type Pose = {
   rotateZ: number;
   rotateX: number;
   scale: number;
-  shade: number;
+  /** Card opacity. Cards have no fill, so buried/incoming ones fade out. */
+  alpha: number;
 };
 
 const clamp = (v: number, min: number, max: number) =>
@@ -75,7 +76,7 @@ function pose(i: number, progress: number, o: PoseOpts): Pose {
       rotateZ: ease * o.arriveRotateDeg,
       rotateX: 0,
       scale: 1,
-      shade: 0,
+      alpha: 1 - ease,
     };
   }
 
@@ -86,7 +87,7 @@ function pose(i: number, progress: number, o: PoseOpts): Pose {
     rotateZ: 0,
     rotateX: depth * o.tipBackDeg,
     scale: 1 - depth * o.scaleStep,
-    shade: clamp(depth * o.darkenStep, 0, 0.7),
+    alpha: clamp(1 - depth * (1 + o.darkenStep * 4), 0, 1),
   };
 }
 
@@ -114,7 +115,6 @@ export function TiltStackScroll({
 
   const sectionRef = useRef<HTMLElement | null>(null);
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
-  const shadeRefs = useRef<(HTMLDivElement | null)[]>([]);
   const railRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<ScrollTrigger | null>(null);
   const activeRef = useRef(0);
@@ -166,8 +166,7 @@ export function TiltStackScroll({
         const nextPose = pose(i, p, poseOpts);
         card.style.transform = toTransform(nextPose);
         card.style.pointerEvents = i === nearest ? "auto" : "none";
-        const shade = shadeRefs.current[i];
-        if (shade) shade.style.opacity = String(nextPose.shade);
+        card.style.opacity = String(nextPose.alpha);
       });
 
       if (railRef.current) {
@@ -226,7 +225,7 @@ export function TiltStackScroll({
       ref={sectionRef}
       style={{ height: `${sectionHeightVh}vh` }}
       className={cn(
-        "relative w-full text-[#FFFFFF] border-t border-[#FFFFFF]/10",
+        "relative w-full text-[#FFFFFF]",
         className
       )}
     >
@@ -256,7 +255,7 @@ export function TiltStackScroll({
                     "px-3 py-1.5 rounded-md font-mono text-xs transition border cursor-pointer",
                     isCurrent
                       ? "bg-[#D4400F] text-[#FFFFFF] border-[#D4400F]"
-                      : "bg-black/40 backdrop-blur-md text-[#FFFFFF]/70 border-[#FFFFFF]/15 hover:bg-white/10 hover:text-[#FFFFFF]"
+                      : "text-[#FFFFFF]/70 border-[#FFFFFF]/15 hover:bg-white/10 hover:text-[#FFFFFF]"
                   )}
                 >
                   {pad2(idx + 1)} / {pad2(total)}
@@ -287,25 +286,17 @@ export function TiltStackScroll({
                 style={{
                   zIndex: i + 1,
                   transform: toTransform(initial),
+                  opacity: initial.alpha,
                   transformOrigin: "50% 0%",
                   willChange: "transform",
                 }}
-                className="absolute left-1/2 top-1/2 h-[94%] w-[96%] max-w-5xl select-none overflow-hidden rounded-3xl border border-[#FFFFFF]/10 bg-black/85 backdrop-blur-xl p-5 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.45)] sm:p-8 md:h-[88%] md:p-10"
+                className="absolute left-1/2 top-1/2 h-[94%] w-[96%] max-w-5xl select-none overflow-hidden rounded-3xl p-5 sm:p-8 md:h-[88%] md:p-10"
               >
-                {/* Darkens as newer cards pile on top */}
-                <div
-                  ref={(el) => {
-                    shadeRefs.current[i] = el;
-                  }}
-                  aria-hidden="true"
-                  style={{ opacity: initial.shade }}
-                  className="pointer-events-none absolute inset-0 z-20 bg-black"
-                />
                 <div className="grid h-full grid-cols-1 content-start gap-5 md:grid-cols-12 md:content-center md:gap-8 md:items-center">
                   {/* Left Narrative Column */}
                   <div className="flex flex-col justify-between md:col-span-5 md:h-full md:py-1">
                     <div>
-                      <div className="inline-flex items-center gap-2 rounded-md border border-[#FFFFFF]/15 bg-white/[0.06] px-2.5 py-1 font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/80">
+                      <div className="inline-flex items-center gap-2 rounded-md border border-[#FFFFFF]/15 px-2.5 py-1 font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/80">
                         <span>{item.phaseTag ?? `PHASE ${pad2(i + 1)}`}</span>
                       </div>
 
@@ -332,7 +323,7 @@ export function TiltStackScroll({
                   </div>
 
                   {/* Right Engineering Visual Column */}
-                  <div className="relative flex flex-col justify-center overflow-hidden rounded-xl border border-[#FFFFFF]/15 bg-black/40 p-3 sm:p-5 md:col-span-7 md:h-full md:min-h-[210px]">
+                  <div className="relative flex flex-col justify-center overflow-hidden rounded-xl p-3 sm:p-5 md:col-span-7 md:h-full md:min-h-[210px]">
                     {item.visual ? (
                       item.visual
                     ) : item.image ? (

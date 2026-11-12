@@ -41,7 +41,7 @@ const BentoGridItem = ({
   return (
     <div
       className={cn(
-        'group/bento row-span-1 relative flex flex-col justify-between space-y-4 overflow-hidden rounded-xl border border-[#FFFFFF]/10 bg-black/40 backdrop-blur-md p-4 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)] transition duration-200 hover:shadow-xl hover:shadow-[#FFFFFF]/10',
+        'group/bento row-span-1 relative flex flex-col justify-between space-y-4 overflow-hidden rounded-xl p-4 transition duration-200',
         className
       )}
     >
@@ -92,7 +92,7 @@ const BentoCard = ({
   <div
     key={name}
     className={cn(
-      'group relative col-span-3 flex flex-col justify-between overflow-hidden rounded-2xl border border-[#FFFFFF]/10 bg-black/40 backdrop-blur-md p-6 shadow-2xs transition-all duration-300 hover:border-[#FFFFFF]/25',
+      'group relative col-span-3 flex flex-col justify-between overflow-hidden rounded-2xl p-6 transition-all duration-300',
       className
     )}
   >

@@ -167,7 +167,7 @@ export function DepthCard3D({
     <CardContainer containerClassName="h-full w-full" className="h-full w-full">
       <CardBody
         className={cn(
-          "group/card relative flex h-full w-full flex-col justify-between rounded-2xl border border-[#FFFFFF]/15 bg-black/40 backdrop-blur-md p-6 transition-shadow duration-200 hover:shadow-[0_30px_60px_-25px_rgba(0,0,0,0.35)]",
+          "group/card relative flex h-full w-full flex-col justify-between rounded-2xl p-6",
           className
         )}
       >

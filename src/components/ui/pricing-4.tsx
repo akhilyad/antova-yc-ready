@@ -22,7 +22,7 @@ export const Pricing4 = ({
     <section
       id="pricing"
       className={cn(
-        'scroll-mt-12 w-full text-[#FFFFFF] border-t border-[#FFFFFF]/10 py-20 sm:py-24 px-4 sm:px-6',
+        'scroll-mt-12 w-full text-[#FFFFFF] py-20 sm:py-24 px-4 sm:px-6',
         className
       )}
     >
@@ -40,12 +40,7 @@ export const Pricing4 = ({
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={cn(
-                'relative flex flex-col justify-between rounded-2xl border bg-black/40 backdrop-blur-md p-6 sm:p-8 shadow-2xs transition duration-200 hover:shadow-md motion-safe:hover:-translate-y-0.5',
-                plan.recommended
-                  ? 'border-[#D4400F] ring-1 ring-[#D4400F]'
-                  : 'border-[#FFFFFF]/15'
-              )}
+              className="relative flex flex-col justify-between rounded-2xl p-6 sm:p-8"
             >
               <div>
                 {/* Header & Top-Right Pill */}
@@ -59,7 +54,7 @@ export const Pricing4 = ({
                     </span>
                   )}
                   {!plan.recommended && plan.billingTerms && (
-                    <span className="inline-block shrink-0 rounded-md bg-white/[0.06] px-2.5 py-0.5 font-mono text-xs font-medium text-[#FFFFFF] border border-[#FFFFFF]/15">
+                    <span className="inline-block shrink-0 rounded-md px-2.5 py-0.5 font-mono text-xs font-medium text-[#FFFFFF] border border-[#FFFFFF]/15">
                       {plan.billingTerms}
                     </span>
                   )}
@@ -98,7 +93,7 @@ export const Pricing4 = ({
                 >
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2.5">
-                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-white/[0.06] border border-[#FFFFFF]/20 text-[#FFFFFF]">
+                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-[#FFFFFF]/20 text-[#FFFFFF]">
                         <Check className="h-2.5 w-2.5" />
                       </span>
                       <span className="leading-snug">{feature}</span>
@@ -121,7 +116,7 @@ export const Pricing4 = ({
                     'flex w-full items-center justify-center rounded-md px-5 py-3 font-sans text-sm font-medium transition cursor-pointer',
                     plan.recommended
                       ? 'bg-[#D4400F] text-[#FFFFFF] hover:bg-[#D4400F]/90'
-                      : 'border border-[#FFFFFF]/25 bg-black/40 text-[#FFFFFF] hover:bg-white/10'
+                      : 'border border-[#FFFFFF]/25 text-[#FFFFFF] hover:bg-white/10'
                   )}
                 >
                   {plan.buttonText}

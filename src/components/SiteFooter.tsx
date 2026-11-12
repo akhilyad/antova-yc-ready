@@ -33,7 +33,7 @@ export function SiteFooter({ onNavigate, onAuditClick }: SiteFooterProps) {
       <div
         className="relative mx-auto w-full max-w-7xl"
       >
-        <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-black/40 backdrop-blur-md shadow-sm sm:rounded-[48px]">
+        <div className="relative">
 
           <div className="relative z-10 grid gap-10 px-6 py-12 sm:px-10 md:grid-cols-12 md:py-16 lg:px-14">
             <div className="flex flex-col items-start gap-6 md:col-span-7">

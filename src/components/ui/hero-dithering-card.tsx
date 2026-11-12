@@ -64,7 +64,7 @@ export interface DitheringPageBackgroundProps {
  */
 export function DitheringPageBackground({
   colorFront = "#EC4E02",
-  opacity = 0.4,
+  opacity = 0.32,
   speed = 0.2,
   className,
 }: DitheringPageBackgroundProps) {
@@ -92,14 +92,14 @@ export function DitheringPageBackground({
         </div>
       </Suspense>
       {/* Soft vignette: keeps the centre column, where most copy sits, calmer */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_45%,rgba(0,0,0,0.45)_0%,rgba(0,0,0,0.1)_70%,transparent_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_45%,rgba(0,0,0,0.6)_0%,rgba(0,0,0,0.25)_70%,transparent_100%)]" />
     </div>
   );
 }
 
 /** Frosted surface for content sitting over the page dither. */
-export const frostedSurfaceClass =
-  "border border-white/10 bg-black/40 backdrop-blur-md";
+/** Content over the page dither: no fill, no border, it blends into the shader. */
+export const frostedSurfaceClass = "border-transparent bg-transparent";
 
 /** Live-dot pill used above headlines on dithering cards. */
 export function PulseBadge({
@@ -176,8 +176,8 @@ export function CTASection({
       >
         <div
           className={cn(
-            "relative overflow-hidden rounded-[48px] border shadow-sm min-h-[600px] md:min-h-[600px] flex flex-col items-center justify-center duration-500",
-            dither ? "border-border bg-card" : frostedSurfaceClass
+            "relative overflow-hidden rounded-[48px] min-h-[600px] md:min-h-[600px] flex flex-col items-center justify-center duration-500",
+            dither ? "border border-border bg-card shadow-sm" : frostedSurfaceClass
           )}
         >
           {dither && <DitheringBackground colorFront={colorFront} active={isHovered} />}
