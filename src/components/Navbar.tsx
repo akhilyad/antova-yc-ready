@@ -70,7 +70,7 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
   return (
     <header
       className={cn(
-        'bg-card/85 fixed left-1/2 z-50 w-[min(92%,880px)] -translate-x-1/2 rounded-full border border-border shadow-sm backdrop-blur-md transition-all duration-200',
+        'bg-black/50 fixed left-1/2 z-50 w-[min(92%,880px)] -translate-x-1/2 rounded-full border border-border shadow-sm backdrop-blur-md transition-all duration-200',
         'top-4 lg:top-6'
       )}
     >
@@ -167,7 +167,7 @@ export function Navbar({ currentView, onNavigate, onAuditClick }: NavbarProps) {
       {isMenuOpen && (
         <div
           id="mobile-nav"
-          className="bg-card border-border absolute inset-x-0 top-[calc(100%+0.5rem)] flex flex-col rounded-3xl border p-5 shadow-lg lg:hidden"
+          className="bg-black/80 backdrop-blur-md border-border absolute inset-x-0 top-[calc(100%+0.5rem)] flex flex-col rounded-3xl border p-5 shadow-lg lg:hidden"
         >
           <nav
             aria-label="Mobile navigation"

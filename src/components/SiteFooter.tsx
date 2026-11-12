@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PageView } from './Navbar';
 import {
-  DitheringBackground,
   PulseBadge,
   pillButtonClass,
 } from './ui/hero-dithering-card';
@@ -27,24 +26,14 @@ const FOOTER_LINKS: {
   { label: 'Team', href: '/team', view: 'team' },
 ];
 
-/** Footer card in the same dithering style as the hero and audit CTA. */
+/** Frosted footer card over the page-wide dither. */
 export function SiteFooter({ onNavigate, onAuditClick }: SiteFooterProps) {
-  const [hovered, setHovered] = useState(false);
-
   return (
-    <footer className="w-full bg-[#000000] px-4 pb-6 pt-4 text-[#FFFFFF] md:px-6">
+    <footer className="w-full px-4 pb-6 pt-4 text-[#FFFFFF] md:px-6">
       <div
         className="relative mx-auto w-full max-w-7xl"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
       >
-        <div className="relative overflow-hidden rounded-[32px] border border-border bg-card shadow-sm sm:rounded-[48px]">
-          {/* Fainter than the hero so the links stay readable */}
-          <DitheringBackground
-            colorFront="#D4400F"
-            active={hovered}
-            className="opacity-35"
-          />
+        <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-black/40 backdrop-blur-md shadow-sm sm:rounded-[48px]">
 
           <div className="relative z-10 grid gap-10 px-6 py-12 sm:px-10 md:grid-cols-12 md:py-16 lg:px-14">
             <div className="flex flex-col items-start gap-6 md:col-span-7">

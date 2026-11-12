@@ -18,7 +18,7 @@ export function SolutionMockupSection() {
   return (
     <section
       id="verification"
-      className="scroll-mt-12 w-full bg-[#000000] text-[#FFFFFF] border-t border-[#FFFFFF]/10 py-20 sm:py-24 px-4 sm:px-6"
+      className="scroll-mt-12 w-full text-[#FFFFFF] border-t border-[#FFFFFF]/10 py-20 sm:py-24 px-4 sm:px-6"
     >
       <div className="max-w-6xl mx-auto">
         {/* Section Header */}
@@ -32,7 +32,7 @@ export function SolutionMockupSection() {
           <p className="font-sans text-base text-[#FFFFFF]/70 text-center max-w-2xl mx-auto mt-3">
             {subtext}
           </p>
-          <span className="mt-4 inline-block rounded border border-[#FFFFFF]/20 bg-[#0B0B0B] px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#FFFFFF]/70">
+          <span className="mt-4 inline-block rounded border border-[#FFFFFF]/20 bg-black/40 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#FFFFFF]/70">
             {SAMPLE_DATA_LABEL}
           </span>
         </div>
@@ -68,7 +68,7 @@ export function SolutionMockupSection() {
                       </div>
                     </div>
 
-                    <div className="rounded-xl border border-[#FFFFFF]/15 bg-[#000000] p-3.5 flex items-center justify-between">
+                    <div className="rounded-xl border border-[#FFFFFF]/15 bg-black/40 p-3.5 flex items-center justify-between">
                       <div>
                         <span className="block font-mono text-[10px] uppercase tracking-wider text-[#FFFFFF]/60">
                           Commercial Cover
@@ -110,7 +110,7 @@ export function SolutionMockupSection() {
                       </div>
                     </div>
 
-                    <div className="rounded-xl border border-[#FFFFFF]/25 bg-[#0B0B0B] p-3.5 flex items-center justify-between">
+                    <div className="rounded-xl border border-[#FFFFFF]/25 bg-black/40 p-3.5 flex items-center justify-between">
                       <span className="font-mono text-[11px] text-[#FFFFFF]/60">
                         Vendor Cover
                       </span>
@@ -151,7 +151,7 @@ export function SolutionMockupSection() {
                   </div>
                 }
                 floatingLayer={
-                  <div className="rounded-xl border-2 border-[#D4400F] bg-[#0B0B0B] p-5 shadow-md space-y-3">
+                  <div className="rounded-xl border-2 border-[#D4400F] bg-black/40 p-5 shadow-md space-y-3">
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-mono text-xs font-semibold uppercase tracking-wider text-[#FFFFFF]">
                         {depthCardMockup.citationHeader}
@@ -174,7 +174,7 @@ export function SolutionMockupSection() {
           </div>
 
           {/* Display Cards stack: the three deviations the audit raised */}
-          <div className="mt-6 grid grid-cols-1 items-center gap-10 overflow-hidden rounded-2xl border border-[#FFFFFF]/10 bg-[#000000] p-5 sm:p-8 lg:grid-cols-12">
+          <div className="mt-6 grid grid-cols-1 items-center gap-10 overflow-hidden rounded-2xl border border-[#FFFFFF]/10 bg-black/40 backdrop-blur-md p-5 sm:p-8 lg:grid-cols-12">
             <div className="lg:col-span-5">
               <p className="font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/60">
                 {flaggedDeviations.eyebrow}

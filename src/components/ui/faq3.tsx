@@ -48,7 +48,7 @@ export const Faq3 = ({
   return (
     <section
       id="faq"
-      className="scroll-mt-12 w-full border-t border-[#FFFFFF]/10 bg-[#000000] px-4 py-20 sm:px-6 sm:py-24"
+      className="scroll-mt-12 w-full border-t border-[#FFFFFF]/10 px-4 py-20 sm:px-6 sm:py-24"
     >
       <div className="mx-auto max-w-6xl space-y-16">
         <div className="mx-auto flex max-w-3xl flex-col text-left md:text-center">
@@ -89,7 +89,7 @@ export const Faq3 = ({
           ))}
         </Accordion>
 
-        <div className="mx-auto flex max-w-4xl flex-col items-center rounded-lg border border-[#FFFFFF]/10 bg-[#171717] p-4 text-center md:rounded-xl md:p-6 lg:p-8">
+        <div className="mx-auto flex max-w-4xl flex-col items-center rounded-lg border border-[#FFFFFF]/10 bg-black/40 backdrop-blur-md p-4 text-center md:rounded-xl md:p-6 lg:p-8">
           <Avatar className="mb-4 size-16 border-2 border-[#0B0B0B] shadow-sm md:mb-5">
             <AvatarImage
               src={TEAM_FOUNDER_DATA.image}
