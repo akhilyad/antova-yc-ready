@@ -1,115 +1,140 @@
 import React from 'react';
 import { PROBLEM_STACK_SECTION, ProblemStackItem } from '../constants';
+import { CELLS, SECTION_LABEL, cellAdder } from '../data/tender402';
+import { formatEuro } from '../utils/audit';
 import { TiltStackItem, TiltStackScroll } from './ui/tilt-stack-scroll';
-import { AlertTriangle, FileWarning, Receipt } from 'lucide-react';
 
-function renderProblemVisual(visualType: ProblemStackItem['visualType']) {
-  if (visualType === 'sticker-illusion') {
-    return (
-      <div className="flex flex-col justify-between gap-4 w-full rounded-xl p-4 sm:p-5">
-        <div className="flex items-center justify-between gap-3 border-b border-[#FFFFFF]/10 pb-3">
-          <span className="font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/60">
-            Vendor B Bid Evaluation
-          </span>
-          <AlertTriangle className="h-4 w-4 shrink-0 text-[#FFFFFF]/70" />
-        </div>
+const mono = 'font-mono text-[11px] uppercase tracking-wider';
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 py-2">
-          <div className="flex-1 rounded-lg px-4 py-3.5">
-            <span className="block font-mono text-[11px] uppercase tracking-wider text-[#FFFFFF]/60">
-              Base Quote
-            </span>
-            <span className="mt-1 inline-block font-mono text-base font-semibold text-[#FFFFFF]">
-              €418,000
-            </span>
-          </div>
-
-          <div className="flex-1 rounded-lg border border-[#FFFFFF]/25 bg-[#D4400F] px-4 py-3.5">
-            <span className="block font-mono text-[11px] uppercase tracking-wider text-[#FFFFFF]/80">
-              Unpriced Scope Gaps
-            </span>
-            <span className="mt-1 inline-block font-mono text-base font-bold text-[#FFFFFF]">
-              +€64,800
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (visualType === 'document-avalanche') {
-    return (
-      <div className="flex flex-col justify-between gap-3.5 w-full rounded-xl p-4 sm:p-5">
-        <div className="flex items-center justify-between gap-3 border-b border-[#FFFFFF]/10 pb-2.5">
-          <span className="font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/60">
-            Cross-Document Conflict
-          </span>
-          <FileWarning className="h-4 w-4 shrink-0 text-[#FFFFFF]/70" />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {/* Left: Sales Cover Letter */}
-          <div className="rounded-lg p-3.5 space-y-2.5">
-            <span className="inline-block font-mono text-xs font-medium text-[#FFFFFF]">
-              Sales Cover Letter: &ldquo;Fully Compliant&rdquo;
-            </span>
-            <div className="h-2 w-full bg-[#FFFFFF]/10 rounded" />
-            <div className="h-2 w-4/5 bg-[#FFFFFF]/10 rounded" />
-          </div>
-
-          {/* Right: Datasheet p. 184 */}
-          <div className="rounded-lg p-3.5 space-y-2.5">
-            <div className="h-2 w-3/4 bg-[#FFFFFF]/10 rounded" />
-            <div className="rounded bg-[#D4400F] px-2.5 py-1.5 font-mono text-xs font-semibold text-[#FFFFFF]">
-              Datasheet p. 184: &ldquo;Excludes Witness FAT&rdquo;
-            </div>
-            <div className="h-2 w-2/3 bg-[#FFFFFF]/10 rounded" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+/** 01: headline ranking vs evaluated ranking for the two closest bids. */
+function HeadlineTrap() {
+  const rows = [
+    { name: 'VoltSwitch', headline: 418000, evaluated: 482800 },
+    { name: 'Nordwerk', headline: 452000, evaluated: 452000 },
+  ];
+  const max = 500000;
   return (
-    <div className="flex flex-col justify-between gap-4 w-full rounded-xl p-4 sm:p-5">
-      <div className="flex items-center justify-between gap-3 border-b border-[#FFFFFF]/10 pb-3">
-        <span className="font-mono text-xs uppercase tracking-wider text-[#FFFFFF]/60">
-          Post-Award Variation Notice
-        </span>
-        <Receipt className="h-4 w-4 shrink-0 text-[#FFFFFF]/70" />
+    <div className="flex w-full flex-col gap-5">
+      {(['headline', 'evaluated'] as const).map((key) => {
+        const order = [...rows].sort((a, b) => a[key] - b[key]);
+        return (
+          <div key={key}>
+            <p className={`${mono} mb-2 text-white/55`}>
+              {key === 'headline' ? 'Ranked by headline' : 'Ranked by evaluated price'}
+            </p>
+            <div className="space-y-2">
+              {order.map((r, i) => (
+                <div key={r.name} className="flex items-center gap-3">
+                  <span className="w-20 shrink-0 font-mono text-xs text-white/80">{r.name}</span>
+                  <div className="h-6 flex-1">
+                    <div
+                      className={
+                        i === 0
+                          ? 'flex h-full items-center rounded-sm bg-[#D4400F] px-2'
+                          : 'flex h-full items-center rounded-sm bg-white/15 px-2'
+                      }
+                      style={{ width: `${(r[key] / max) * 100}%` }}
+                    >
+                      <span className="font-mono text-[11px] text-white">{formatEuro(r[key])}</span>
+                    </div>
+                  </div>
+                  <span className="w-10 shrink-0 text-right font-mono text-[11px] text-white/55">
+                    #{i + 1}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** 02: the two VoltSwitch PARAM-01 citations, tier 3 overridden by tier 1. */
+function BuriedConflict() {
+  const cell = CELLS['vendor-b']['PARAM-01'];
+  const claim = cell.secondary!;
+  return (
+    <div className="flex w-full flex-col gap-4 font-mono text-xs">
+      <div className="border-l-2 border-white/25 pl-4">
+        <p className={`${mono} text-white/55`}>
+          p.{claim.page} · {SECTION_LABEL[claim.section]} · tier 3
+        </p>
+        <p className="mt-1.5 font-sans text-sm leading-relaxed text-white/60 line-through decoration-white/40">
+          “{claim.quote} …”
+        </p>
       </div>
+      <div className="border-l-2 border-[#D4400F] pl-4">
+        <p className={`${mono} text-[#FF7A45]`}>
+          p.{cell.citation.page} · {SECTION_LABEL[cell.citation.section]} · tier 1 · governs
+        </p>
+        <p className="mt-1.5 font-sans text-sm leading-relaxed text-white">“{cell.citation.quote}”</p>
+      </div>
+      <p className="text-white/60">
+        Ik 31.5 kA &lt; 50 kA · t 1 s &lt; 3 s →{' '}
+        <span className="text-[#FF7A45]">CONFLICT · +{formatEuro(cellAdder(cell))}</span>
+      </p>
+    </div>
+  );
+}
 
-      <div className="rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <span className="font-mono text-xs font-medium text-[#FFFFFF]">
-          Variation Order #VO-04: Switchgear FAT &amp; Auxiliary Feeds
-        </span>
-
-        <span className="inline-block shrink-0 rounded-md border border-[#FFFFFF]/25 bg-[#D4400F] px-3 py-1.5 font-mono text-xs font-bold text-[#FFFFFF]">
-          (+€64,800 Approved)
-        </span>
+/** 03: VoltSwitch exclusions that would surface as change orders after award. */
+function VariationOrders() {
+  const b = CELLS['vendor-b'];
+  const items = [
+    { id: 'PARAM-05', label: 'Witnessed FAT not in price', cell: b['PARAM-05'] },
+    { id: 'PARAM-06', label: 'EXW Izmir, 18-month warranty', cell: b['PARAM-06'] },
+    { id: 'PARAM-02', label: 'Aluminium busbar for Cu-ETP', cell: b['PARAM-02'] },
+  ];
+  const total = items.reduce((s, i) => s + cellAdder(i.cell), 0);
+  return (
+    <div className="flex w-full flex-col font-mono text-xs">
+      {items.map((it, i) => (
+        <div
+          key={it.id}
+          className="flex items-center justify-between gap-4 border-b border-white/10 py-3"
+        >
+          <div className="min-w-0">
+            <p className="text-white/50">VO-{String(i + 1).padStart(2, '0')} · {it.id} · p.{it.cell.citation.page}</p>
+            <p className="mt-0.5 truncate text-white">{it.label}</p>
+          </div>
+          <span className="shrink-0 text-[#FF7A45]">+{formatEuro(cellAdder(it.cell))}</span>
+        </div>
+      ))}
+      <div className="flex items-center justify-between pt-3">
+        <span className="text-white/60">Unpriced at award</span>
+        <span className="text-white">{formatEuro(total)}</span>
       </div>
     </div>
   );
 }
 
-export function ProblemStackSection() {
-  const stackItems: TiltStackItem[] = PROBLEM_STACK_SECTION.cards.map(
-    (card) => ({
-      id: card.id,
-      phaseTag: card.phaseTag,
-      title: card.title,
-      description: card.description,
-      visual: renderProblemVisual(card.visualType),
-    })
-  );
+function renderProblemVisual(type: ProblemStackItem['visualType']) {
+  if (type === 'headline-trap') return <HeadlineTrap />;
+  if (type === 'buried-conflict') return <BuriedConflict />;
+  return <VariationOrders />;
+}
+
+export const ProblemStackSection: React.FC = () => {
+  const items: TiltStackItem[] = PROBLEM_STACK_SECTION.cards.map((card) => ({
+    id: card.id,
+    phaseTag: card.phaseTag,
+    title: card.title,
+    titleItalic: card.titleItalic,
+    description: card.description,
+    visual: renderProblemVisual(card.visualType),
+  }));
 
   return (
-    <div id="how-it-works">
+    <div id="problem" className="scroll-mt-12">
       <TiltStackScroll
         eyebrow={PROBLEM_STACK_SECTION.eyebrow}
         heading={PROBLEM_STACK_SECTION.heading}
-        items={stackItems}
+        items={items}
       />
     </div>
   );
-}
+};
+
+export default ProblemStackSection;

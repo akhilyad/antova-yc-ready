@@ -18,19 +18,19 @@ const NAV_ITEMS: {
   sectionId?: string;
 }[] = [
   {
-    label: 'How It Works',
-    href: '/#how-it-works',
-    view: 'home',
-    sectionId: 'how-it-works',
-  },
-  {
-    label: 'Verification',
+    label: 'Matrix',
     href: '/#verification',
     view: 'home',
     sectionId: 'verification',
   },
   {
-    label: 'Features',
+    label: 'Pipeline',
+    href: '/#how-it-works',
+    view: 'home',
+    sectionId: 'how-it-works',
+  },
+  {
+    label: 'Precision',
     href: '/#features',
     view: 'home',
     sectionId: 'features',
