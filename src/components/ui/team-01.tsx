@@ -80,9 +80,9 @@ export const Team = ({ onBackHome, onAuditClick }: TeamProps) => {
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-center">
               {/* Left Column: Founder Photo */}
               <div className="md:col-span-5 flex justify-center">
-                <div className="w-full max-w-[260px] aspect-square overflow-hidden rounded-xl border border-[#15120F]/15 bg-[#F6F2EA]">
+                <div className="group/photo w-full max-w-[260px] aspect-square overflow-hidden rounded-xl border border-[#15120F]/15 bg-[#F6F2EA]">
                   <img
-                    className="w-full h-full object-cover object-top transition-all duration-300"
+                    className="w-full h-full object-cover object-top grayscale-[35%] transition-all duration-500 motion-safe:group-hover/photo:scale-105 group-hover/photo:grayscale-0"
                     src={TEAM_FOUNDER_DATA.image}
                     alt={TEAM_FOUNDER_DATA.name}
                     referrerPolicy="no-referrer"

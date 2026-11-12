@@ -12,7 +12,7 @@ const BentoGrid = ({ children, className }: BentoGridProps) => {
   return (
     <div
       className={cn(
-        'grid w-full grid-cols-1 md:grid-cols-3 gap-5',
+        'mx-auto grid w-full grid-cols-1 gap-4 md:auto-rows-[minmax(22rem,auto)] md:grid-cols-3',
         className
       )}
     >
@@ -41,12 +41,14 @@ const BentoGridItem = ({
   return (
     <div
       className={cn(
-        'group/bento relative flex flex-col justify-between overflow-hidden rounded-2xl border border-[#15120F]/10 bg-[#FDFBF7] p-6 shadow-2xs transition duration-200 hover:border-[#15120F]/25 hover:shadow-md motion-safe:hover:-translate-y-0.5',
+        'group/bento row-span-1 relative flex flex-col justify-between space-y-4 overflow-hidden rounded-xl border border-[#15120F]/10 bg-[#FDFBF7] p-4 shadow-[0_2px_8px_-2px_rgba(21,18,15,0.06)] transition duration-200 hover:shadow-xl hover:shadow-[#15120F]/10',
         className
       )}
     >
-      <div className="mb-5 w-full flex-1">{header}</div>
-      <div className="z-10 flex flex-col gap-1.5 transition duration-200 motion-safe:group-hover/bento:translate-x-1">
+      <div className="flex min-h-[6rem] w-full flex-1">
+        <div className="w-full">{header}</div>
+      </div>
+      <div className="z-10 flex flex-col gap-1.5 px-1 pb-1 transition duration-200 motion-safe:group-hover/bento:translate-x-2">
         <div className="flex items-center justify-between gap-2">
           {kicker && (
             <span className="font-mono text-[11px] uppercase tracking-wider text-[#15120F]/60">

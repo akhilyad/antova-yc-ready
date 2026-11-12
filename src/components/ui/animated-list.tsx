@@ -4,6 +4,11 @@ import React, { ReactElement, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 
+/**
+ * Animated List (Magic UI). Items are revealed one at a time; each new item
+ * springs in at the top and pushes the earlier ones down.
+ */
+
 export interface AnimatedListProps {
   className?: string;
   children: React.ReactNode;
@@ -11,35 +16,33 @@ export interface AnimatedListProps {
 }
 
 export const AnimatedList = React.memo(
-  ({ className, children, delay = 2400 }: AnimatedListProps) => {
+  ({ className, children, delay = 1000 }: AnimatedListProps) => {
     const childrenArray = useMemo(
       () => React.Children.toArray(children),
       [children]
     );
-    const [index, setIndex] = useState(childrenArray.length - 1);
     const reduceMotion = useReducedMotion();
+    const [index, setIndex] = useState(0);
 
     useEffect(() => {
-      if (childrenArray.length <= 1 || reduceMotion) return;
-      const interval = setInterval(() => {
-        setIndex((prevIndex) => (prevIndex + 1) % childrenArray.length);
-      }, delay);
-
-      return () => clearInterval(interval);
-    }, [childrenArray.length, delay, reduceMotion]);
-
-    const itemsToShow = useMemo(() => {
-      if (childrenArray.length === 0) return [];
-      const rotated: React.ReactNode[] = [];
-      for (let i = 0; i < childrenArray.length; i++) {
-        rotated.push(childrenArray[(index + i) % childrenArray.length]);
+      if (reduceMotion) {
+        setIndex(childrenArray.length - 1);
+        return;
       }
-      return rotated;
-    }, [index, childrenArray]);
+      if (index < childrenArray.length - 1) {
+        const timeout = setTimeout(() => setIndex((prev) => prev + 1), delay);
+        return () => clearTimeout(timeout);
+      }
+    }, [index, delay, childrenArray.length, reduceMotion]);
+
+    const itemsToShow = useMemo(
+      () => childrenArray.slice(0, index + 1).reverse(),
+      [index, childrenArray]
+    );
 
     return (
-      <div className={cn("flex flex-col items-center gap-2.5 w-full", className)}>
-        <AnimatePresence initial={false}>
+      <div className={cn("flex flex-col items-center gap-4", className)}>
+        <AnimatePresence>
           {itemsToShow.map((item) => (
             <AnimatedListItem key={(item as ReactElement).key}>
               {item}
@@ -56,10 +59,10 @@ AnimatedList.displayName = "AnimatedList";
 export function AnimatedListItem({ children }: { children: React.ReactNode }) {
   return (
     <motion.div
-      initial={{ scale: 0.98, opacity: 0.85 }}
+      initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1, originY: 0 }}
-      exit={{ scale: 0.98, opacity: 0.85 }}
-      transition={{ type: "spring", stiffness: 320, damping: 35 }}
+      exit={{ scale: 0, opacity: 0 }}
+      transition={{ type: "spring", stiffness: 350, damping: 40 }}
       layout
       className="mx-auto w-full"
     >

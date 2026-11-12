@@ -22,23 +22,27 @@ export type TiltStackScrollProps = {
   className?: string;
   accentColor?: string;
   scrollPerItemVh?: number;
-  rotateStepDeg?: number;
-  offsetStepPx?: number;
+  /** Z-rotation a card carries while it is still travelling in. */
+  arriveRotateDeg?: number;
+  /** How far (vh) below centre an incoming card starts. */
+  arriveOffsetVh?: number;
+  /** Per-layer tip-back (rotateX) for cards buried under newer ones. */
+  tipBackDeg?: number;
+  /** Per-layer upward peek (px) so buried card edges stay visible. */
+  peekPx?: number;
   scaleStep?: number;
-  leaveXPercent?: number;
-  leaveYPercent?: number;
-  leaveRotateDeg?: number;
+  /** Per-layer darkening of buried cards (0-1). */
+  darkenStep?: number;
   scrub?: number;
 };
 
 type Pose = {
-  xPercent: number;
-  yPercent: number;
-  xPx: number;
+  yVh: number;
   yPx: number;
-  rotate: number;
+  rotateZ: number;
+  rotateX: number;
   scale: number;
-  opacity: number;
+  shade: number;
 };
 
 const clamp = (v: number, min: number, max: number) =>
@@ -46,59 +50,48 @@ const clamp = (v: number, min: number, max: number) =>
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
 
-function pose(
-  i: number,
-  progress: number,
-  opts: {
-    rotateStepDeg: number;
-    offsetStepPx: number;
-    scaleStep: number;
-    leaveXPercent: number;
-    leaveYPercent: number;
-    leaveRotateDeg: number;
-  }
-): Pose {
+type PoseOpts = {
+  arriveRotateDeg: number;
+  arriveOffsetVh: number;
+  tipBackDeg: number;
+  peekPx: number;
+  scaleStep: number;
+  darkenStep: number;
+};
+
+/**
+ * rel > 0: card has not landed yet and travels up from below, tilted.
+ * rel <= 0: card has landed; each newer card on top pushes it back one layer.
+ */
+function pose(i: number, progress: number, o: PoseOpts): Pose {
   const rel = i - progress;
 
-  if (rel < -1) {
-    return {
-      xPercent: -50 + opts.leaveXPercent,
-      yPercent: -50 + opts.leaveYPercent,
-      xPx: 0,
-      yPx: 0,
-      rotate: opts.leaveRotateDeg,
-      scale: 0.94,
-      opacity: 0,
-    };
-  }
-
-  if (rel < 0) {
-    const t = -rel;
+  if (rel > 0) {
+    const t = clamp(rel, 0, 1);
     const ease = t * t * (3 - 2 * t);
     return {
-      xPercent: -50 + ease * opts.leaveXPercent,
-      yPercent: -50 + ease * opts.leaveYPercent,
-      xPx: 0,
+      yVh: ease * o.arriveOffsetVh,
       yPx: 0,
-      rotate: ease * opts.leaveRotateDeg,
-      scale: 1 - ease * 0.05,
-      opacity: t < 0.65 ? 1 : clamp(1 - (t - 0.65) / 0.35, 0, 1),
+      rotateZ: ease * o.arriveRotateDeg,
+      rotateX: 0,
+      scale: 1,
+      shade: 0,
     };
   }
 
+  const depth = Math.min(-rel, 3);
   return {
-    xPercent: -50,
-    yPercent: -50,
-    xPx: rel * (opts.offsetStepPx * 0.4),
-    yPx: rel * opts.offsetStepPx,
-    rotate: rel * opts.rotateStepDeg,
-    scale: Math.max(0.84, 1 - rel * opts.scaleStep),
-    opacity: clamp(1 - rel * 0.24, 0, 1),
+    yVh: 0,
+    yPx: -depth * o.peekPx,
+    rotateZ: 0,
+    rotateX: depth * o.tipBackDeg,
+    scale: 1 - depth * o.scaleStep,
+    shade: clamp(depth * o.darkenStep, 0, 0.7),
   };
 }
 
 function toTransform(p: Pose) {
-  return `translate3d(calc(${p.xPercent}% + ${p.xPx}px), calc(${p.yPercent}% + ${p.yPx}px), 0) rotate(${p.rotate}deg) scale(${p.scale})`;
+  return `translate3d(-50%, calc(-50% + ${p.yVh}vh + ${p.yPx}px), 0) perspective(1400px) rotateX(${p.rotateX}deg) rotateZ(${p.rotateZ}deg) scale(${p.scale})`;
 }
 
 export function TiltStackScroll({
@@ -106,14 +99,14 @@ export function TiltStackScroll({
   heading = "Where project margins disappear.",
   items = [],
   className = "",
-  accentColor = "#15120F",
+  accentColor = "#D4400F",
   scrollPerItemVh = 95,
-  rotateStepDeg = -3,
-  offsetStepPx = 14,
-  scaleStep = 0.035,
-  leaveXPercent = -48,
-  leaveYPercent = -60,
-  leaveRotateDeg = -18,
+  arriveRotateDeg = 7,
+  arriveOffsetVh = 95,
+  tipBackDeg = 9,
+  peekPx = 22,
+  scaleStep = 0.055,
+  darkenStep = 0.22,
   scrub = 0.55,
 }: TiltStackScrollProps) {
   const safeItems = useMemo(() => items.filter(Boolean), [items]);
@@ -121,6 +114,8 @@ export function TiltStackScroll({
 
   const sectionRef = useRef<HTMLElement | null>(null);
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
+  const shadeRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const railRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<ScrollTrigger | null>(null);
   const activeRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -149,6 +144,14 @@ export function TiltStackScroll({
     gsap.registerPlugin(ScrollTrigger);
 
     const steps = Math.max(1, total - 1);
+    const poseOpts: PoseOpts = {
+      arriveRotateDeg,
+      arriveOffsetVh,
+      tipBackDeg,
+      peekPx,
+      scaleStep,
+      darkenStep,
+    };
     const apply = (progressFloat: number) => {
       const p = clamp(progressFloat, 0, steps);
       const nearest = clamp(Math.round(p), 0, total - 1);
@@ -160,18 +163,16 @@ export function TiltStackScroll({
 
       cardRefs.current.forEach((card, i) => {
         if (!card) return;
-        const nextPose = pose(i, p, {
-          rotateStepDeg,
-          offsetStepPx,
-          scaleStep,
-          leaveXPercent,
-          leaveYPercent,
-          leaveRotateDeg,
-        });
+        const nextPose = pose(i, p, poseOpts);
         card.style.transform = toTransform(nextPose);
-        card.style.opacity = String(nextPose.opacity);
         card.style.pointerEvents = i === nearest ? "auto" : "none";
+        const shade = shadeRefs.current[i];
+        if (shade) shade.style.opacity = String(nextPose.shade);
       });
+
+      if (railRef.current) {
+        railRef.current.style.transform = `scaleX(${steps ? p / steps : 1})`;
+      }
     };
 
     apply(0);
@@ -207,12 +208,12 @@ export function TiltStackScroll({
     };
   }, [
     total,
-    rotateStepDeg,
-    offsetStepPx,
+    arriveRotateDeg,
+    arriveOffsetVh,
+    tipBackDeg,
+    peekPx,
     scaleStep,
-    leaveXPercent,
-    leaveYPercent,
-    leaveRotateDeg,
+    darkenStep,
     scrub,
   ]);
 
@@ -269,12 +270,12 @@ export function TiltStackScroll({
         <div className="relative mx-auto my-4 min-h-0 w-full max-w-6xl flex-1 md:my-auto md:h-[72vh] md:max-h-[540px] md:flex-none lg:max-h-[600px]">
           {safeItems.map((item, i) => {
             const initial = pose(i, 0, {
-              rotateStepDeg,
-              offsetStepPx,
+              arriveRotateDeg,
+              arriveOffsetVh,
+              tipBackDeg,
+              peekPx,
               scaleStep,
-              leaveXPercent,
-              leaveYPercent,
-              leaveRotateDeg,
+              darkenStep,
             });
 
             return (
@@ -284,13 +285,22 @@ export function TiltStackScroll({
                   cardRefs.current[i] = el;
                 }}
                 style={{
-                  zIndex: total - i,
+                  zIndex: i + 1,
                   transform: toTransform(initial),
-                  opacity: initial.opacity,
-                  willChange: "transform, opacity",
+                  transformOrigin: "50% 0%",
+                  willChange: "transform",
                 }}
-                className="absolute left-1/2 top-1/2 h-[94%] w-[96%] max-w-5xl select-none overflow-hidden rounded-2xl border border-[#15120F]/10 bg-[#FDFBF7] p-5 shadow-md sm:p-8 md:h-[88%] md:p-10"
+                className="absolute left-1/2 top-1/2 h-[94%] w-[96%] max-w-5xl select-none overflow-hidden rounded-3xl border border-[#15120F]/10 bg-[#FDFBF7] p-5 shadow-[0_30px_60px_-30px_rgba(21,18,15,0.45)] sm:p-8 md:h-[88%] md:p-10"
               >
+                {/* Darkens as newer cards pile on top */}
+                <div
+                  ref={(el) => {
+                    shadeRefs.current[i] = el;
+                  }}
+                  aria-hidden="true"
+                  style={{ opacity: initial.shade }}
+                  className="pointer-events-none absolute inset-0 z-20 bg-[#15120F]"
+                />
                 <div className="grid h-full grid-cols-1 content-start gap-5 md:grid-cols-12 md:content-center md:gap-8 md:items-center">
                   {/* Left Narrative Column */}
                   <div className="flex flex-col justify-between md:col-span-5 md:h-full md:py-1">
@@ -340,12 +350,22 @@ export function TiltStackScroll({
           })}
         </div>
 
-        {/* Bottom Status Bar */}
-        <div className="mx-auto hidden w-full max-w-6xl items-center justify-between font-mono text-xs text-[#15120F]/60 sm:flex">
-          <span>
-            ACTIVE PHASE: {pad2(activeIndex + 1)} / {pad2(total)}
+        {/* Counter + progress rail */}
+        <div className="mx-auto flex w-full max-w-6xl items-center gap-4 font-mono text-xs text-[#15120F]/60">
+          <span className="shrink-0 tabular-nums">
+            <span className="text-[#15120F]">{pad2(activeIndex + 1)}</span> /{" "}
+            {pad2(total)}
           </span>
-          <span>TECHNICAL BID RISK BREAKDOWN</span>
+          <div className="relative h-px flex-1 overflow-hidden bg-[#15120F]/15">
+            <div
+              ref={railRef}
+              style={{ backgroundColor: accentColor, transform: "scaleX(0)" }}
+              className="absolute inset-0 origin-left"
+            />
+          </div>
+          <span className="hidden shrink-0 sm:inline">
+            TECHNICAL BID RISK BREAKDOWN
+          </span>
         </div>
       </div>
     </section>

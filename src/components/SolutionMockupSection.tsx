@@ -1,13 +1,19 @@
 import React from 'react';
 import { SAMPLE_DATA_LABEL, SOLUTION_TRANSITION_COPY } from '../constants';
-import { DisplayCardFrame } from './ui/glass-folder-cards';
+import DisplayCards, { DisplayCardFrame } from './ui/display-cards';
 import { Compare } from './ui/compare';
 import { DepthCard3D } from './ui/3d-card';
-import { FileText } from 'lucide-react';
+import { AlertTriangle, FileText, Scale, Truck } from 'lucide-react';
 
 export function SolutionMockupSection() {
-  const { eyebrow, headline, subtext, compareMockup, depthCardMockup } =
-    SOLUTION_TRANSITION_COPY;
+  const {
+    eyebrow,
+    headline,
+    subtext,
+    compareMockup,
+    depthCardMockup,
+    flaggedDeviations,
+  } = SOLUTION_TRANSITION_COPY;
 
   return (
     <section
@@ -41,6 +47,8 @@ export function SolutionMockupSection() {
                 secondLabel={compareMockup.auditedLabel}
                 initialSliderPercentage={50}
                 slideMode="hover"
+                autoplay
+                autoplayDuration={4500}
                 className="h-full min-h-[310px]"
                 firstContent={
                   <div className="w-full h-full p-6 pt-14 flex flex-col justify-between bg-[#FDFBF7]">
@@ -161,6 +169,33 @@ export function SolutionMockupSection() {
                     </div>
                   </div>
                 }
+              />
+            </div>
+          </div>
+
+          {/* Display Cards stack: the three deviations the audit raised */}
+          <div className="mt-6 grid grid-cols-1 items-center gap-10 overflow-hidden rounded-2xl border border-[#15120F]/10 bg-[#F6F2EA] p-5 sm:p-8 lg:grid-cols-12">
+            <div className="lg:col-span-5">
+              <p className="font-mono text-xs uppercase tracking-wider text-[#15120F]/60">
+                {flaggedDeviations.eyebrow}
+              </p>
+              <h3 className="mt-2 font-serif text-2xl leading-tight tracking-tight text-[#15120F] sm:text-3xl">
+                {flaggedDeviations.heading}
+              </h3>
+              <p className="mt-3 font-sans text-sm leading-relaxed text-[#15120F]/70">
+                {flaggedDeviations.body}
+              </p>
+            </div>
+            <div className="flex justify-center pb-24 pr-8 pt-6 sm:pr-32 lg:col-span-7">
+              <DisplayCards
+                cards={flaggedDeviations.cards.map((card, i) => ({
+                  ...card,
+                  icon: [
+                    <AlertTriangle key="a" className="size-4" />,
+                    <Truck key="t" className="size-4" />,
+                    <Scale key="s" className="size-4" />,
+                  ][i],
+                }))}
               />
             </div>
           </div>

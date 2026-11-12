@@ -1,6 +1,7 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "antova-dev", "runtimeExecutable": "bun", "runtimeArgs": ["run", "dev"], "port": 3000 }
+    { "name": "antova-dev", "runtimeExecutable": "bun", "runtimeArgs": ["run", "dev"], "port": 3000 },
+    { "name": "antova-dev-alt", "runtimeExecutable": "bunx", "runtimeArgs": ["vite", "--port=3100", "--strictPort"], "port": 3100 }
   ]
 }

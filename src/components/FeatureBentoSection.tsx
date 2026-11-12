@@ -7,7 +7,13 @@ import {
 } from '../constants';
 import { BentoGrid, BentoGridItem } from './ui/bento-grid';
 import { AnimatedList } from './ui/animated-list';
-import { Code2, Database, FileSpreadsheet, MailCheck } from 'lucide-react';
+import {
+  Code2,
+  Database,
+  FileSpreadsheet,
+  FileText,
+  MailCheck,
+} from 'lucide-react';
 
 function renderBentoGraphic(graphicType: BentoFeatureItem['graphicType']) {
   if (graphicType === 'excel-export') {
@@ -82,22 +88,18 @@ function renderBentoGraphic(graphicType: BentoFeatureItem['graphicType']) {
   }
 
   return (
-    <div className="flex flex-col justify-between rounded-xl border border-[#15120F]/10 bg-[#F6F2EA] p-4 h-full min-h-[165px]">
-      <AnimatedList delay={2800} className="gap-2">
-        {BENTO_PUSHBACK_NOTICES.map((notice) => (
-          <div
-            key={notice}
-            className="w-full rounded-lg border border-[#15120F]/10 bg-[#FDFBF7] px-3.5 py-2 font-mono text-xs text-[#15120F] flex items-center justify-between gap-2"
-          >
-            <span className="truncate">{notice}</span>
-            <span className="shrink-0 rounded bg-[#FFE98A] px-2 py-0.5 text-[10px] font-medium text-[#15120F]">
-              Queued
-            </span>
-          </div>
-        ))}
-      </AnimatedList>
+    <div className="flex h-full min-h-[200px] flex-col justify-between rounded-xl border border-[#15120F]/10 bg-[#F6F2EA] p-3">
+      {/* Magic UI notification stream: newest clarification lands on top */}
+      <div className="relative h-[176px] overflow-hidden">
+        <AnimatedList delay={2200} className="gap-2.5">
+          {pushbackStream.map((notice, i) => (
+            <PushbackNotification key={`${notice.page}-${i}`} {...notice} />
+          ))}
+        </AnimatedList>
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#F6F2EA]" />
+      </div>
 
-      <div className="mt-3 pt-2 border-t border-[#15120F]/10 flex items-center justify-end">
+      <div className="mt-2 flex items-center justify-end border-t border-[#15120F]/10 px-1 pt-2">
         <a
           href="#audit"
           className="font-mono text-xs font-semibold text-[#15120F] hover:underline"
@@ -106,6 +108,42 @@ function renderBentoGraphic(graphicType: BentoFeatureItem['graphicType']) {
         </a>
       </div>
     </div>
+  );
+}
+
+const pushbackNotices = BENTO_PUSHBACK_NOTICES.map((line) => {
+  const [page, ...rest] = line.split(' - ');
+  return { page, request: rest.join(' - ') };
+});
+
+// Repeat so the stream keeps arriving for a while, as in the Magic UI demo.
+const pushbackStream = Array.from({ length: 8 }, () => pushbackNotices).flat();
+
+function PushbackNotification({
+  page,
+  request,
+}: {
+  page: string;
+  request: string;
+}) {
+  return (
+    <figure className="relative mx-auto w-full cursor-default overflow-hidden rounded-2xl bg-[#FDFBF7] p-3 transition-all duration-200 ease-in-out hover:scale-[102%] [box-shadow:0_0_0_1px_rgba(21,18,15,.06),0_2px_4px_rgba(21,18,15,.05),0_12px_24px_rgba(21,18,15,.05)]">
+      <div className="flex flex-row items-center gap-3">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#FFE98A]">
+          <FileText className="size-4 text-[#15120F]" />
+        </div>
+        <div className="flex min-w-0 flex-col">
+          <figcaption className="flex flex-row items-center whitespace-pre font-mono text-xs font-semibold text-[#15120F]">
+            <span>{page}</span>
+            <span className="mx-1 text-[#15120F]/40">·</span>
+            <span className="font-normal text-[#15120F]/55">queued</span>
+          </figcaption>
+          <p className="truncate font-sans text-xs text-[#15120F]/75">
+            {request}
+          </p>
+        </div>
+      </div>
+    </figure>
   );
 }
 
