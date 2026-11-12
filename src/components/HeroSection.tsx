@@ -3,6 +3,7 @@ import {
   DeviationItem,
   HERO_CHART_COPY,
   HERO_COPY,
+  SAMPLE_DATA_LABEL,
   VENDOR_BIDS,
 } from '../constants';
 import {
@@ -78,6 +79,9 @@ export function HeroSection({ onAuditClick }: HeroSectionProps) {
             <div>
               <span className="font-mono text-xs text-[#15120F]/60 block uppercase tracking-wider">
                 {HERO_CHART_COPY.packageHeader}
+              </span>
+              <span className="mt-1 inline-block rounded border border-[#15120F]/20 bg-[#F6F2EA] px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#15120F]/70">
+                {SAMPLE_DATA_LABEL}
               </span>
               <p className="mt-1 font-mono text-xs font-semibold text-[#15120F]">
                 {HERO_CHART_COPY.subheads[chartMode]}

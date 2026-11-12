@@ -1,5 +1,5 @@
 import React from 'react';
-import { SOLUTION_TRANSITION_COPY } from '../constants';
+import { SAMPLE_DATA_LABEL, SOLUTION_TRANSITION_COPY } from '../constants';
 import { DisplayCardFrame } from './ui/glass-folder-cards';
 import { Compare } from './ui/compare';
 import { DepthCard3D } from './ui/3d-card';
@@ -26,6 +26,9 @@ export function SolutionMockupSection() {
           <p className="font-sans text-base text-[#15120F]/70 text-center max-w-2xl mx-auto mt-3">
             {subtext}
           </p>
+          <span className="mt-4 inline-block rounded border border-[#15120F]/20 bg-[#FDFBF7] px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#15120F]/70">
+            {SAMPLE_DATA_LABEL}
+          </span>
         </div>
 
         {/* 1. Minimal Display Card Container Frame (No Browser Chrome or Debug Hashes) */}

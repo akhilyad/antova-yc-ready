@@ -8,6 +8,7 @@ import {
   FINAL_CTA_COPY,
   PRICING_PLANS,
   PRICING_SECTION_COPY,
+  TEAM_FOUNDER_DATA,
 } from '../constants';
 import { submitAuditRequest, validateWorkEmail } from '../utils/audit';
 import { Pricing4 } from './ui/pricing-4';
@@ -20,6 +21,8 @@ export function OfferFormAndFaqSection() {
   const [selectedPlan, setSelectedPlan] = useState<string>('Shadow Audit');
   const [emailError, setEmailError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState(false);
 
   const selectedPlanObj =
     PRICING_PLANS.find((p) => p.name === selectedPlan) || PRICING_PLANS[0];
@@ -38,8 +41,9 @@ export function OfferFormAndFaqSection() {
     }
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (sending) return;
     const validation = validateWorkEmail(email);
     if (!validation.valid) {
       setEmailError(validation.error || 'Enter a valid email address.');
@@ -47,12 +51,24 @@ export function OfferFormAndFaqSection() {
     }
 
     setEmailError(null);
-    submitAuditRequest({
-      email: email.trim(),
-      company: company.trim(),
-      equipment,
-    });
-    setSubmitted(true);
+    setSendError(false);
+    setSending(true);
+    try {
+      await submitAuditRequest(
+        {
+          email: email.trim(),
+          company: company.trim(),
+          equipment,
+          plan: selectedPlanObj.name,
+        },
+        import.meta.env.VITE_INTAKE_ENDPOINT
+      );
+      setSubmitted(true);
+    } catch {
+      setSendError(true);
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -119,7 +135,7 @@ export function OfferFormAndFaqSection() {
                     Thanks. We&apos;ll reply within one business day.
                   </p>
                   <p className="mt-1 font-sans text-sm text-[#15120F]/70">
-                    Mutual NDA and secure upload link dispatched to {email}.
+                    We will email {email} with a mutual NDA and an upload link.
                   </p>
                 </div>
               ) : (
@@ -207,11 +223,27 @@ export function OfferFormAndFaqSection() {
                   </div>
 
                   <div className="sm:col-span-2 pt-2">
+                    {sendError && (
+                      <p
+                        role="alert"
+                        className="mb-3 font-sans text-xs font-medium text-[#B91C1C]"
+                      >
+                        Could not send your request. Try again, or message{' '}
+                        <a
+                          href={TEAM_FOUNDER_DATA.socials.linkedin}
+                          className="underline"
+                        >
+                          Akhil on LinkedIn
+                        </a>
+                        .
+                      </p>
+                    )}
                     <button
                       type="submit"
-                      className="bg-[#15120F] text-[#F6F2EA] w-full py-3.5 rounded-md font-sans text-sm font-medium hover:bg-[#15120F]/90 transition cursor-pointer"
+                      disabled={sending}
+                      className="bg-[#15120F] text-[#F6F2EA] w-full py-3.5 rounded-md font-sans text-sm font-medium hover:bg-[#15120F]/90 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                      {FINAL_CTA_COPY.submitButtonText}
+                      {sending ? 'Sending...' : FINAL_CTA_COPY.submitButtonText}
                     </button>
                   </div>
                 </form>

@@ -14,7 +14,9 @@
   <a href="https://bun.sh"><img alt="Bun Lockfile" src="https://img.shields.io/badge/Bun-Lockfile-15120F?style=flat-square&logo=bun&logoColor=white" /></a>
 </p>
 
-**Antova** is an interactive web application showcasing technical bid leveling and commercial scope auditing for high- and medium-voltage electrical equipment tenders. Built as a static React 19, Vite 8, Tailwind CSS 4, and GSAP single-page application, it computes deterministic leveled prices across compliant and deviated switchgear bids with page-level specification citations.
+**Antova** is a browser-only demo of technical bid leveling for electrical tenders. Every price, citation, and penalty on the page is static sample data; nothing is computed from uploaded files.
+The real engine (PDF ingestion, specification checks, rate tables) runs separately and is not part of this repo.
+Engine code and a live walkthrough: available on request via [LinkedIn](https://www.linkedin.com/in/akhilyad/).
 
 ---
 
@@ -39,7 +41,7 @@
 | **Pinned workflow stack** | `ProblemStackSection.tsx` + `tilt-stack-scroll.tsx` | Uses GSAP + `ScrollTrigger` to pin three workflow stages (`01 / BID EVALUATION`, `02 / TECHNICAL AUDIT`, `03 / CONTRACT EXECUTION`) with index jump controls. |
 | **Redline comparison & 3D audit card** | `SolutionMockupSection.tsx` | Interactive hover slider (`"As Quoted" €418,000` vs `"Audited" €482,800`) paired with a perspective `DepthCard3D` surfacing exclusion penalties (`+€4,000 (FAT Excluded)`). |
 | **Capabilities bento** | `FeatureBentoSection.tsx` | Four capability cards covering Financial Auditing, Specification Checks, Cost Governance, and a cycling Pushback Notice feed (`2800ms` interval). |
-| **Tiered pricing, FAQ & intake** | `OfferFormAndFaqSection.tsx` | Pre-selects tier (`Shadow Audit`, `Per Tender`, `Unlimited`) into the request banner, validates work email (`validateWorkEmail`), and uses Radix Accordion for FAQ items. |
+| **Tiered pricing, FAQ & intake** | `OfferFormAndFaqSection.tsx` | Pre-selects tier (`Shadow Audit`, `Per Tender`, `Pack of Five`) into the request banner, validates work email (`validateWorkEmail`), and uses Radix Accordion for FAQ items. |
 | **Team view** | `TeamPage.tsx` (`Team01`) | Dedicated `/team` view managed via `window.history.pushState` / `popstate` transitions. |
 
 ---
@@ -68,10 +70,11 @@ flowchart LR
 
 ## Application architecture
 
-Despite `express` and `@google/genai` appearing in `package.json`, the application runs exclusively in the browser (`index.html` -> `src/main.tsx` -> `src/App.tsx`).
+The application runs exclusively in the browser (`index.html` -> `src/main.tsx` -> `src/App.tsx`).
 
 - **Client-side routing**: `src/App.tsx` tracks `PageView` (`'home' | 'team'`) with `window.history.pushState` and a `popstate` listener rather than React Router.
-- **No live backend or Gemini calls**: `submitAuditRequest()` in `src/utils/audit.ts` logs the validated payload (`email`, `company`, `equipment`) via `console.log` and renders client-side confirmation copy without making network requests.
+- **Intake form**: `submitAuditRequest()` in `src/utils/audit.ts` POSTs `email`, `company`, `equipment`, and `plan` as JSON to the Formspree-compatible URL in `VITE_INTAKE_ENDPOINT`. With no endpoint set, the form shows an error instead of silently dropping the request.
+- **Sample-data labels**: the hero chart and the redline section carry a visible "Sample tender, illustrative data" tag.
 
 ---
 
@@ -104,25 +107,22 @@ bun run build
 
 ## Environment variables
 
-Only Vite HMR disabling is read from the environment in `vite.config.ts`. No backend secrets or `import.meta.env.*` client variables are consumed at runtime.
-
-| Variable | Scope | Local development | Notes |
-| :--- | :--- | :--- | :--- |
-| `DISABLE_HMR` | Vite config | Optional (`"true"` disables HMR & file watching) | Read via `process.env.DISABLE_HMR` in `vite.config.ts` |
-| `GEMINI_API_KEY` | `.env.example` | Documented in `.env.example`; unused in `src/` | Legacy Google AI Studio template variable |
-| `APP_URL` | `.env.example` | Documented in `.env.example`; unused in `src/` | Legacy Google AI Studio template variable |
+| Variable | Scope | Notes |
+| :--- | :--- | :--- |
+| `VITE_INTAKE_ENDPOINT` | Client build | Formspree (or compatible) form URL for the intake form. Public by design. See `.env.example`. |
 
 ---
 
 ## Testing
 
-Four unit tests in `src/utils/audit.test.ts` (using `node:test` and `node:assert/strict`) validate:
+Six unit tests in `src/utils/audit.test.ts` (using `node:test` and `node:assert/strict`) cover:
 1. Exact penalty sums and leveled prices for Vendor A and Vendor B across `'sticker'`, `'true'`, and `'pushback'` modes.
 2. Vendor sort flip between `'sticker'`/`'pushback'` and `'true'` modes.
 3. Euro formatting (`formatEuro`) and work-email validation (`validateWorkEmail`).
-4. Copy integrity across `src/constants.ts` (zero em-dashes and no leftover `'SpecClaw'` strings).
+4. Copy integrity across `src/constants.ts` (pricing tiers, no unlimited plan, zero em-dashes, no leftover `'SpecClaw'` strings).
+5. Intake submission: rejects without an endpoint, posts JSON with one, and surfaces HTTP errors.
 
-`package.json` does not currently define a `"test"` script; execute tests with TypeScript execution support (e.g., `npx tsx --test src/utils/audit.test.ts`).
+Run them with `npm test`.
 
 ---
 
@@ -133,18 +133,17 @@ Four unit tests in `src/utils/audit.test.ts` (using `node:test` and `node:assert
 | `npm run dev` | Starts Vite development server on port `3000` (`--host=0.0.0.0`) |
 | `npm run build` | Builds the production static bundle into `dist/` |
 | `npm run preview` | Previews the built `dist/` bundle locally |
-| `npm run clean` | Removes `dist` and `server.js` via POSIX `rm -rf` |
-| `npm run lint` | Runs `tsc --noEmit` |
+| `npm run clean` | Removes `dist` via POSIX `rm -rf` |
+| `npm run typecheck` | Runs `tsc --noEmit` |
+| `npm test` | Runs `src/utils/audit.test.ts` with `tsx --test` |
 
 ---
 
 ## Repository notes and limitations
 
-- **Static asset bloat in `public/assets/aistudio/`**: Vite copies all files inside `public/` into `dist/`. `public/assets/aistudio/` currently holds ~40 leftover template files (including `logo_c4fbe4bd.svg` / `favicon_eb2bad29.svg` for an unused `"Mainline"` template and `specclaw_92c0b988.zip` at ~68.2 MiB) that are not referenced by the app.
-- **Unused dependencies**: `express`, `@types/express`, `@google/genai`, `dotenv`, `@number-flow/react`, and `@radix-ui/react-icons` are listed in `package.json` without any imports in `src/`. Both `framer-motion` and `motion` are installed and used in separate components.
+- **Demo data only**: citations, penalties, and vendor prices are constants in `src/constants.ts`.
 - **SPA rewrite required for `/team`**: `window.history.pushState` navigates to `/team`, so static hosts must rewrite unknown routes to `index.html` to support direct refreshes on `/team`.
-- **AI Studio `fetch` wrapper**: `index.html` includes an inline `<script>` overriding `window.fetch` property descriptors and suppressing uncaught `chrome-extension://` errors.
-- **No backend intake persistence**: Submitting `#audit` runs `submitAuditRequest()` (`console.log` only) rather than transmitting an NDA or emailing upload links.
+- **Intake needs an endpoint**: set `VITE_INTAKE_ENDPOINT` at build time, otherwise submissions show an error.
 
 ---
 

@@ -1,8 +1,0 @@
-{
-  "name": "Remix Antova",
-  "description": "Find what vendors left out. See the real price. Lock in the right deal before you sign.",
-  "requestFramePermissions": [],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ]
-}
