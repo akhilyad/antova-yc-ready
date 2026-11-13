@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { CHECK_LABEL, MATRIX_COPY, SAMPLE_DATA_LABEL, STATUS_PLAIN } from '../constants';
 import {
   CELLS,
-  NEGOTIATING_VENDOR,
+  CLOSURE_VENDOR,
   PARAMETERS,
   SECTION_LABEL,
   TENDER,
@@ -35,7 +35,7 @@ const NEED: Record<string, string> = {
 
 /** PARAM-04 is the only VoltSwitch adder not conceded in round 3. */
 const isConceded = (vendorId: VendorId, paramId: string, view: PriceView) =>
-  view === 'round3' && vendorId === NEGOTIATING_VENDOR && paramId !== 'PARAM-04';
+  view === 'round3' && vendorId === CLOSURE_VENDOR && paramId !== 'PARAM-04';
 
 const STATUS_CLASS: Record<CellStatus, string> = {
   COMPLIANT: 'text-ink/55',
@@ -261,7 +261,7 @@ export function AuditMatrixSection() {
                       const a =
                         view === 'headline'
                           ? 0
-                          : view === 'round3' && v.id === NEGOTIATING_VENDOR
+                          : view === 'round3' && v.id === CLOSURE_VENDOR
                             ? vendorAdders(v.id) - TENDER.clawbackRound3
                             : vendorAdders(v.id);
                       return (
