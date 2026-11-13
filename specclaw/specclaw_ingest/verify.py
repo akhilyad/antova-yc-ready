@@ -155,19 +155,21 @@ def check_api_path(tender_id: str, expected: dict) -> list[str]:
             evaluation = client.post(f"/api/review/tenders/{tender_id}/evaluate", json={})
             if evaluation.status_code != 200:
                 messages.append(f"POST /api/review/tenders/{tender_id}/evaluate returned {evaluation.status_code}")
-            else:
-                for f in evaluation.json()["financials"]:
-                    want = expected["vendors"].get(f["vendor_id"])
-                    if want is None:
-                        continue
-                    want_true = float(want["true_evaluated_price"]) if want["true_evaluated_price"] is not None else None
-                    if f["true_evaluated_price"] != want_true:
-                        messages.append(f"evaluate {f['vendor_id']}: true price {f['true_evaluated_price']} "
-                                        f"!= expected {want['true_evaluated_price']}")
+
+            # The answer key prices the run itself. A founder override that survived the re-ingest
+            # (its cell was unchanged) is a later judgement, so the comparison leaves it out.
+            tender = engine.TenderPackage.model_validate(payload["tender"])
+            for f in engine.evaluate_vendor_financials(tender, engine.SensitivitySettings(), []):
+                want = expected["vendors"].get(f["vendor_id"])
+                if want is None:
+                    continue
+                want_true = float(want["true_evaluated_price"]) if want["true_evaluated_price"] is not None else None
+                if f["true_evaluated_price"] != want_true:
+                    messages.append(f"evaluate {f['vendor_id']}: true price {f['true_evaluated_price']} "
+                                    f"!= expected {want['true_evaluated_price']}")
 
             # Round-3 concessions, computed by the engine on the stored tender. The answer key names the
             # vendor whose deviations are closed; without one it is the lowest fully priced vendor (A2).
-            tender = engine.TenderPackage.model_validate(payload["tender"])
             closing = expected["clawback"].get("vendor_id")
             financials = engine.evaluate_vendor_financials(
                 tender, engine.SensitivitySettings(), ROUND_3_CONCESSIONS, closing)

@@ -1,12 +1,13 @@
 """
-SpecClaw Database & Repository Layer (schema v5)
+SpecClaw Database & Repository Layer (schema v6)
 
 - Tender-scoped keys: vendor and parameter IDs repeat across tenders, so they
   are keyed by (tender_id, id).
 - Source documents record each ingested file's hash, role and page count.
 - Structured fields (citations, checks, cost lines) are stored as JSON text.
 - Each tender has a public share ID, a review status (DRAFT or VERIFIED) and
-  the founder's adder overrides; re-ingesting resets it to DRAFT and clears them.
+  the founder's adder overrides; re-ingesting resets it to DRAFT. An override is kept when the
+  evidence it was entered against is unchanged, and cleared (and reported) when it changed.
 - init_db() upgrades the baseline schema in place: it drops the old extraction
   tables only if they are empty, and never touches the audit ledger. A v2
   database is upgraded to v3 in one transaction.
@@ -15,6 +16,9 @@ SpecClaw Database & Repository Layer (schema v5)
   A v2 or v3 database is upgraded to v4 in one transaction.
 - v5 adds `ingest_jobs`, so a job's status survives a restart. A v4 database is upgraded by
   creating the table in one transaction.
+- v6 adds `adder_overrides.evidence_hash`: the hash of the cell as the founder saw it, so a
+  re-ingest can tell whether an override still applies. A row without one (entered before v6)
+  cannot be shown to apply, so the next re-ingest clears it.
 """
 
 import json
@@ -37,7 +41,7 @@ import specclaw_engine as engine_models
 log = logging.getLogger(__name__)
 
 DATABASE_URL = os.getenv("SPECCLAW_DATABASE_URL", "sqlite:///./specclaw_enterprise.db")
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 LEGACY_TABLES = ("extracted_parameters", "parameters", "vendors", "tenders")
 TENDER_STATUSES = ("DRAFT", "VERIFIED")
 
@@ -123,6 +127,7 @@ class AdderOverrideRecord(Base):
     adder_eur = Column(String(32), nullable=False)  # the Decimal's string, e.g. "12000.00"
     note = Column(Text, nullable=False)
     created_at = Column(DateTime, nullable=False)
+    evidence_hash = Column(String(64), nullable=True)  # specclaw_review.evidence_hash of the cell when it was set
 
 
 class SourceDocumentRecord(Base):
@@ -354,21 +359,23 @@ class TenderRepository:
         stage_log: Optional[list[dict]] = None,
         share_id: Optional[str] = None,
         run: Optional[dict] = None,
-    ) -> None:
+    ) -> list[dict]:
         """Replace everything stored for this tender in one transaction.
 
         The tender row is updated in place (never deleted) so audit-ledger rows
         that reference it are unaffected. It keeps its share ID (a new tender
-        takes `share_id` if given, else a fresh one), goes back to DRAFT and
-        loses its overrides, which were judgements about the previous ingest.
+        takes `share_id` if given, else a fresh one) and goes back to DRAFT.
+
+        Overrides were judgements about the previous ingest. One whose cell is unchanged (same
+        evidence hash) is kept; one whose cell changed or vanished, or that has no hash, is
+        deleted. Returns the deleted ones as [{param_id, vendor_id, adder_eur, note}], sorted.
 
         `run` is {"run_id", "fingerprint", "parts", "artifacts": {stage: StageArtifact}}.
         The run row is kept; stage artifacts are kept for the tender's latest run only.
         """
         tid = tender.id
         try:
-            for model in (ExtractedParameterRecord, ParameterRecord, VendorRecord, SourceDocumentRecord,
-                          AdderOverrideRecord):
+            for model in (ExtractedParameterRecord, ParameterRecord, VendorRecord, SourceDocumentRecord):
                 self.db.query(model).filter(model.tender_id == tid).delete(synchronize_session=False)
             record = self.db.get(TenderRecord, tid) or TenderRecord(id=tid, share_id=share_id or new_share_id())
             record.title = tender.title
@@ -423,10 +430,27 @@ class TenderRepository:
                     tender_id=tid, vendor_id=d.vendor_id, filename=d.filename, sha256=d.sha256,
                     role=d.role, page_count=d.page_count, pages_without_text=_dump(d.pages_without_text),
                 ))
+            cleared = self._reconcile_overrides(tender)
             self.db.commit()
+            return cleared
         except Exception:
             self.db.rollback()
             raise
+
+    def _reconcile_overrides(self, tender: engine_models.TenderPackage) -> list[dict]:
+        """Keep each override whose cell is unchanged in `tender`; delete and report the rest."""
+        from specclaw_review import evidence_hash
+
+        cells = {(p.id, vid): cell for p in tender.parameters for vid, cell in p.vendors.items()}
+        cleared = []
+        for row in self.db.query(AdderOverrideRecord).filter(AdderOverrideRecord.tender_id == tender.id):
+            cell = cells.get((row.param_id, row.vendor_id))
+            if cell is not None and row.evidence_hash is not None and row.evidence_hash == evidence_hash(cell):
+                continue
+            cleared.append({"param_id": row.param_id, "vendor_id": row.vendor_id,
+                            "adder_eur": row.adder_eur, "note": row.note})
+            self.db.delete(row)
+        return sorted(cleared, key=lambda o: (o["param_id"], o["vendor_id"]))
 
     def _save_run(self, tender_id: str, run: dict, at: datetime) -> None:
         old = [r for (r,) in self.db.query(IngestRunRecord.run_id).filter(IngestRunRecord.tender_id == tender_id)]
@@ -533,12 +557,17 @@ class TenderRepository:
         return {(o.param_id, o.vendor_id): engine_models.Override(adder_eur=Decimal(o.adder_eur), note=o.note)
                 for o in rows}
 
-    def put_override(self, tender_id: str, param_id: str, vendor_id: str, adder_eur: Decimal, note: str) -> None:
-        """Create or replace the override for one cell; `created_at` records when it was last set."""
+    def put_override(self, tender_id: str, param_id: str, vendor_id: str, adder_eur: Decimal, note: str,
+                     evidence_hash: Optional[str] = None) -> None:
+        """Create or replace the override for one cell; `created_at` records when it was last set.
+
+        `evidence_hash` is the hash of the cell as the founder saw it (specclaw_review.evidence_hash).
+        Without it a re-ingest cannot show the override still applies, so it will clear it."""
         record = (self.db.get(AdderOverrideRecord, (tender_id, param_id, vendor_id))
                   or AdderOverrideRecord(tender_id=tender_id, param_id=param_id, vendor_id=vendor_id))
         record.adder_eur = str(adder_eur)
         record.note = note
+        record.evidence_hash = evidence_hash
         record.created_at = datetime.now(timezone.utc)
         self.db.add(record)
         self.db.commit()
@@ -701,9 +730,14 @@ def _upgrade_v3_to_v4(conn: Connection) -> None:
 
 
 def _upgrade_v4_to_v5(conn: Connection) -> None:
-    """Create ingest_jobs (and anything else missing) and record v5."""
+    """Create ingest_jobs (and anything else missing). The caller records the version."""
     Base.metadata.create_all(bind=conn)
-    _write_version(conn)
+
+
+def _upgrade_v5_to_v6(conn: Connection) -> None:
+    """Add adder_overrides.evidence_hash (NULL for rows that exist). The caller records the version."""
+    if "evidence_hash" not in {c["name"] for c in inspect(conn).get_columns("adder_overrides")}:
+        conn.execute(text("ALTER TABLE adder_overrides ADD COLUMN evidence_hash VARCHAR(64)"))
 
 
 def _write_version(conn: Connection) -> None:
@@ -757,11 +791,17 @@ def init_db(bind: Optional[Engine] = None) -> None:
             if version == 2:
                 _upgrade_v2_to_v3(conn)
             _upgrade_v3_to_v4(conn)
+            _upgrade_v5_to_v6(conn)  # a v3 database already has adder_overrides, without the column
         check_foreign_keys(bind)
         return
-    if version == 4:
+    if version in (4, 5):
         with bind.begin() as conn:
-            _upgrade_v4_to_v5(conn)
+            if conn.dialect.name == "sqlite":
+                conn.exec_driver_sql("BEGIN")  # see the v2/v3 branch: the ALTER must roll back too
+            if version == 4:
+                _upgrade_v4_to_v5(conn)
+            _upgrade_v5_to_v6(conn)
+            _write_version(conn)
         check_foreign_keys(bind)
         return
     legacy = [t for t in LEGACY_TABLES if t in tables]

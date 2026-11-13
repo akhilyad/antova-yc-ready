@@ -70,10 +70,6 @@ def _editable(tender_id: str, db: Session = Depends(get_db)) -> LoadedTender:
     return loaded
 
 
-def _cell_exists(loaded: LoadedTender, param_id: str, vendor_id: str) -> bool:
-    return any(p.id == param_id and vendor_id in p.vendors for p in loaded.tender.parameters)
-
-
 @router.get("/tenders")
 def list_tenders(db: Session = Depends(get_db)):
     """Newest ingest first, with the count of open items that block verifying each."""
@@ -110,9 +106,13 @@ def get_evidence(tender_id: str, param_id: str, source: str, which: str, db: Ses
 @router.put("/tenders/{tender_id}/overrides/{param_id}/{vendor_id}", status_code=204)
 def put_override(tender_id: str, param_id: str, vendor_id: str, body: OverrideBody,
                  loaded: LoadedTender = Depends(_editable), db: Session = Depends(get_db)):
-    if not _cell_exists(loaded, param_id, vendor_id):
+    cell = next((p.vendors[vendor_id] for p in loaded.tender.parameters
+                 if p.id == param_id and vendor_id in p.vendors), None)
+    if cell is None:
         raise not_found()
-    TenderRepository(db).put_override(tender_id, param_id, vendor_id, body.adder_eur, body.note)
+    # Stamped with the cell as the founder sees it now: a re-ingest keeps the override only while it is unchanged.
+    TenderRepository(db).put_override(tender_id, param_id, vendor_id, body.adder_eur, body.note,
+                                      evidence_hash(cell))
     return Response(status_code=204)
 
 

@@ -71,15 +71,17 @@ def seed(share_id: str | None = None, draft: bool = False, bind: Engine | None =
         repo = TenderRepository(db)
         tender_id = result.tender.id
         if not draft:
-            overrides, reviews = founder_resolution(result.tender)  # persist cleared any overrides
+            overrides, reviews = founder_resolution(result.tender)  # persist cleared the previous run's overrides
             remaining = open_items(result.tender, overrides, reviews)
             if remaining:
                 raise SystemExit(f"{len(remaining)} open items remain; seed with --draft instead")
             for (param_id, vendor_id), review in reviews.items():
                 repo.add_review(tender_id, param_id, vendor_id, action=review["action"], reviewer=review["reviewer"],
                                 note=review["note"], evidence_hash=review["evidence_hash"])
+            cells = {(p.id, vid): cell for p in result.tender.parameters for vid, cell in p.vendors.items()}
             for (param_id, vendor_id), override in overrides.items():
-                repo.put_override(tender_id, param_id, vendor_id, override.adder_eur, override.note)
+                repo.put_override(tender_id, param_id, vendor_id, override.adder_eur, override.note,
+                                  evidence_hash(cells[(param_id, vendor_id)]))
             repo.set_status(tender_id, "VERIFIED", datetime.now(timezone.utc))
         return repo.get_meta(tender_id).share_id
 

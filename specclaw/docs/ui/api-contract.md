@@ -102,7 +102,7 @@ Everything else settles at once. Mutations never retry (a retried ingest would s
 - `FAILED` shows the stage and `error`, with *Try again*. A `FAILED` job with an unknown stage still
   shows the failure.
 - A finished job never turns into "lost" after an API restart (R29).
-- `overrides_cleared` lists the overrides a re-ingest dropped. The review page tells the founder.
+- `overrides_cleared` lists the overrides a re-ingest dropped: those whose cell's evidence changed, whose cell is gone, or that were entered before evidence hashes existed. An override on an unchanged cell survives and is not listed. The review page tells the founder.
 
 ## Static sample (landing)
 

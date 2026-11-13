@@ -38,8 +38,10 @@ def share_id(ingested):
     db = SessionLocal()
     try:
         persist(ingested, db)
-        # Reviews outlive a re-ingest by design; clear them so no test inherits another's approvals.
+        # Reviews, and overrides on unchanged cells, outlive a re-ingest by design; clear them so no
+        # test inherits another's approvals or prices.
         db.execute(text("DELETE FROM cell_reviews WHERE tender_id = :id"), {"id": TENDER_ID})
+        db.execute(text("DELETE FROM adder_overrides WHERE tender_id = :id"), {"id": TENDER_ID})
         db.commit()
         return TenderRepository(db).get_meta(TENDER_ID).share_id
     finally:
@@ -364,3 +366,22 @@ def test_public_brief_omits_antova_run_cost(public, review, share_id):
     founder = review.get(REVIEW).json()
     assert {"api_cost_usd", "cogs_usd"} <= set(founder["ingest_stats"])
     assert "compute_cogs" in founder["tender"]
+
+
+def test_override_survives_an_unchanged_reingest_but_not_a_changed_one(review, share_id, ingested):
+    import copy
+
+    assert _override(review, "PARAM-01", "vendor-b", "5000").status_code == 204
+    db = SessionLocal()
+    try:
+        assert persist(ingested, db) == []  # same evidence: the override stays
+        assert _stored_overrides()[("PARAM-01", "vendor-b")].adder_eur == Decimal("5000.00")
+
+        changed = copy.deepcopy(ingested)
+        cell = next(p.vendors["vendor-b"] for p in changed.tender.parameters if p.id == "PARAM-01")
+        cell.extracted_text += " (revised)"
+        cleared = persist(changed, db)
+    finally:
+        db.close()
+    assert [(o["param_id"], o["vendor_id"], o["adder_eur"]) for o in cleared] == [("PARAM-01", "vendor-b", "5000.00")]
+    assert ("PARAM-01", "vendor-b") not in _stored_overrides()
