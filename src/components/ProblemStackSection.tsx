@@ -9,8 +9,8 @@ const mono = 'font-mono text-[11px]';
 /** 01: headline ranking vs evaluated ranking for the two closest bids. */
 function HeadlineTrap() {
   const rows = [
-    { name: 'VoltSwitch', headline: 418000, evaluated: 482800 },
-    { name: 'Nordwerk', headline: 452000, evaluated: 452000 },
+    { name: 'Vendor B', headline: 418000, evaluated: 482800 },
+    { name: 'Vendor A', headline: 452000, evaluated: 452000 },
   ];
   const max = 500000;
   return (
@@ -79,7 +79,7 @@ function BuriedConflict() {
   );
 }
 
-/** 03: VoltSwitch exclusions that would surface as change orders after award. */
+/** 03: Vendor B exclusions that would surface as change orders after award. */
 function VariationOrders() {
   const b = CELLS['vendor-b'];
   const items = [

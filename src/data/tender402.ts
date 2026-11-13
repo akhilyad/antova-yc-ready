@@ -77,11 +77,11 @@ export const TENDER = {
   rateTable: 'mv_gis_switchgear_v1',
   documents: [
     { file: 'MR-33kV-GIS-Rev4.pdf', role: 'mr_spec', pages: 26 },
-    { file: 'Bid_vendor-a_Nordwerk.pdf', role: 'vendor_bid', pages: 30 },
-    { file: 'Bid_vendor-b_VoltSwitch.pdf', role: 'vendor_bid', pages: 30 },
-    { file: 'Bid_vendor-c_Deltaport.pdf', role: 'vendor_bid', pages: 30 },
+    { file: 'Bid_vendor-a.pdf', role: 'vendor_bid', pages: 30 },
+    { file: 'Bid_vendor-b.pdf', role: 'vendor_bid', pages: 30 },
+    { file: 'Bid_vendor-c.pdf', role: 'vendor_bid', pages: 30 },
   ],
-  /** What VoltSwitch recovers if it closes every gap except PARAM-04 (round 3 of the sample). */
+  /** What Vendor B recovers if it closes every gap except PARAM-04 (round 3 of the sample). */
   clawbackRound3: 57400,
 } as const;
 
@@ -90,27 +90,27 @@ export const TOTAL_PAGES = TENDER.documents.reduce((s, d) => s + d.pages, 0);
 export const VENDORS: Vendor[] = [
   {
     id: 'vendor-a',
-    name: 'Nordwerk Schaltanlagen GmbH',
-    short: 'Nordwerk',
+    name: 'Vendor A',
+    short: 'Vendor A',
     country: 'DE',
     headline: 452000,
-    headlineCitation: 'NWS-36 GIS',
+    headlineCitation: 'Vendor A bid',
   },
   {
     id: 'vendor-b',
-    name: 'VoltSwitch Industrial',
-    short: 'VoltSwitch',
+    name: 'Vendor B',
+    short: 'Vendor B',
     country: 'TR',
     headline: 418000,
-    headlineCitation: 'VS-GIS 36',
+    headlineCitation: 'Vendor B bid',
   },
   {
     id: 'vendor-c',
-    name: 'Deltaport Skid Consortium B.V.',
-    short: 'Deltaport',
+    name: 'Vendor C',
+    short: 'Vendor C',
     country: 'NL',
     headline: 439000,
-    headlineCitation: 'DPS-36',
+    headlineCitation: 'Vendor C bid',
   },
 ];
 
@@ -441,7 +441,7 @@ export function vendorAdders(vendorId: VendorId): number {
 export type PriceView = 'headline' | 'evaluated' | 'round3';
 
 /**
- * Round 3 shows VoltSwitch (CLOSURE_VENDOR) closing every gap except PARAM-04.
+ * Round 3 shows Vendor B (CLOSURE_VENDOR) closing every gap except PARAM-04.
  * It is a what-if for the bid that looked cheapest; the pipeline's own
  * negotiating vendor is NEGOTIATING_VENDOR.
  */
@@ -456,8 +456,8 @@ export function vendorPrice(vendor: Vendor, view: PriceView): number {
 
 /**
  * The vendor the pipeline names to negotiate with: the lowest true evaluated
- * price among fully priced bids (Nordwerk, 452,000), not the lowest headline
- * (VoltSwitch, 418,000 quoted, 482,800 evaluated). Pipeline amendment A2.
+ * price among fully priced bids (Vendor A, 452,000), not the lowest headline
+ * (Vendor B, 418,000 quoted, 482,800 evaluated). Pipeline amendment A2.
  */
 export const NEGOTIATING_VENDOR: VendorId = 'vendor-a';
 

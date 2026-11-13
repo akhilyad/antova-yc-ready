@@ -53,18 +53,7 @@ export interface TeamFounderData {
 
 export const SAMPLE_DATA_LABEL = 'Sample tender · synthetic documents';
 
-/** Plain-English names for the eight checks and four outcomes. */
-export const CHECK_LABEL: Record<string, string> = {
-  'PARAM-01': 'Fault rating',
-  'PARAM-02': 'Busbar metal',
-  'PARAM-03': 'Enclosure protection',
-  'PARAM-04': 'Control network',
-  'PARAM-05': 'Factory testing',
-  'PARAM-06': 'Delivery & warranty',
-  'PARAM-07': 'Voltage',
-  'PARAM-08': 'Ambient temperature',
-};
-
+/** Plain-English names for the four outcomes. */
 export const STATUS_PLAIN = {
   COMPLIANT: 'Meets spec',
   DEVIATION_DOWNGRADE: 'Below spec',
@@ -83,7 +72,7 @@ export const HERO_COPY = {
 };
 
 export const MANIFESTO_COPY = {
-  lead: 'An industrial equipment bid runs thirty pages. The missing breaker hides in one footnote.',
+  lead: 'An industrial equipment bid runs hundreds of pages. The missing breaker hides in one footnote.',
   italic: 'Antova catches it before award.',
 };
 
@@ -96,7 +85,7 @@ export const PROBLEM_STACK_SECTION = {
       phaseTag: '01 · The quote',
       title: 'You picked the lowest quote.',
       titleItalic: 'It wasn’t the lowest price.',
-      description: 'VoltSwitch quoted €34,000 under Nordwerk. Brought up to spec, it costs €30,800 more than Nordwerk.',
+      description: 'Vendor B quoted €34,000 under Vendor A. Brought up to spec, it costs €30,800 more than Vendor A.',
       visualType: 'headline-trap',
     },
     {
@@ -147,8 +136,8 @@ export const HOW_IT_WORKS = {
     },
     {
       id: 'review',
-      title: 'Review',
-      body: 'An engineer approves every flag before you see the result. Drawings outrank cover letters, and a contradiction shows both pages.',
+      title: 'Verify',
+      body: 'Every flag links to the page and exact words behind it. Drawings outrank cover letters, and a contradiction shows both pages.',
     },
   ],
   deliverablesHeading: 'What you get back',
@@ -163,33 +152,6 @@ export const HOW_IT_WORKS = {
   ],
   audience:
     'Built for procurement and estimating engineers comparing 3 to 8 bids on one electrical package. 33 kV switchgear today.',
-};
-
-export const MATRIX_COPY = {
-  eyebrow: 'Try it',
-  headlineLead: 'Three bids. Eight checks.',
-  headlineItalic: 'Click a flagged cell.',
-  subtext: 'A sample 33 kV switchgear tender, audited.',
-  views: {
-    headline: 'Quoted',
-    evaluated: 'True cost',
-    round3: 'After negotiation',
-  },
-  viewNotes: {
-    headline: 'As quoted, VoltSwitch looks lowest, €34,000 under Nordwerk.',
-    evaluated: 'With every gap priced, Nordwerk is lowest at €452,000.',
-    round3: 'Shown its gaps, VoltSwitch covers €57,400 of them. Now it wins at €425,400.',
-  },
-};
-
-export const IMPACT_COPY = {
-  heading: 'What the sample audit found.',
-  stats: [
-    { value: '€64,800', label: 'missing from the lowest quote' },
-    { value: '10 of 24', label: 'checks flagged across three bids' },
-    { value: '€57,400', label: 'recovered in the sample negotiation' },
-  ],
-  footnote: 'Every number links to the page it came from.',
 };
 
 export const PRICING_SECTION_COPY = {
@@ -208,7 +170,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     features: [
       'One package, 3 to 5 bids',
       'Every gap cited and priced',
-      'Engineer sign-off in 24 hours',
+      'Spec-verified results in 24 hours',
     ],
     buttonText: 'Audit a tender free',
     href: '#audit',
@@ -260,7 +222,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: 'faq-tested',
     question: 'Has it been tested on real tenders?',
     answer:
-      'The engine is tested on synthetic tenders. Your first audit is free so you can run it next to your own evaluation, and an engineer checks every flag.',
+      'The engine is tested on synthetic tenders. Your first audit is free so you can run it next to your own evaluation, and every flag cites the page it came from.',
   },
   {
     id: 'faq-2',
@@ -290,7 +252,7 @@ export const FINAL_CTA_COPY = {
   badge: 'First tender free',
   headlineLead: 'Send the bids.',
   headlineMuted: 'Get the real price.',
-  subtext: 'Spec and vendor quotes in, under NDA. Engineer-checked results in 24 hours.',
+  subtext: 'Spec and vendor quotes in, under NDA. Spec-verified results in 24 hours.',
   submitButtonText: 'Audit a tender free',
   equipmentHelp: '33 kV switchgear today. Other packages: we’ll confirm fit before you share bids.',
 };
