@@ -1,0 +1,314 @@
+.heroSection {
+  width: 100%;
+  padding: var(--space-24) 0 0;
+}
+
+.heroGrid {
+  display: grid;
+  gap: var(--space-32);
+  align-items: center;
+  width: 100%;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+}
+
+/* The eyebrow sits close to the heading it introduces. */
+.title {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.eyebrowContainer {
+  display: flex;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: 5px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border-stone);
+  border-radius: var(--radius-tag);
+  font-size: var(--text-12);
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  box-shadow: 0 1px 2px rgb(22 19 15 / 3%);
+  transition:
+    border-color var(--duration-hover) var(--ease),
+    transform var(--duration-hover) var(--ease),
+    box-shadow var(--duration-hover) var(--ease);
+}
+
+.eyebrow:hover {
+  border-color: var(--edge);
+  transform: translateY(-0.5px);
+  box-shadow: 0 2px 6px rgb(22 19 15 / 5%);
+}
+
+.eyebrowDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--ox);
+  box-shadow: 0 0 0 2px var(--ox-wash);
+  flex-shrink: 0;
+}
+
+/*
+ * Heading 1 (design-skill B1, B5): 60 / 60 semibold, capped at 680 px with balanced breaks,
+ * and the one gradient on the site, on the text only: black to grey, left to right.
+ * Stops are weighted so the punchline 'cheapest.' retains high contrast.
+ */
+.heading {
+  max-width: 680px;
+  font-size: var(--text-48);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  background: linear-gradient(90deg, #16130f 0%, #16130f 68%, #4a443c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (min-width: 60rem) {
+  .heading {
+    font-size: var(--text-60);
+    line-height: 1;
+  }
+}
+
+/* Forced colours drop backgrounds, which would leave the text invisible. */
+@media (forced-colors: active) {
+  .heading {
+    background: none;
+    color: CanvasText;
+  }
+}
+
+/* Body at the next step up, also capped at 680 px. */
+.lede {
+  max-width: 680px;
+  font-size: var(--text-18);
+  line-height: 28px;
+  color: var(--ink-2);
+}
+
+/* The buttons with the offer's terms right under them. */
+.cta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+}
+
+.terms {
+  max-width: 680px;
+  font-size: var(--text-14);
+  line-height: 20px;
+  color: var(--ink-3);
+}
+
+.trustBadges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  font-size: var(--text-12);
+  color: var(--ink-3);
+  padding-top: var(--space-4);
+}
+
+.trustBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--surface);
+  border: 1px solid rgba(231, 229, 228, 0.8);
+  border-radius: var(--radius-control, 8px);
+  font-size: var(--text-12);
+  font-weight: 500;
+  color: var(--ink-2);
+  box-shadow: 0 1px 2px rgb(22 19 15 / 2%);
+  transition:
+    border-color var(--duration-hover) var(--ease),
+    transform var(--duration-hover) var(--ease);
+}
+
+.trustBadge:hover {
+  border-color: var(--edge);
+  transform: translateY(-0.5px);
+}
+
+.trustCheck {
+  color: #15803d;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.trustDot {
+  color: var(--edge);
+}
+
+.proof {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  padding: var(--space-24);
+  background: var(--surface);
+  border: 1px solid rgba(231, 229, 228, 0.8);
+  border-radius: var(--radius-card, 8px);
+  box-shadow: 0 1px 2px rgb(22 19 15 / 3%);
+  transition:
+    box-shadow var(--duration-hover) var(--ease),
+    transform var(--duration-hover) var(--ease),
+    border-color var(--duration-hover) var(--ease);
+}
+
+.proof:hover {
+  border-color: var(--edge);
+  box-shadow: 0 4px 12px rgb(22 19 15 / 5%);
+}
+
+.proofHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--space-12);
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-mono);
+  font-size: var(--text-12);
+}
+
+.proofStatus {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.livePulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ox);
+  box-shadow: 0 0 8px var(--ox);
+}
+
+.proofTag {
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--ink-2);
+}
+
+.proofId {
+  color: var(--ink-3);
+  letter-spacing: 0.02em;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--text-12);
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+}
+
+.proofFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-12);
+  border-top: 1px solid var(--rule);
+}
+
+.sampleLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--text-14);
+  line-height: 20px;
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition:
+    color var(--duration-hover) var(--ease),
+    text-underline-offset var(--duration-hover) var(--ease);
+}
+
+.sampleLink:hover {
+  color: var(--ink);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+
+.sampleArrow {
+  font-size: var(--text-14);
+  transition: transform var(--duration-hover) var(--ease);
+}
+
+.sampleLink:hover .sampleArrow {
+  transform: translateX(2px);
+}
+
+.verifiedStamp {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+}
+
+@media (min-width: 60rem) {
+  .heroGrid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: var(--space-40);
+  }
+}
+
+/*
+ * Phones: tighter spacing
+ */
+@media (max-width: 30rem) {
+  .heroGrid {
+    gap: var(--space-20);
+  }
+
+  .text {
+    gap: var(--space-16);
+  }
+
+  .title,
+  .cta,
+  .actions {
+    gap: var(--space-8);
+  }
+
+  .heading {
+    font-size: var(--text-36);
+    line-height: 40px;
+  }
+
+  .lede {
+    font-size: var(--text-16);
+    line-height: 24px;
+  }
+
+  .proof {
+    gap: var(--space-12);
+    padding: var(--space-16);
+  }
+}

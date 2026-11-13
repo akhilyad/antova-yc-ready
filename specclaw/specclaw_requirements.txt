@@ -1,0 +1,10 @@
+fastapi==0.135.3
+uvicorn==0.43.0
+pydantic==2.12.5
+sqlalchemy==2.0.48
+pint==0.26.2
+pymupdf==1.27.2.3
+reportlab==5.1.0
+anthropic==0.97.0
+httpx==0.28.1
+pytest==9.0.2

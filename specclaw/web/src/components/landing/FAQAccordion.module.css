@@ -1,0 +1,171 @@
+.container {
+  width: 100%;
+  max-width: 56rem;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-32);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.sectionBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 4px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border-stone);
+  border-radius: var(--radius-control);
+  font-family: var(--font-mono);
+  font-size: var(--text-12);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: var(--text-30);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.subheading {
+  font-size: var(--text-18);
+  line-height: 28px;
+  color: var(--ink-2);
+  margin: 0;
+}
+
+.accordionCard {
+  background: var(--surface);
+  border: 1px solid rgba(231, 229, 228, 0.8);
+  border-radius: var(--radius-card, 8px);
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgb(22 19 15 / 3%);
+}
+
+.itemWrapper {
+  border-bottom: 1px solid var(--border-stone);
+  transition: background-color var(--duration-hover) var(--ease);
+}
+
+.itemWrapper:last-child {
+  border-bottom: none;
+}
+
+.itemWrapper:hover {
+  background-color: rgba(22, 19, 15, 0.015);
+}
+
+.itemHeading {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.triggerButton {
+  width: 100%;
+  padding: var(--space-20) var(--space-24);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  gap: var(--space-16);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color var(--duration-hover) var(--ease);
+}
+
+.triggerButton:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+
+.questionText {
+  font-size: var(--text-18);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--ink);
+  transition: color var(--duration-hover) var(--ease);
+}
+
+.triggerButton:hover .questionText {
+  color: var(--ink-2);
+}
+
+.chevronWrapper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border-stone);
+  color: var(--ink-2);
+  background: #faf8f5;
+  transition:
+    border-color var(--duration-hover) var(--ease),
+    color var(--duration-hover) var(--ease);
+}
+
+.chevronOpen {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.chevronIcon {
+  width: 16px;
+  height: 16px;
+  transition: transform 200ms ease;
+}
+
+.rotateIcon {
+  transform: rotate(180deg);
+}
+
+/*
+ * Buttery Smooth Dropdowns:
+ * CSS Grid transition for fluid height expansion without page jumps.
+ */
+.faqAnswer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition:
+    grid-template-rows 250ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 150ms ease;
+  opacity: 0;
+}
+
+.faqAnswer[data-open='true'] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.faqAnswer > div {
+  overflow: hidden;
+}
+
+.answerInner {
+  padding: 0 var(--space-24) var(--space-20);
+}
+
+.answerText {
+  margin: 0;
+  font-size: var(--text-16);
+  line-height: 1.6;
+  color: var(--ink-2);
+  max-width: 68ch;
+}

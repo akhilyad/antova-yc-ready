@@ -1,0 +1,92 @@
+/*
+ * The printed brief (spec §7.5): the forwardable document. One column on A4; the sliders,
+ * the margin, the bottom sheet and the site chrome are left out; every footnote's evidence
+ * prints in order as endnotes (BriefView mounts them on `beforeprint`); the colophon closes
+ * with the URL and verified date. Components mark themselves with data-print:
+ *   hide     · interactive parts the paper has no use for
+ *   only     · content that exists for print (the endnotes)
+ *   layout   · the brief's two-column grid, flattened to one
+ *   endnote  · one footnote's evidence, kept on one page where it fits
+ */
+
+@media screen {
+  [data-print='only'] {
+    display: none;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 18mm 16mm 20mm;
+  }
+
+  html {
+    scroll-padding-top: 0;
+  }
+
+  body {
+    background: var(--surface);
+    font-size: 11pt;
+  }
+
+  .skip-link,
+  .site-header,
+  .site-footer,
+  [data-print='hide'],
+  [role='dialog'] {
+    display: none !important;
+  }
+
+  [data-print='only'] {
+    display: block !important;
+  }
+
+  [data-print='layout'] {
+    display: block !important;
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  /* Links read as text on paper; footnote markers stay oxblood superscripts. */
+  a {
+    text-decoration: none;
+  }
+
+  /* Scroll regions and sticky boxes print in full. */
+  [role='region'],
+  [data-print='layout'] * {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  table,
+  figure,
+  tr {
+    break-inside: avoid;
+  }
+
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+
+  [data-print='endnote'] {
+    break-inside: avoid-page;
+    padding-top: 8pt;
+    border-top: 1px solid var(--rule);
+  }
+
+  /* The sidenote card loses its shadow and swap animation on paper. */
+  [data-print='endnote'] article {
+    padding: 0;
+    box-shadow: none !important;
+    animation: none !important;
+  }
+
+  /* Colour stays where something is wrong: wash backgrounds and oxblood marks print. */
+  * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

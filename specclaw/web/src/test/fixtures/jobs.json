@@ -1,0 +1,201 @@
+{
+  "completed": {
+    "completed_at": "2026-11-05T00:00:00+00:00",
+    "created_at": "2026-11-05T00:00:00+00:00",
+    "error": null,
+    "job_id": "job-e2e00001",
+    "progress_pct": 100,
+    "result": {
+      "api_cost_usd": 0.0,
+      "candidates_accepted": 36,
+      "candidates_rejected": 0,
+      "cogs_usd": 0.0,
+      "deviations_found": 10,
+      "documents": 4,
+      "duration_s": 41.7,
+      "exposed_risk_eur": 64800.0,
+      "flags_raised": 0,
+      "ingest_mode": "answer_key",
+      "locales": {
+        "Bid_vendor-a_Nordwerk.pdf": "en",
+        "Bid_vendor-b_VoltSwitch.pdf": "en",
+        "Bid_vendor-c_Deltaport.pdf": "en",
+        "MR-33kV-GIS-Rev4.pdf": "unknown"
+      },
+      "negotiating_vendor": {
+        "basis": "lowest true evaluated price",
+        "excluded": [],
+        "lowest_headline": "vendor-b",
+        "true_evaluated_price": 452000.0,
+        "vendor_id": "vendor-a"
+      },
+      "no_text_pages": {},
+      "overrides_cleared": [
+        {
+          "adder_eur": "10000.00",
+          "note": "Parity case: founder priced the gap from the vendor's clarification",
+          "param_id": "PARAM-02",
+          "vendor_id": "vendor-b"
+        }
+      ],
+      "pages_parsed": 116,
+      "rate_table_effective_date": "2026-11-03",
+      "rules_evaluated": 39,
+      "run_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "run_id": "e2e0e2e0e2e0e2e0e2e0e2e0e2e0e2e0",
+      "sld_sheets": 12,
+      "stage_log": [
+        {
+          "pct": 5,
+          "stage": "Intake",
+          "t_ms": 15
+        },
+        {
+          "pct": 20,
+          "stage": "Parse",
+          "t_ms": 2840
+        },
+        {
+          "pct": 60,
+          "stage": "Locate",
+          "t_ms": 41260
+        },
+        {
+          "pct": 70,
+          "stage": "Verify citations",
+          "t_ms": 41390
+        },
+        {
+          "pct": 80,
+          "stage": "Read values",
+          "t_ms": 41520
+        },
+        {
+          "pct": 85,
+          "stage": "Resolve precedence",
+          "t_ms": 41580
+        },
+        {
+          "pct": 90,
+          "stage": "Price",
+          "t_ms": 41660
+        }
+      ],
+      "sweep_hits": 37,
+      "sweep_new_candidates": 0,
+      "sweep_recall": 1.0,
+      "synthetic": true,
+      "tender_id": "TENDER-2026-402",
+      "unpriced_items": [],
+      "warnings": []
+    },
+    "stage": "Persist",
+    "status": "COMPLETED"
+  },
+  "failed": {
+    "completed_at": "2026-11-05T00:00:00+00:00",
+    "created_at": "2026-11-05T00:00:00+00:00",
+    "error": "IngestFailed: ExtractError: locate request for Bid_vendor-b_VoltSwitch.pdf failed",
+    "job_id": "job-e2e00001",
+    "progress_pct": 20,
+    "result": null,
+    "stage": "Parse",
+    "status": "FAILED"
+  },
+  "processing": [
+    {
+      "completed_at": null,
+      "created_at": "2026-11-05T00:00:00+00:00",
+      "error": null,
+      "job_id": "job-e2e00001",
+      "progress_pct": 5,
+      "result": null,
+      "stage": "Intake",
+      "status": "PROCESSING"
+    },
+    {
+      "completed_at": null,
+      "created_at": "2026-11-05T00:00:00+00:00",
+      "error": null,
+      "job_id": "job-e2e00001",
+      "progress_pct": 20,
+      "result": null,
+      "stage": "Parse",
+      "status": "PROCESSING"
+    },
+    {
+      "completed_at": null,
+      "created_at": "2026-11-05T00:00:00+00:00",
+      "error": null,
+      "job_id": "job-e2e00001",
+      "progress_pct": 60,
+      "result": null,
+      "stage": "Locate",
+      "status": "PROCESSING"
+    },
+    {
+      "completed_at": null,
+      "created_at": "2026-11-05T00:00:00+00:00",
+      "error": null,
+      "job_id": "job-e2e00001",
+      "progress_pct": 70,
+      "result": null,
+      "stage": "Verify citations",
+      "status": "PROCESSING"
+    },
+    {
+      "completed_at": null,
+      "created_at": "2026-11-05T00:00:00+00:00",
+      "error": null,
+      "job_id": "job-e2e00001",
+      "progress_pct": 80,
+      "result": null,
+      "stage": "Read values",
+      "status": "PROCESSING"
+    },
+    {
+      "completed_at": null,
+      "created_at": "2026-11-05T00:00:00+00:00",
+      "error": null,
+      "job_id": "job-e2e00001",
+      "progress_pct": 85,
+      "result": null,
+      "stage": "Resolve precedence",
+      "status": "PROCESSING"
+    },
+    {
+      "completed_at": null,
+      "created_at": "2026-11-05T00:00:00+00:00",
+      "error": null,
+      "job_id": "job-e2e00001",
+      "progress_pct": 90,
+      "result": null,
+      "stage": "Price",
+      "status": "PROCESSING"
+    },
+    {
+      "completed_at": null,
+      "created_at": "2026-11-05T00:00:00+00:00",
+      "error": null,
+      "job_id": "job-e2e00001",
+      "progress_pct": 100,
+      "result": null,
+      "stage": "Persist",
+      "status": "PROCESSING"
+    }
+  ],
+  "queued": {
+    "completed_at": null,
+    "created_at": "2026-11-05T00:00:00+00:00",
+    "error": null,
+    "job_id": "job-e2e00001",
+    "progress_pct": 0,
+    "result": null,
+    "stage": "Queued in worker pipeline",
+    "status": "PENDING"
+  },
+  "start": {
+    "job_id": "job-e2e00001",
+    "status": "QUEUED"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "version": "mv_gis_switchgear_v1",
+  "effective_date": "2026-11-03",
+  "currency": "EUR",
+  "base_labour_rate": "60.00",
+  "unpriced_classes": ["PARAM-02.current_short", "PARAM-07.voltage_short", "PARAM-08.ambient_short"],
+  "policies": {"warranty_basis": "months_only"},
+  "deviation_rates": {
+    "PARAM-01.ik_rating_short": [
+      {"label": "Vacuum breaker & CT core upgrade to 50 kA / 3 s", "qty": "tender.bay_count", "unit": "bays", "rate": "1600.00", "driver": "fixed"},
+      {"label": "Type-test documentation", "qty": "1", "unit": "lot", "rate": "900.00", "driver": "fixed"}
+    ],
+    "PARAM-01.ik_duration_short": [
+      {"label": "Thermal step-up for 3 s fault duration", "qty": "tender.bay_count", "unit": "bays", "rate": "500.00", "driver": "fixed"},
+      {"label": "Thermal withstand study", "qty": "1", "unit": "lot", "rate": "700.00", "driver": "fixed"}
+    ],
+    "PARAM-02.material_al_for_cu": [
+      {"label": "Cu-Al price delta (LME)", "qty": "estimate.busbar_cu_kg", "unit": "kg", "rate": "8.50", "driver": "copper"},
+      {"label": "Bimetallic joint kit", "qty": "1", "unit": "lot", "rate": "1620.00", "driver": "fixed"}
+    ],
+    "PARAM-03.ip_below_ip54": [
+      {"label": "IP54 gasket and filter kit", "qty": "tender.bay_count", "unit": "bays", "rate": "400.00", "driver": "fixed"}
+    ],
+    "PARAM-03.iac_not_aflr": [
+      {"label": "Rear arc plenum ducting (AFL to AFLR)", "qty": "1", "unit": "lot", "rate": "4500.00", "driver": "fixed"}
+    ],
+    "PARAM-04.no_prp": [
+      {"label": "Dual-fibre PRP communication card", "qty": "tender.bay_count", "unit": "bays", "rate": "300.00", "driver": "fixed"}
+    ],
+    "PARAM-04.marshalling_not_prewired": [
+      {"label": "Site termination and point-to-point ring-out", "qty": "65", "unit": "h", "rate": "60.00", "driver": "labour"},
+      {"label": "Ring-out test kit hire", "qty": "1", "unit": "lot", "rate": "200.00", "driver": "fixed"}
+    ],
+    "PARAM-05.witnessed_fat_days_short": [
+      {"label": "Witnessed I-FAT day (test bay and engineer)", "qty": "shortfall.days", "unit": "days", "rate": "1300.00", "driver": "fixed"}
+    ],
+    "PARAM-06.incoterm_exw_to_ddp": [
+      {"label": "Heavy-haul low-loader transport", "qty": "estimate.heavy_haul_loads", "unit": "loads", "rate": "2600.00", "driver": "freight"},
+      {"label": "Transit insurance", "qty": "1", "unit": "lot", "rate": "950.00", "driver": "fixed"}
+    ],
+    "PARAM-06.incoterm_dap_to_ddp": [
+      {"label": "Intra-EU delivery, no import clearance", "qty": "1", "unit": "lot", "rate": "0.00", "driver": "fixed"}
+    ],
+    "PARAM-06.warranty_short": [
+      {"label": "Extended defect liability bond", "qty": "shortfall.months", "unit": "months", "rate": "175.00", "driver": "fixed"}
+    ]
+  }
+}

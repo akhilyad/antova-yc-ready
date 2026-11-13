@@ -1,0 +1,36 @@
+.tag {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  padding: 2px var(--space-8);
+  border: 1px solid transparent;
+  border-radius: var(--radius-tag);
+  font-size: var(--text-12);
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.glyph {
+  font-variant-numeric: var(--figures);
+}
+
+/* Passing is ink: no colour, no green. */
+.ok {
+  border-color: var(--rule);
+  color: var(--ink);
+}
+
+/* A priced gap: oxblood on wash. */
+.gap {
+  background: var(--ox-wash);
+  color: var(--ox);
+}
+
+/* Open (blocks verification): oxblood outline, so it reads as unresolved, not settled. */
+.open {
+  background: var(--surface);
+  border-color: var(--ox);
+  border-style: dashed;
+  color: var(--ox);
+}

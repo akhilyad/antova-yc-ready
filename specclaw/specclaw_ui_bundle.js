@@ -1,0 +1,764 @@
+(() => {
+  const { useState, useMemo, useEffect, useCallback, memo } = React;
+  const TENDER_DATA = {
+    id: "TENDER-2026-402",
+    title: "350 MWp Solar + BESS Substation \u2014 33kV GIS Switchgear & RTU Protection Package",
+    client: "Vogt-Grid EPC Consortium GmbH (Berlin / Madrid)",
+    mrDoc: "MR-33kV-GIS-Rev4.pdf (148 pages + 14 SLD Sheets)",
+    pagesParsed: 742,
+    latencySec: 142,
+    computeCogs: 4.65,
+    vendors: [
+      {
+        id: "vendor-a",
+        name: "Siemens Energy / Authorised Tier-1",
+        country: "Germany",
+        headlinePrice: 452e3,
+        docName: "Offer_SIEMENS_8DJH36_Rev2.pdf (196 pages)",
+        coverClaim: "Full compliance with MR-33kV-GIS-Rev4 except minor commercial notes.",
+        badge: "Compliant Baseline",
+        tier: "Tier-1 OEM"
+      },
+      {
+        id: "vendor-b",
+        name: "VoltSwitch Industrial / Regionale Partner",
+        country: "Turkey / EU",
+        headlinePrice: 418e3,
+        docName: "Commercial_Tech_Bid_VoltSwitch_2026.pdf (184 pages)",
+        coverClaim: "100% Compliant with Material Requisition MR-33kV-GIS-Rev4.",
+        badge: "Apparent Low Bidder (-\u20AC34k)",
+        tier: "Apparent Low"
+      },
+      {
+        id: "vendor-c",
+        name: "Powell / Eaton Skid Consortium",
+        country: "Netherlands",
+        headlinePrice: 439e3,
+        docName: "Eaton_Powell_33kV_Tender_Pack.pdf (214 pages)",
+        coverClaim: "Compliant per attached Schedule of Deviations.",
+        badge: "Mid Bidder",
+        tier: "Consortium"
+      }
+    ],
+    parameters: [
+      {
+        id: "PARAM-01",
+        category: "Electrical Ratings (IEC 62271-200)",
+        name: "Rated Short-Time Withstand Current (Ik)",
+        mrRequirement: "50.0 kA RMS (3.0 s)",
+        pintRule: "val_kA >= 50.0 and duration_s >= 3.0",
+        criticality: "MANDATORY",
+        vendors: {
+          "vendor-a": {
+            extracted: "50.0 kA (3.0 s)",
+            status: "COMPLIANT",
+            confidence: 0.99,
+            bbox: "Page 44, BBox [118, 210, 490, 245]",
+            snippet: "Rated short-time withstand current (main busbar & breaker): 50 kA / 3s per IEC 62271-100.",
+            costAdder: 0,
+            adderFormula: "0 (Meets 50 kA / 3s baseline)"
+          },
+          "vendor-b": {
+            extracted: "31.5 kA (1.0 s)",
+            status: "CONFLICT_DOWNGRADE",
+            confidence: 0.97,
+            bbox: "Page 64 (SLD Note 7), BBox [84, 512, 540, 568]",
+            conflictNote: "Cover Letter Page 2 states '100% Compliant (50kA)', but SLD Drawing #33-04 Footnote 7 specifies 31.5 kA / 1s vacuum interrupter cells.",
+            snippet: "NOTE 7: Standard switchgear bay rated 31.5kA 1s. 50kA high-duty upgrade excluded from base price.",
+            costAdder: 18500,
+            adderFormula: "11 Bays \xD7 \u20AC1,681.82 (Vacuum Breaker & CT Core Upgrade 31.5kA -> 50kA)"
+          },
+          "vendor-c": {
+            extracted: "50.0 kA (1.0 s)",
+            status: "DEVIATION_DOWNGRADE",
+            confidence: 0.98,
+            bbox: "Page 52, BBox [105, 310, 480, 350]",
+            snippet: "Rated short-time withstand current: 50 kA duration 1.0 second. Extended 3s duty optional.",
+            costAdder: 5200,
+            adderFormula: "Busbar dynamic bracing upgrade for 3s thermal rating"
+          }
+        }
+      },
+      {
+        id: "PARAM-02",
+        category: "Electrical Ratings (IEC 62271-200)",
+        name: "Main Busbar Material & Continuous Current",
+        mrRequirement: "Electrolytic Copper (Cu-ETP), 2500 A",
+        pintRule: 'material == "Cu-ETP" and rating_A >= 2500',
+        criticality: "MANDATORY",
+        vendors: {
+          "vendor-a": {
+            extracted: "Electrolytic Copper (Cu-ETP), 2500 A",
+            status: "COMPLIANT",
+            confidence: 0.99,
+            bbox: "Page 46, BBox [122, 180, 505, 215]",
+            snippet: "Main busbar: ETP copper grade CW004A, cross-section sized for 2500A continuous rated current at 45\xB0C ambient.",
+            costAdder: 0,
+            adderFormula: "0 (Standard Cu-ETP)"
+          },
+          "vendor-b": {
+            extracted: "Aluminum Alloy (AlMgSi), 2500 A",
+            status: "DEVIATION_DOWNGRADE",
+            confidence: 0.95,
+            bbox: "Page 79, BBox [95, 420, 510, 470]",
+            conflictNote: "Specification Clause 4.2 strictly mandates Cu-ETP copper. VoltSwitch substitutes AlMgSi aluminum busbars with bimetallic copper transition plates.",
+            snippet: "Busbar system manufactured from tin-plated E-AlMgSi0.5 aluminum alloy profiles.",
+            costAdder: 14200,
+            adderFormula: "LME Cu vs Al Spot Delta (1,480 kg Cu equivalent + bimetallic joint kit)"
+          },
+          "vendor-c": {
+            extracted: "Electrolytic Copper (Cu-ETP), 2500 A",
+            status: "COMPLIANT",
+            confidence: 0.99,
+            bbox: "Page 58, BBox [110, 205, 495, 240]",
+            snippet: "HDHC Electrolytic copper busbar system throughout all MV compartments.",
+            costAdder: 0,
+            adderFormula: "0 (Compliant baseline)"
+          }
+        }
+      },
+      {
+        id: "PARAM-03",
+        category: "Mechanical & Safety Protection",
+        name: "Enclosure Ingress & Internal Arc Rating",
+        mrRequirement: "IP54 / IAC AFLR 50 kA 1.0 s",
+        pintRule: 'ip_rating >= 54 and iac_class == "AFLR"',
+        criticality: "HIGH",
+        vendors: {
+          "vendor-a": {
+            extracted: "IP54 / IAC AFLR 50 kA 1.0 s",
+            status: "COMPLIANT",
+            confidence: 0.99,
+            bbox: "Page 39, BBox [120, 300, 510, 340]",
+            snippet: "Enclosure protection IP54 with rear gas exhaust ducting IAC AFLR 50kA 1s.",
+            costAdder: 0,
+            adderFormula: "0 (Fully certified AFLR)"
+          },
+          "vendor-b": {
+            extracted: "IP42 / IAC AFL (3 sides) 31.5 kA",
+            status: "DEVIATION_DOWNGRADE",
+            confidence: 0.94,
+            bbox: "Page 88, BBox [130, 610, 520, 665]",
+            conflictNote: "Rear accessibility requires AFLR containment. Quoted AFL leaves rear operators exposed in the GIS container hallway.",
+            snippet: "Standard indoor IP42 ventilation louvers; arc classification AFL (front and lateral only).",
+            costAdder: 8900,
+            adderFormula: "IP54 Gasket/Filter Kit + Rear Arc-Flash Plenum Ducting (AFL -> AFLR)"
+          },
+          "vendor-c": {
+            extracted: "IP54 / IAC AFLR 50 kA 1.0 s",
+            status: "COMPLIANT",
+            confidence: 0.97,
+            bbox: "Page 63, BBox [115, 280, 490, 320]",
+            snippet: "Full IP54 dust/splash sealing and 4-sided AFLR internal arc containment.",
+            costAdder: 0,
+            adderFormula: "0 (Meets spec)"
+          }
+        }
+      },
+      {
+        id: "PARAM-04",
+        category: "Control, SCADA & Protection Relays",
+        name: "IED Protection & Redundant IEC 61850 PRP",
+        mrRequirement: "Dual-Port Fiber IEC 61850 Ed.2 PRP + Marshalling",
+        pintRule: 'protocol == "IEC61850_Ed2_PRP" and rtu_marshalling == "PREWIRED"',
+        criticality: "HIGH",
+        vendors: {
+          "vendor-a": {
+            extracted: "Siprotec 5 IEC 61850 Ed.2 PRP + Pre-wired Marshalling",
+            status: "COMPLIANT",
+            confidence: 0.98,
+            bbox: "Page 104, BBox [90, 150, 530, 210]",
+            snippet: "Includes dual-homing fiber LC ports (PRP Protocol) wired to central X100 RTU terminal marshalling bay.",
+            costAdder: 0,
+            adderFormula: "0 (Pre-marshalled & factory tested)"
+          },
+          "vendor-b": {
+            extracted: "Single RJ45 Modbus TCP + Loose Relays",
+            status: "CONFLICT_DOWNGRADE",
+            confidence: 0.93,
+            bbox: "Page 119, BBox [78, 390, 545, 455]",
+            conflictNote: "Compliance table claims IEC 61850 support, but BOM Line 44 quotes basic RS485/RJ45 communication card and ships interposing terminal blocks loose for site wiring.",
+            snippet: "BOM Pos 44: Standard comm port RJ45; SCADA marshalling terminals supplied loose for EPC field termination.",
+            costAdder: 7400,
+            adderFormula: "11x Dual-Fiber PRP Cards (\u20AC3,300) + 68 hrs Site Electrician Wiring (\u20AC4,100)"
+          },
+          "vendor-c": {
+            extracted: "ABB Relion 615 IEC 61850 PRP (Unmarshalled)",
+            status: "DEVIATION_DOWNGRADE",
+            confidence: 0.95,
+            bbox: "Page 112, BBox [100, 410, 505, 460]",
+            snippet: "Relays include PRP fiber ports; customer SCADA wiring directly to individual bay LV compartments.",
+            costAdder: 4100,
+            adderFormula: "68 hrs Site Electrician Termination & Point-to-Point Ring-out"
+          }
+        }
+      },
+      {
+        id: "PARAM-05",
+        category: "Quality Assurance & Testing",
+        name: "Witnessed Factory Acceptance Test (I-FAT)",
+        mrRequirement: "5-Day Witnessed Integrated FAT (I-FAT) Included",
+        pintRule: "ifat_days >= 5 and witnessed == True",
+        criticality: "COMMERCIAL",
+        vendors: {
+          "vendor-a": {
+            extracted: "5-Day Witnessed I-FAT Included",
+            status: "COMPLIANT",
+            confidence: 0.99,
+            bbox: "Page 162, BBox [110, 220, 480, 260]",
+            snippet: "Price includes 5 days factory test bay allocation for client witnessed I-FAT with primary injection.",
+            costAdder: 0,
+            adderFormula: "0 (Included in base)"
+          },
+          "vendor-b": {
+            extracted: "Routine Unwitnessed Test Report Only",
+            status: "OMITTED",
+            confidence: 0.98,
+            bbox: "Page 171, BBox [88, 510, 520, 555]",
+            conflictNote: "Material Requisition Clause 9 mandates full client-witnessed primary injection I-FAT. Vendor offer silently excludes test bay time and engineer witnessing.",
+            snippet: "Standard routine test certificates provided. Witnessed FAT charged extra at \u20AC1,300/day + test bay setup.",
+            costAdder: 6500,
+            adderFormula: "5 Days Test Bay Allocation + Primary Injection Engineer Rate (5 \xD7 \u20AC1,300)"
+          },
+          "vendor-c": {
+            extracted: "3-Day Witnessed FAT Included",
+            status: "DEVIATION_DOWNGRADE",
+            confidence: 0.96,
+            bbox: "Page 189, BBox [105, 330, 490, 370]",
+            snippet: "Includes 3 days witnessed inspection; additional days billed per tariff.",
+            costAdder: 2600,
+            adderFormula: "2 Additional I-FAT Days for SCADA point-to-point verification"
+          }
+        }
+      },
+      {
+        id: "PARAM-06",
+        category: "Commercial & Logistics Terms",
+        name: "Incoterms 2020 & Defect Liability",
+        mrRequirement: "DDP Project Site (Brandenburg, DE) + Defect Liability 36 Mo",
+        pintRule: 'incoterm == "DDP" and warranty_months >= 36',
+        criticality: "COMMERCIAL",
+        vendors: {
+          "vendor-a": {
+            extracted: "DDP Brandenburg Site / 36 Months Warranty",
+            status: "COMPLIANT",
+            confidence: 0.99,
+            bbox: "Page 188, BBox [95, 190, 510, 235]",
+            snippet: "Delivery DDP Solar Substation Site (Incoterms 2020), 36-month defect liability period.",
+            costAdder: 0,
+            adderFormula: "0 (DDP Delivered Site)"
+          },
+          "vendor-b": {
+            extracted: "EXW Factory (Izmir) / 18 Months Warranty",
+            status: "DEVIATION_DOWNGRADE",
+            confidence: 0.99,
+            bbox: "Page 181, BBox [102, 600, 535, 650]",
+            conflictNote: "EXW terms shift import customs, transit permits, and crane-offloading risk onto the EPC contractor.",
+            snippet: "Prices quoted Ex-Works (EXW) factory loading dock; standard 18-month warranty from dispatch.",
+            costAdder: 9300,
+            adderFormula: "2x Low-Loader Heavy Freight + Transit Insurance (\u20AC6,100) + 18-Mo Warranty Bond (\u20AC3,200)"
+          },
+          "vendor-c": {
+            extracted: "DAP Site / 24 Months Warranty",
+            status: "DEVIATION_DOWNGRADE",
+            confidence: 0.97,
+            bbox: "Page 204, BBox [112, 410, 495, 450]",
+            snippet: "Delivered At Place (DAP); warranty 24 months from commissioning.",
+            costAdder: 2100,
+            adderFormula: "12-Month Extended Defect Liability Bond Adder"
+          }
+        }
+      }
+    ]
+  };
+  function SvgIcon({ name, className = "w-4 h-4" }) {
+    const icons = {
+      layers: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("polygon", { points: "12 2 2 7 12 12 22 7 12 2", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round", fill: "none" }), /* @__PURE__ */ React.createElement("polyline", { points: "2 17 12 22 22 17", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round", fill: "none" }), /* @__PURE__ */ React.createElement("polyline", { points: "2 12 12 17 22 12", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round", fill: "none" })),
+      upload: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round", fill: "none" }), /* @__PURE__ */ React.createElement("polyline", { points: "17 8 12 3 7 8", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round", fill: "none" }), /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "3", x2: "12", y2: "15", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round" })),
+      calculator: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("rect", { width: "16", height: "20", x: "4", y: "2", rx: "2", stroke: "currentColor", strokeWidth: "1.5", fill: "none" }), /* @__PURE__ */ React.createElement("line", { x1: "8", x2: "16", y1: "6", y2: "6", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }), /* @__PURE__ */ React.createElement("line", { x1: "16", x2: "16", y1: "14", y2: "18", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }), /* @__PURE__ */ React.createElement("circle", { cx: "8", cy: "10", r: "1", fill: "currentColor" }), /* @__PURE__ */ React.createElement("circle", { cx: "12", cy: "10", r: "1", fill: "currentColor" }), /* @__PURE__ */ React.createElement("circle", { cx: "16", cy: "10", r: "1", fill: "currentColor" }), /* @__PURE__ */ React.createElement("circle", { cx: "8", cy: "14", r: "1", fill: "currentColor" }), /* @__PURE__ */ React.createElement("circle", { cx: "12", cy: "14", r: "1", fill: "currentColor" })),
+      send: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("line", { x1: "22", y1: "2", x2: "11", y2: "13", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round" }), /* @__PURE__ */ React.createElement("polygon", { points: "22 2 15 22 11 13 2 9 22 2", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round", fill: "none" })),
+      check: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("polyline", { points: "20 6 9 17 4 12", stroke: "currentColor", strokeWidth: "1.75", strokeLinecap: "round", strokeLinejoin: "round", fill: "none" })),
+      alert: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("circle", { cx: "12", cy: "12", r: "10", stroke: "currentColor", strokeWidth: "1.5", fill: "none" }), /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "8", x2: "12", y2: "12", stroke: "currentColor", strokeWidth: "1.75", strokeLinecap: "round" }), /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "16", x2: "12.01", y2: "16", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round" })),
+      refresh: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round", fill: "none" }), /* @__PURE__ */ React.createElement("path", { d: "M8 16H3v5", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round", fill: "none" }), /* @__PURE__ */ React.createElement("path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round", fill: "none" }), /* @__PURE__ */ React.createElement("path", { d: "M16 8h5V3", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round", fill: "none" })),
+      download: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round", fill: "none" }), /* @__PURE__ */ React.createElement("polyline", { points: "7 10 12 15 17 10", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round", fill: "none" }), /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "15", x2: "12", y2: "3", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round" })),
+      file: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("path", { d: "M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z", stroke: "currentColor", strokeWidth: "1.5", fill: "none" }), /* @__PURE__ */ React.createElement("polyline", { points: "14 2 14 8 20 8", stroke: "currentColor", strokeWidth: "1.5", fill: "none" })),
+      crosshair: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("circle", { cx: "12", cy: "12", r: "10", stroke: "currentColor", strokeWidth: "1.5", fill: "none" }), /* @__PURE__ */ React.createElement("line", { x1: "22", y1: "12", x2: "18", y2: "12", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }), /* @__PURE__ */ React.createElement("line", { x1: "6", y1: "12", x2: "2", y2: "12", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }), /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "6", x2: "12", y2: "2", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }), /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "22", x2: "12", y2: "18", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" })),
+      copy: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", stroke: "currentColor", strokeWidth: "1.5", fill: "none" }), /* @__PURE__ */ React.createElement("path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", stroke: "currentColor", strokeWidth: "1.5", fill: "none" })),
+      sliders: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("line", { x1: "4", y1: "21", x2: "4", y2: "14", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }), /* @__PURE__ */ React.createElement("line", { x1: "4", y1: "10", x2: "4", y2: "3", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }), /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "21", x2: "12", y2: "12", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }), /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "8", x2: "12", y2: "3", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }), /* @__PURE__ */ React.createElement("line", { x1: "20", y1: "21", x2: "20", y2: "16", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }), /* @__PURE__ */ React.createElement("line", { x1: "20", y1: "12", x2: "20", y2: "3", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }), /* @__PURE__ */ React.createElement("line", { x1: "1", y1: "14", x2: "7", y2: "14", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }), /* @__PURE__ */ React.createElement("line", { x1: "9", y1: "8", x2: "15", y2: "8", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }), /* @__PURE__ */ React.createElement("line", { x1: "17", y1: "16", x2: "23", y2: "16", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" })),
+      sparkles: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("path", { d: "M12 3l1.9 4.8L18.7 9l-4.8 1.9L12 15.7l-1.9-4.8L5.3 9l4.8-1.9L12 3z", stroke: "currentColor", strokeWidth: "1.5", fill: "none" }), /* @__PURE__ */ React.createElement("path", { d: "M19 16l.9 2.2 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9.9-2.2z", stroke: "currentColor", strokeWidth: "1.5", fill: "none" }))
+    };
+    return /* @__PURE__ */ React.createElement("svg", { viewBox: "0 0 24 24", className, fill: "none" }, icons[name] || null);
+  }
+  const StatusBadge = memo(function StatusBadge2({ status, isConceded }) {
+    if (isConceded) {
+      return /* @__PURE__ */ React.createElement("span", { className: "inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/25" }, /* @__PURE__ */ React.createElement(SvgIcon, { name: "check", className: "w-3 h-3 text-emerald-400" }), " Conceded (\u20AC0)");
+    }
+    switch (status) {
+      case "COMPLIANT":
+        return /* @__PURE__ */ React.createElement("span", { className: "inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/25" }, /* @__PURE__ */ React.createElement(SvgIcon, { name: "check", className: "w-3 h-3 text-emerald-400" }), " Compliant");
+      case "CONFLICT_DOWNGRADE":
+        return /* @__PURE__ */ React.createElement("span", { className: "inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-rose-500/10 text-rose-400 border border-rose-500/30" }, /* @__PURE__ */ React.createElement(SvgIcon, { name: "alert", className: "w-3 h-3 text-rose-400" }), " Conflict Trap");
+      case "DEVIATION_DOWNGRADE":
+        return /* @__PURE__ */ React.createElement("span", { className: "inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-amber-500/10 text-amber-400 border border-amber-500/30" }, /* @__PURE__ */ React.createElement(SvgIcon, { name: "alert", className: "w-3 h-3 text-amber-400" }), " Downgrade");
+      case "OMITTED":
+        return /* @__PURE__ */ React.createElement("span", { className: "inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-purple-500/10 text-purple-400 border border-purple-500/30" }, /* @__PURE__ */ React.createElement(SvgIcon, { name: "alert", className: "w-3 h-3 text-purple-400" }), " Excluded Scope");
+      default:
+        return null;
+    }
+  });
+  const CadSchematicVisualizer = memo(function CadSchematicVisualizer2({ paramId, vendorId }) {
+    const isVoltswitchConflict = paramId === "PARAM-01" && vendorId === "vendor-b";
+    const isBusbarAlloy = paramId === "PARAM-02" && vendorId === "vendor-b";
+    return /* @__PURE__ */ React.createElement("div", { className: "rounded-lg border border-[#232530] bg-[#0A0B0E] p-3 text-xs font-mono relative overflow-hidden select-none" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center justify-between pb-2 mb-2 border-b border-[#1E202B] text-[10px] text-gray-400" }, /* @__PURE__ */ React.createElement("span", { className: "flex items-center gap-1.5 text-cyan-400 font-semibold" }, /* @__PURE__ */ React.createElement(SvgIcon, { name: "crosshair", className: "w-3.5 h-3.5 text-cyan-400" }), "VECTOR CAD DRAWING SHEET #33-04"), /* @__PURE__ */ React.createElement("span", { className: "text-gray-500" }, "LAYER: MV_BUSBAR_RATINGS")), /* @__PURE__ */ React.createElement("div", { className: "relative h-40 w-full bg-[#08090C] rounded border border-[#1A1C24] p-3 flex flex-col justify-between overflow-hidden" }, /* @__PURE__ */ React.createElement(
+      "div",
+      {
+        className: "absolute inset-0 opacity-15 pointer-events-none",
+        style: {
+          backgroundImage: "radial-gradient(#38BDF8 0.75px, transparent 0.75px)",
+          backgroundSize: "12px 12px"
+        }
+      }
+    ), /* @__PURE__ */ React.createElement("div", { className: "flex items-center justify-between z-10 text-[10px] text-gray-500 font-mono" }, /* @__PURE__ */ React.createElement("span", null, "BUS-A: 33kV 2500A 3-PHASE GIS"), /* @__PURE__ */ React.createElement("span", null, "DRAWING REV: 4.2")), /* @__PURE__ */ React.createElement("div", { className: "z-10 flex items-center justify-around py-3" }, /* @__PURE__ */ React.createElement("div", { className: "flex flex-col items-center gap-1" }, /* @__PURE__ */ React.createElement("span", { className: "text-[9px] text-gray-400" }, "BAY-01 (Incomer)"), /* @__PURE__ */ React.createElement("div", { className: "w-7 h-7 rounded border border-cyan-500/40 bg-cyan-950/20 flex items-center justify-center text-[10px] text-cyan-300 font-bold" }, "CB"), /* @__PURE__ */ React.createElement("span", { className: "text-[8px] text-gray-500" }, "50kA 3s")), /* @__PURE__ */ React.createElement("div", { className: "h-0.5 flex-1 bg-cyan-500/30 mx-1 relative" }, /* @__PURE__ */ React.createElement("div", { className: "absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border border-cyan-400/50 bg-[#08090C]" })), /* @__PURE__ */ React.createElement("div", { className: "flex flex-col items-center gap-1 relative" }, isVoltswitchConflict && /* @__PURE__ */ React.createElement("div", { className: "absolute -inset-2 rounded border border-rose-500/80 bg-rose-950/30 animate-pulse pointer-events-none z-20 flex items-center justify-center" }, /* @__PURE__ */ React.createElement("span", { className: "absolute -top-4 right-0 text-[8px] font-bold text-rose-300 bg-rose-900/90 px-1 py-0.2 rounded border border-rose-500" }, "CONFLICT BBOX [84,512,540,568]")), /* @__PURE__ */ React.createElement("span", { className: "text-[9px] text-rose-300 font-bold" }, "BAY-02 (Feeder)"), /* @__PURE__ */ React.createElement("div", { className: "w-7 h-7 rounded border border-rose-500 bg-rose-950/40 flex items-center justify-center text-[10px] text-rose-300 font-bold shadow-[0_0_10px_rgba(244,63,94,0.3)]" }, isVoltswitchConflict ? "31.5k" : "50k"), /* @__PURE__ */ React.createElement("span", { className: `text-[8px] font-bold ${isVoltswitchConflict ? "text-rose-400" : "text-emerald-400"}` }, isVoltswitchConflict ? "31.5kA 1s [NOTE 7]" : "50kA 3s [REQ]")), /* @__PURE__ */ React.createElement("div", { className: "h-0.5 flex-1 bg-cyan-500/30 mx-1" }), /* @__PURE__ */ React.createElement("div", { className: "flex flex-col items-center gap-1" }, /* @__PURE__ */ React.createElement("span", { className: "text-[9px] text-gray-400" }, "BAY-03 (BESS)"), /* @__PURE__ */ React.createElement("div", { className: "w-7 h-7 rounded border border-cyan-500/40 bg-cyan-950/20 flex items-center justify-center text-[10px] text-cyan-300 font-bold" }, "CB"), /* @__PURE__ */ React.createElement("span", { className: "text-[8px] text-gray-500" }, "50kA 3s"))), /* @__PURE__ */ React.createElement("div", { className: "z-10 flex items-center justify-between text-[10px] border-t border-[#1E202B] pt-1.5" }, /* @__PURE__ */ React.createElement("span", { className: "text-gray-400" }, isVoltswitchConflict ? '\u26A0\uFE0F Footnote 7: "Standard breaker 31.5kA 1s. High duty excluded."' : isBusbarAlloy ? '\u26A0\uFE0F Clause 4.2: "AlMgSi Alloy quoted with bimetallic joint kit."' : "\u2713 Coordinate Match: Verified against Material Requisition Rev4."), /* @__PURE__ */ React.createElement("span", { className: "text-cyan-400 font-mono" }, "PINT: PASS"))));
+  });
+  const WaterfallMiniBar = memo(function WaterfallMiniBar2({ headline, techPenalties, commercialAdders, clawed, trueEvaluated }) {
+    const maxVal = 52e4;
+    const baseWidth = Math.min(100, Math.max(10, headline / maxVal * 100));
+    const techWidth = Math.min(100, techPenalties / maxVal * 100);
+    const commWidth = Math.min(100, commercialAdders / maxVal * 100);
+    return /* @__PURE__ */ React.createElement("div", { className: "space-y-1.5 pt-2" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-between text-[10px] font-mono text-gray-400" }, /* @__PURE__ */ React.createElement("span", null, "Component Cost Stack"), /* @__PURE__ */ React.createElement("span", { className: "text-white font-semibold" }, "\u20AC", trueEvaluated.toLocaleString(), " Total")), /* @__PURE__ */ React.createElement("div", { className: "h-2 w-full bg-[#181A24] rounded-full overflow-hidden flex border border-[#232530]" }, /* @__PURE__ */ React.createElement("div", { style: { width: `${baseWidth}%` }, className: "bg-sky-500 h-full transition-all duration-300", title: "Base Bid" }), techPenalties > 0 && /* @__PURE__ */ React.createElement("div", { style: { width: `${techWidth}%` }, className: "bg-rose-500 h-full transition-all duration-300", title: "Tech Deviations" }), commercialAdders > 0 && /* @__PURE__ */ React.createElement("div", { style: { width: `${commWidth}%` }, className: "bg-amber-500 h-full transition-all duration-300", title: "Commercial Scope Adders" })), /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-3 text-[9px] font-mono text-gray-400" }, /* @__PURE__ */ React.createElement("span", { className: "flex items-center gap-1" }, /* @__PURE__ */ React.createElement("span", { className: "w-1.5 h-1.5 rounded-full bg-sky-500" }), "Base"), techPenalties > 0 && /* @__PURE__ */ React.createElement("span", { className: "flex items-center gap-1" }, /* @__PURE__ */ React.createElement("span", { className: "w-1.5 h-1.5 rounded-full bg-rose-500" }), "Tech (+\u20AC", techPenalties.toLocaleString(), ")"), commercialAdders > 0 && /* @__PURE__ */ React.createElement("span", { className: "flex items-center gap-1" }, /* @__PURE__ */ React.createElement("span", { className: "w-1.5 h-1.5 rounded-full bg-amber-500" }), "Commercial (+\u20AC", commercialAdders.toLocaleString(), ")")));
+  });
+  const TbeTableRow = memo(function TbeTableRow2({ param, isSelected, isConceded, onSelect }) {
+    const vendorA = param.vendors["vendor-a"];
+    const vendorB = param.vendors["vendor-b"];
+    const vendorC = param.vendors["vendor-c"];
+    return /* @__PURE__ */ React.createElement(
+      "tr",
+      {
+        onClick: () => onSelect(param.id),
+        className: `cursor-pointer transition-colors duration-150 border-b border-[#1E202B] ${isSelected ? "bg-cyan-950/20 border-l-2 border-l-cyan-400" : "hover:bg-[#151720]"}`
+      },
+      /* @__PURE__ */ React.createElement("td", { className: "py-3 px-4 align-top" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ React.createElement("span", { className: "font-mono text-[10px] px-1.5 py-0.5 rounded bg-[#181A24] text-cyan-300 border border-[#262836]" }, param.id), /* @__PURE__ */ React.createElement("span", { className: "font-semibold text-gray-100 text-xs" }, param.name)), /* @__PURE__ */ React.createElement("div", { className: "text-gray-400 font-mono text-[11px] mt-1" }, "Req: ", /* @__PURE__ */ React.createElement("span", { className: "text-gray-200" }, param.mrRequirement))),
+      /* @__PURE__ */ React.createElement("td", { className: "py-3 px-3 align-top" }, /* @__PURE__ */ React.createElement(StatusBadge, { status: vendorA.status, isConceded: false }), /* @__PURE__ */ React.createElement("div", { className: "text-gray-300 text-[11px] mt-1 font-mono" }, vendorA.extracted)),
+      /* @__PURE__ */ React.createElement("td", { className: "py-3 px-3 align-top bg-rose-950/10 border-x border-rose-900/20" }, /* @__PURE__ */ React.createElement(StatusBadge, { status: vendorB.status, isConceded }), /* @__PURE__ */ React.createElement("div", { className: "text-gray-200 text-[11px] mt-1 font-mono font-medium" }, vendorB.extracted), vendorB.costAdder > 0 && /* @__PURE__ */ React.createElement(
+        "div",
+        {
+          className: `font-mono text-[11px] mt-1 font-bold ${isConceded ? "line-through text-gray-500" : "text-rose-400"}`
+        },
+        "+\u20AC",
+        vendorB.costAdder.toLocaleString()
+      )),
+      /* @__PURE__ */ React.createElement("td", { className: "py-3 px-3 align-top" }, /* @__PURE__ */ React.createElement(StatusBadge, { status: vendorC.status, isConceded: false }), /* @__PURE__ */ React.createElement("div", { className: "text-gray-300 text-[11px] mt-1 font-mono" }, vendorC.extracted), vendorC.costAdder > 0 && /* @__PURE__ */ React.createElement("div", { className: "font-mono text-[11px] mt-1 text-amber-400" }, "+\u20AC", vendorC.costAdder.toLocaleString()))
+    );
+  });
+  function SpecClawApp() {
+    const [activeTab, setActiveTab] = useState("tbe");
+    const [selectedParamId, setSelectedParamId] = useState("PARAM-01");
+    const [selectedVendorFocus, setSelectedVendorFocus] = useState("vendor-b");
+    const [filterMode, setFilterMode] = useState("all");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [copperMultiplier, setCopperMultiplier] = useState(1);
+    const [siteLaborRate, setSiteLaborRate] = useState(60);
+    const [freightMultiplier, setFreightMultiplier] = useState(1);
+    const [negotiationRound, setNegotiationRound] = useState(1);
+    const [concededItems, setConcededItems] = useState([]);
+    const [pipelineRunning, setPipelineRunning] = useState(false);
+    const [pipelineStep, setPipelineStep] = useState(4);
+    const [apiOnline, setApiOnline] = useState(false);
+    const [isExportingPdf, setIsExportingPdf] = useState(false);
+    const [copyFeedback, setCopyFeedback] = useState(false);
+    useEffect(() => {
+      fetch("/api/health").then((res) => res.json()).then((data) => {
+        if (data.status === "healthy") setApiOnline(true);
+      }).catch(() => setApiOnline(false));
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const host = window.location.host || "127.0.0.1:8000";
+      const wsUrl = `${protocol}//${host}/ws/telemetry`;
+      let ws = null;
+      try {
+        ws = new WebSocket(wsUrl);
+        ws.onopen = () => {
+          setApiOnline(true);
+          console.log("[SpecClaw Telemetry] WebSocket stream active.");
+        };
+        ws.onmessage = (event) => {
+          try {
+            const msg = JSON.parse(event.data);
+            if (msg.event_type === "JOB_PROGRESS") {
+              const stepNum = Math.min(4, Math.max(1, Math.ceil(msg.payload.progress_pct / 25)));
+              setPipelineStep(stepNum);
+            }
+          } catch (e) {
+          }
+        };
+      } catch (e) {
+      }
+      return () => {
+        if (ws) ws.close();
+      };
+    }, []);
+    useEffect(() => {
+      const handleKeyDown = (e) => {
+        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+        if (e.key === "1") setActiveTab("dropzone");
+        if (e.key === "2") setActiveTab("tbe");
+        if (e.key === "3") setActiveTab("cbe");
+        if (e.key === "4") setActiveTab("negotiator");
+        if (e.key === "ArrowDown" || e.key === "j") {
+          const idx = TENDER_DATA.parameters.findIndex((p) => p.id === selectedParamId);
+          if (idx < TENDER_DATA.parameters.length - 1) {
+            setSelectedParamId(TENDER_DATA.parameters[idx + 1].id);
+          }
+        }
+        if (e.key === "ArrowUp" || e.key === "k") {
+          const idx = TENDER_DATA.parameters.findIndex((p) => p.id === selectedParamId);
+          if (idx > 0) {
+            setSelectedParamId(TENDER_DATA.parameters[idx - 1].id);
+          }
+        }
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [selectedParamId]);
+    const financials = useMemo(() => {
+      return TENDER_DATA.vendors.map((v) => {
+        let techPenalties = 0;
+        let commercialAdders = 0;
+        let clawedAmount = 0;
+        TENDER_DATA.parameters.forEach((p) => {
+          const vData = p.vendors[v.id];
+          let adder = vData.costAdder;
+          if (p.id === "PARAM-02" && adder > 0) {
+            adder = Math.round(adder * copperMultiplier);
+          }
+          if (p.id === "PARAM-04" && adder > 0) {
+            const baseHw = v.id === "vendor-b" ? 3300 : 0;
+            adder = Math.round(baseHw + 4100 * (siteLaborRate / 60));
+          }
+          if (p.id === "PARAM-06" && adder > 0) {
+            adder = Math.round(adder * freightMultiplier);
+          }
+          const isConceded = v.id === "vendor-b" && concededItems.includes(p.id);
+          if (isConceded) {
+            clawedAmount += adder;
+          } else {
+            if (p.criticality === "COMMERCIAL") {
+              commercialAdders += adder;
+            } else {
+              techPenalties += adder;
+            }
+          }
+        });
+        const trueEvaluated = v.headlinePrice + techPenalties + commercialAdders;
+        return {
+          ...v,
+          techPenalties,
+          commercialAdders,
+          totalAdders: techPenalties + commercialAdders,
+          clawedAmount,
+          trueEvaluated
+        };
+      });
+    }, [copperMultiplier, siteLaborRate, freightMultiplier, concededItems]);
+    const activeParam = useMemo(() => {
+      return TENDER_DATA.parameters.find((p) => p.id === selectedParamId) || TENDER_DATA.parameters[0];
+    }, [selectedParamId]);
+    const vendorBStats = useMemo(() => {
+      return financials.find((v) => v.id === "vendor-b") || financials[1];
+    }, [financials]);
+    const specClawFee = Math.round(vendorBStats.clawedAmount * 0.15);
+    const netSavings = vendorBStats.clawedAmount - specClawFee;
+    const filteredParameters = useMemo(() => {
+      return TENDER_DATA.parameters.filter((p) => {
+        if (filterMode === "conflicts") {
+          const status = p.vendors["vendor-b"].status;
+          return status === "CONFLICT_DOWNGRADE" || status === "DEVIATION_DOWNGRADE";
+        }
+        if (filterMode === "mandatory") {
+          return p.criticality === "MANDATORY" || p.criticality === "HIGH";
+        }
+        if (filterMode === "commercial") {
+          return p.criticality === "COMMERCIAL";
+        }
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase();
+          return p.name.toLowerCase().includes(q) || p.mrRequirement.toLowerCase().includes(q) || p.id.toLowerCase().includes(q);
+        }
+        return true;
+      });
+    }, [filterMode, searchQuery]);
+    const handleSimulateTurn = useCallback(async () => {
+      let nextRound = 1;
+      let nextConceded = [];
+      if (negotiationRound === 1) {
+        nextRound = 2;
+        nextConceded = ["PARAM-01", "PARAM-03", "PARAM-05"];
+      } else if (negotiationRound === 2) {
+        nextRound = 3;
+        nextConceded = ["PARAM-01", "PARAM-02", "PARAM-03", "PARAM-05", "PARAM-06"];
+      } else {
+        nextRound = 1;
+        nextConceded = [];
+      }
+      setNegotiationRound(nextRound);
+      setConcededItems(nextConceded);
+      try {
+        await fetch(`/api/negotiate/turn?round_num=${nextRound}`, { method: "POST" });
+      } catch (e) {
+      }
+    }, [negotiationRound]);
+    const handleRunPipeline = useCallback(async () => {
+      setPipelineRunning(true);
+      setPipelineStep(1);
+      try {
+        const res = await fetch("/api/jobs/ingest", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tender_id: TENDER_DATA.id,
+            document_count: 4,
+            ocr_mode: "vector_hybrid"
+          })
+        });
+        if (res.ok) {
+          for (let i = 2; i <= 4; i++) {
+            await new Promise((r) => setTimeout(r, 350));
+            setPipelineStep(i);
+          }
+        } else {
+          setTimeout(() => setPipelineStep(2), 350);
+          setTimeout(() => setPipelineStep(3), 700);
+          setTimeout(() => setPipelineStep(4), 1050);
+        }
+      } catch (e) {
+        setTimeout(() => setPipelineStep(2), 350);
+        setTimeout(() => setPipelineStep(3), 700);
+        setTimeout(() => setPipelineStep(4), 1050);
+      } finally {
+        setTimeout(() => setPipelineRunning(false), 1100);
+      }
+    }, []);
+    const handleCopyEmail = useCallback(() => {
+      const emailBody = document.getElementById("negotiator-email-content");
+      if (emailBody) {
+        navigator.clipboard.writeText(emailBody.innerText);
+        setCopyFeedback(true);
+        setTimeout(() => setCopyFeedback(false), 2e3);
+      }
+    }, []);
+    const handleExportPdf = useCallback(async () => {
+      setIsExportingPdf(true);
+      try {
+        const res = await fetch("/api/export-pdf", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            negotiation_round: negotiationRound,
+            conceded_params: concededItems
+          })
+        });
+        if (res.ok) {
+          const blob = await res.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `SpecClaw_Audit_PO_${TENDER_DATA.id}_Rev${negotiationRound}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        } else {
+          alert("FastAPI server responded with error. Ensure specclaw_api.py is running on port 8000.");
+        }
+      } catch (e) {
+        alert("PDF generation endpoint offline. Falling back to local browser print.");
+        window.print();
+      } finally {
+        setIsExportingPdf(false);
+      }
+    }, [negotiationRound, concededItems]);
+    return /* @__PURE__ */ React.createElement("div", { className: "min-h-screen bg-[#0A0B0E] text-gray-100 flex flex-col font-sans selection:bg-cyan-500/20 selection:text-cyan-300" }, /* @__PURE__ */ React.createElement("header", { className: "border-b border-[#1E202B] bg-[#0E0F14]/90 backdrop-blur-md sticky top-0 z-40" }, /* @__PURE__ */ React.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ React.createElement("div", { className: "w-7 h-7 rounded-md bg-cyan-500 flex items-center justify-center text-gray-950 font-black text-xs tracking-tighter" }, "SC"), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ React.createElement("span", { className: "text-sm font-bold tracking-tight text-white font-mono" }, "SPECCLAW"), /* @__PURE__ */ React.createElement("span", { className: "text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#181A24] text-gray-300 border border-[#262836]" }, "v1.2 ENTERPRISE"), apiOnline ? /* @__PURE__ */ React.createElement("span", { className: "text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 flex items-center gap-1.5" }, /* @__PURE__ */ React.createElement("span", { className: "w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" }), "FastAPI Engine Active") : /* @__PURE__ */ React.createElement("span", { className: "text-[10px] font-mono px-2 py-0.5 rounded bg-[#181A24] text-gray-400 border border-[#262836]" }, "Autonomous Physics Mode")))), /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-2 text-xs font-mono" }, /* @__PURE__ */ React.createElement("div", { className: "hidden md:flex px-2.5 py-1 rounded-md bg-[#12131A] border border-[#1E202B] text-gray-400" }, "Corpus: ", /* @__PURE__ */ React.createElement("span", { className: "text-gray-200 ml-1 font-semibold" }, TENDER_DATA.pagesParsed, " Pages")), /* @__PURE__ */ React.createElement("div", { className: "hidden md:flex px-2.5 py-1 rounded-md bg-[#12131A] border border-[#1E202B] text-gray-400" }, "Compute COGS: ", /* @__PURE__ */ React.createElement("span", { className: "text-emerald-400 ml-1 font-semibold" }, "$", TENDER_DATA.computeCogs)), /* @__PURE__ */ React.createElement("div", { className: "px-2.5 py-1 rounded-md bg-rose-500/10 border border-rose-500/25 text-rose-300" }, "Exposed Risk: ", /* @__PURE__ */ React.createElement("span", { className: "text-rose-400 font-bold ml-1" }, "\u20AC64,800")), vendorBStats.clawedAmount > 0 && /* @__PURE__ */ React.createElement("div", { className: "px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/25 text-emerald-300" }, "Clawed Back: ", /* @__PURE__ */ React.createElement("span", { className: "text-emerald-400 font-bold ml-1" }, "\u20AC", vendorBStats.clawedAmount.toLocaleString())))), /* @__PURE__ */ React.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between border-t border-[#181A24] text-xs" }, /* @__PURE__ */ React.createElement("div", { className: "py-2 text-gray-400 truncate max-w-sm hidden lg:block font-mono text-[11px]" }, /* @__PURE__ */ React.createElement("span", { className: "text-cyan-400 font-medium" }, TENDER_DATA.id, ":"), " 350MWp Solar GIS Substation"), /* @__PURE__ */ React.createElement("nav", { className: "flex space-x-1 py-1" }, [
+      { id: "dropzone", num: "1", label: "Ingestion Wedge", icon: "upload" },
+      { id: "tbe", num: "2", label: "TBE Matrix & CAD", icon: "layers" },
+      { id: "cbe", num: "3", label: "Should-Cost Leveling", icon: "calculator" },
+      { id: "negotiator", num: "4", label: "Clawback Negotiator", icon: "send" }
+    ].map((tab) => {
+      const active = activeTab === tab.id;
+      return /* @__PURE__ */ React.createElement(
+        "button",
+        {
+          key: tab.id,
+          onClick: () => setActiveTab(tab.id),
+          className: `flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium text-xs transition-all duration-150 cursor-pointer ${active ? "bg-[#181A24] text-cyan-400 border border-[#2E3142] shadow-[0_1px_4px_rgba(0,0,0,0.4)]" : "text-gray-400 hover:text-gray-200 hover:bg-[#12131A]"}`
+        },
+        /* @__PURE__ */ React.createElement("span", { className: "w-4 h-4 rounded bg-[#0A0B0E] border border-[#262836] flex items-center justify-center text-[10px] font-mono text-gray-400" }, tab.num),
+        /* @__PURE__ */ React.createElement(SvgIcon, { name: tab.icon, className: "w-3.5 h-3.5" }),
+        /* @__PURE__ */ React.createElement("span", null, tab.label)
+      );
+    })))), /* @__PURE__ */ React.createElement("main", { className: "max-w-7xl mx-auto px-4 sm:px-6 py-5 flex-1 w-full" }, activeTab === "dropzone" && /* @__PURE__ */ React.createElement("div", { className: "space-y-5 animate-in fade-in duration-200" }, /* @__PURE__ */ React.createElement("div", { className: "bg-[#12131A] border border-[#1E202B] rounded-xl p-5" }, /* @__PURE__ */ React.createElement("div", { className: "flex flex-wrap items-center justify-between gap-4 mb-5" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h2", { className: "text-sm font-semibold text-white flex items-center gap-2" }, /* @__PURE__ */ React.createElement(SvgIcon, { name: "upload", className: "w-4 h-4 text-cyan-400" }), "Autonomous Spec Ingestion Wedge (Zero-ERP Delay)"), /* @__PURE__ */ React.createElement("p", { className: "text-xs text-gray-400 mt-0.5 max-w-2xl" }, "Parses engineering Material Requisitions (MRs) and vendor bid packages into vector bounding boxes with SI unit assertion laws.")), /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        onClick: handleRunPipeline,
+        disabled: pipelineRunning,
+        className: "px-3 py-1.5 rounded-md bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold text-xs flex items-center gap-2 transition-transform duration-100 active:scale-95 cursor-pointer"
+      },
+      /* @__PURE__ */ React.createElement(SvgIcon, { name: "refresh", className: `w-3.5 h-3.5 ${pipelineRunning ? "animate-spin" : ""}` }),
+      pipelineRunning ? "Executing Physics Solver..." : "Re-Run Ingestion Pipeline"
+    )), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4" }, /* @__PURE__ */ React.createElement("div", { className: "border border-cyan-500/20 bg-cyan-950/10 rounded-lg p-4" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center justify-between mb-3" }, /* @__PURE__ */ React.createElement("span", { className: "text-[11px] font-mono text-cyan-400 uppercase font-semibold" }, "Buyer Baseline Spec Package"), /* @__PURE__ */ React.createElement("span", { className: "text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20" }, "SHA-256 Validated")), /* @__PURE__ */ React.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ React.createElement("div", { className: "p-2.5 rounded bg-[#181A24] border border-[#232530] flex items-center justify-between text-xs" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ React.createElement(SvgIcon, { name: "file", className: "w-4 h-4 text-cyan-400" }), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "font-medium text-gray-200" }, "MR-33kV-GIS-Rev4_Specification.pdf"), /* @__PURE__ */ React.createElement("div", { className: "text-[11px] text-gray-400" }, "134 Pages \u2022 IEC 62271-200 Rules"))), /* @__PURE__ */ React.createElement("span", { className: "font-mono text-emerald-400 text-[11px]" }, "142 Rules")), /* @__PURE__ */ React.createElement("div", { className: "p-2.5 rounded bg-[#181A24] border border-[#232530] flex items-center justify-between text-xs" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ React.createElement(SvgIcon, { name: "layers", className: "w-4 h-4 text-amber-400" }), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "font-medium text-gray-200" }, "Substation_SLD_33kV_SingleLine.dwg.pdf"), /* @__PURE__ */ React.createElement("div", { className: "text-[11px] text-gray-400" }, "14 Vector CAD Sheets \u2022 50kA 3s Busbar"))), /* @__PURE__ */ React.createElement("span", { className: "font-mono text-emerald-400 text-[11px]" }, "11 Bays")))), /* @__PURE__ */ React.createElement("div", { className: "border border-[#1E202B] bg-[#14151D] rounded-lg p-4" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center justify-between mb-3" }, /* @__PURE__ */ React.createElement("span", { className: "text-[11px] font-mono text-gray-300 uppercase font-semibold" }, "Competing OEM Bid Packages"), /* @__PURE__ */ React.createElement("span", { className: "text-[10px] font-mono text-gray-400" }, "3 Packages \u2022 594 Pages")), /* @__PURE__ */ React.createElement("div", { className: "space-y-2" }, TENDER_DATA.vendors.map((v) => /* @__PURE__ */ React.createElement("div", { key: v.id, className: "p-2.5 rounded bg-[#181A24] border border-[#232530] flex items-center justify-between text-xs" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "font-medium text-white flex items-center gap-2" }, v.name, /* @__PURE__ */ React.createElement("span", { className: "font-mono text-[10px] px-1.5 py-0.5 rounded bg-[#0A0B0E] text-cyan-300 border border-[#262836]" }, "\u20AC", v.headlinePrice.toLocaleString())), /* @__PURE__ */ React.createElement("div", { className: "text-[11px] text-gray-400 mt-0.5" }, v.docName)), /* @__PURE__ */ React.createElement("span", { className: "font-mono text-emerald-400 flex items-center gap-1 text-[11px]" }, /* @__PURE__ */ React.createElement(SvgIcon, { name: "check", className: "w-3 h-3" }), " Indexed")))))), /* @__PURE__ */ React.createElement("div", { className: "mt-5 pt-4 border-t border-[#1E202B]" }, /* @__PURE__ */ React.createElement("div", { className: "text-[10px] font-mono uppercase text-gray-400 mb-3 flex items-center justify-between" }, /* @__PURE__ */ React.createElement("span", null, "Deterministic Physics Pipeline Execution"), /* @__PURE__ */ React.createElement("span", { className: "text-cyan-400" }, "Stage ", pipelineStep, " of 4 Complete")), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-1 sm:grid-cols-4 gap-3" }, [
+      { step: 1, title: "1. PyMuPDF Parser", type: "VECTOR OCR", desc: "Extracts tables & SLD symbols with mandatory [page, x0, y0, x1, y1] coordinates." },
+      { step: 2, title: "2. Pint SI Normalizer", type: "DETERMINISTIC", desc: "Converts units (50,000 A -> 50 kA) and runs hard Python boolean inequality checks." },
+      { step: 3, title: "3. Hierarchy Resolver", type: "DETERMINISTIC", desc: "Overrides cover letter claims when SLD footnotes or BOM rows show downgraded ratings." },
+      { step: 4, title: "4. Should-Cost Engine", type: "DETERMINISTIC", desc: "Assigns cost adders using LME copper indices, freight lanes, and electrician labor rates." }
+    ].map((item) => /* @__PURE__ */ React.createElement(
+      "div",
+      {
+        key: item.step,
+        className: `p-3 rounded-lg border text-xs transition-colors duration-150 ${pipelineStep >= item.step ? "bg-[#181A24] border-cyan-500/40 text-gray-200" : "bg-[#14151D] border-[#1E202B] text-gray-500"}`
+      },
+      /* @__PURE__ */ React.createElement("div", { className: "flex items-center justify-between mb-1" }, /* @__PURE__ */ React.createElement("span", { className: "font-semibold text-white text-[11px]" }, item.title), /* @__PURE__ */ React.createElement("span", { className: "text-[9px] font-mono px-1 py-0.5 rounded bg-[#0A0B0E] text-cyan-300 border border-[#262836]" }, item.type)),
+      /* @__PURE__ */ React.createElement("p", { className: "text-[11px] text-gray-400 leading-normal" }, item.desc)
+    )))))), activeTab === "tbe" && /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-12 gap-5 animate-in fade-in duration-200" }, /* @__PURE__ */ React.createElement("div", { className: "lg:col-span-8 bg-[#12131A] border border-[#1E202B] rounded-xl overflow-hidden flex flex-col" }, /* @__PURE__ */ React.createElement("div", { className: "p-4 border-b border-[#1E202B] flex flex-wrap items-center justify-between gap-3" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h2", { className: "text-sm font-semibold text-white flex items-center gap-2" }, /* @__PURE__ */ React.createElement(SvgIcon, { name: "layers", className: "w-4 h-4 text-cyan-400" }), "Technical Bid Evaluation (TBE) Matrix"), /* @__PURE__ */ React.createElement("p", { className: "text-xs text-gray-400 mt-0.5" }, "Click any parameter row or use ", /* @__PURE__ */ React.createElement("kbd", { className: "px-1 py-0.5 bg-[#181A24] border border-[#262836] rounded text-[10px] font-mono text-cyan-300" }, "\u2191"), " ", /* @__PURE__ */ React.createElement("kbd", { className: "px-1 py-0.5 bg-[#181A24] border border-[#262836] rounded text-[10px] font-mono text-cyan-300" }, "\u2193"), " to inspect coordinate bounding boxes.")), /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-1 bg-[#0A0B0E] p-1 rounded-md border border-[#1E202B] text-[11px]" }, [
+      { id: "all", label: "All (6)" },
+      { id: "conflicts", label: "Conflicts (2)" },
+      { id: "mandatory", label: "Mandatory (3)" },
+      { id: "commercial", label: "Commercial (2)" }
+    ].map((f) => /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        key: f.id,
+        onClick: () => setFilterMode(f.id),
+        className: `px-2 py-0.5 rounded text-[10px] font-mono font-medium transition-colors cursor-pointer ${filterMode === f.id ? "bg-[#1E202B] text-cyan-300" : "text-gray-400 hover:text-white"}`
+      },
+      f.label
+    )))), /* @__PURE__ */ React.createElement("div", { className: "overflow-x-auto flex-1" }, /* @__PURE__ */ React.createElement("table", { className: "w-full text-left border-collapse text-xs" }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", { className: "border-b border-[#1E202B] bg-[#0E0F14] text-[10px] font-mono uppercase text-gray-400" }, /* @__PURE__ */ React.createElement("th", { className: "py-2.5 px-4" }, "Engineering Spec & Baseline"), /* @__PURE__ */ React.createElement("th", { className: "py-2.5 px-3" }, "Siemens (\u20AC452k)"), /* @__PURE__ */ React.createElement("th", { className: "py-2.5 px-3 bg-rose-950/20 text-rose-300 border-x border-rose-900/20" }, "VoltSwitch (\u20AC418k Low)"), /* @__PURE__ */ React.createElement("th", { className: "py-2.5 px-3" }, "Powell / Eaton (\u20AC439k)"))), /* @__PURE__ */ React.createElement("tbody", { className: "divide-y divide-[#181A24]" }, filteredParameters.map((param) => /* @__PURE__ */ React.createElement(
+      TbeTableRow,
+      {
+        key: param.id,
+        param,
+        isSelected: param.id === selectedParamId,
+        isConceded: concededItems.includes(param.id),
+        onSelect: setSelectedParamId
+      }
+    )))))), /* @__PURE__ */ React.createElement("div", { className: "lg:col-span-4 space-y-4" }, /* @__PURE__ */ React.createElement("div", { className: "bg-[#12131A] border border-[#1E202B] rounded-xl p-4 sticky top-24" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center justify-between border-b border-[#1E202B] pb-2.5 mb-3" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ React.createElement(SvgIcon, { name: "crosshair", className: "w-4 h-4 text-cyan-400" }), /* @__PURE__ */ React.createElement("span", { className: "text-xs font-bold text-white uppercase font-mono tracking-wider" }, "Citation & Physics Audit")), /* @__PURE__ */ React.createElement("span", { className: "text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#181A24] text-cyan-300 border border-[#262836]" }, activeParam.id)), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-3 gap-1 mb-3 bg-[#0A0B0E] p-1 rounded-md border border-[#1E202B]" }, TENDER_DATA.vendors.map((v) => /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        key: v.id,
+        onClick: () => setSelectedVendorFocus(v.id),
+        className: `py-1 px-2 rounded text-[10px] font-medium truncate transition-colors cursor-pointer ${selectedVendorFocus === v.id ? "bg-cyan-500 text-gray-950 font-bold" : "text-gray-400 hover:text-white"}`
+      },
+      v.name.split(" ")[0]
+    ))), (() => {
+      const detail = activeParam.vendors[selectedVendorFocus];
+      return /* @__PURE__ */ React.createElement("div", { className: "space-y-3 text-xs" }, detail.conflictNote && /* @__PURE__ */ React.createElement("div", { className: "p-2.5 rounded bg-rose-950/30 border border-rose-800/40 text-rose-200" }, /* @__PURE__ */ React.createElement("div", { className: "font-bold text-rose-300 flex items-center gap-1.5 mb-1 text-[11px]" }, /* @__PURE__ */ React.createElement(SvgIcon, { name: "alert", className: "w-3.5 h-3.5 text-rose-400" }), " Hierarchy Override Detected"), /* @__PURE__ */ React.createElement("p", { className: "text-[11px] leading-relaxed text-gray-300" }, detail.conflictNote)), /* @__PURE__ */ React.createElement(CadSchematicVisualizer, { paramId: activeParam.id, vendorId: selectedVendorFocus }), /* @__PURE__ */ React.createElement("div", { className: "p-2.5 rounded bg-[#0A0B0E] border border-[#1E202B] font-mono text-[11px]" }, /* @__PURE__ */ React.createElement("div", { className: "text-[9px] text-gray-500 uppercase flex justify-between mb-1" }, /* @__PURE__ */ React.createElement("span", null, "Pint Physics Law"), /* @__PURE__ */ React.createElement("span", { className: "text-emerald-400 font-semibold" }, "Confidence ", (detail.confidence * 100).toFixed(0), "%")), /* @__PURE__ */ React.createElement("div", { className: "text-cyan-300" }, "assert ", activeParam.pintRule), /* @__PURE__ */ React.createElement("div", { className: "text-gray-300 mt-1.5 pt-1.5 border-t border-[#1E202B]" }, "Extracted: ", /* @__PURE__ */ React.createElement("span", { className: "text-white font-semibold" }, detail.extracted))), /* @__PURE__ */ React.createElement("div", { className: "p-2.5 rounded bg-[#0A0B0E] border border-[#1E202B]" }, /* @__PURE__ */ React.createElement("div", { className: "text-[9px] font-mono uppercase text-amber-300 mb-1 flex justify-between" }, /* @__PURE__ */ React.createElement("span", null, "Source Bounding Box"), /* @__PURE__ */ React.createElement("span", { className: "text-gray-400" }, detail.bbox)), /* @__PURE__ */ React.createElement("div", { className: "p-2 rounded bg-[#14151D] border-l-2 border-amber-400 text-gray-300 font-mono text-[10px] italic" }, '"', detail.snippet, '"')), /* @__PURE__ */ React.createElement("div", { className: "p-2.5 rounded bg-[#0A0B0E] border border-[#1E202B] font-mono" }, /* @__PURE__ */ React.createElement("div", { className: "text-[9px] uppercase text-gray-400 mb-1" }, "Parametric Risk Adder"), /* @__PURE__ */ React.createElement("div", { className: "text-sm font-bold text-rose-400" }, "+\u20AC", detail.costAdder.toLocaleString()), /* @__PURE__ */ React.createElement("div", { className: "text-[10px] text-gray-400 mt-0.5" }, detail.adderFormula)), /* @__PURE__ */ React.createElement(
+        "button",
+        {
+          onClick: () => setActiveTab("negotiator"),
+          className: "w-full py-2 px-3 rounded-md bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold text-xs flex items-center justify-center gap-1.5 transition-transform active:scale-98 cursor-pointer"
+        },
+        "Push to Negotiation Dispatch ",
+        /* @__PURE__ */ React.createElement(SvgIcon, { name: "send", className: "w-3.5 h-3.5" })
+      ));
+    })()))), activeTab === "cbe" && /* @__PURE__ */ React.createElement("div", { className: "space-y-5 animate-in fade-in duration-200" }, /* @__PURE__ */ React.createElement("div", { className: "bg-[#12131A] border border-[#1E202B] rounded-xl p-4 flex flex-wrap items-center justify-between gap-4" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h2", { className: "text-sm font-semibold text-white flex items-center gap-2" }, /* @__PURE__ */ React.createElement(SvgIcon, { name: "calculator", className: "w-4 h-4 text-cyan-400" }), "Live Parametric Sensitivity Engine"), /* @__PURE__ */ React.createElement("p", { className: "text-xs text-gray-400 mt-0.5" }, "Adjust commodity indices and site labor rates to dynamically re-level True Evaluated Price in real time.")), /* @__PURE__ */ React.createElement("div", { className: "flex flex-wrap items-center gap-3" }, /* @__PURE__ */ React.createElement("div", { className: "bg-[#0A0B0E] px-3 py-2 rounded-md border border-[#1E202B]" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-between text-xs mb-1" }, /* @__PURE__ */ React.createElement("span", { className: "text-gray-400 text-[11px]" }, "LME Copper Index:"), /* @__PURE__ */ React.createElement("span", { className: "font-mono font-bold text-cyan-400" }, copperMultiplier.toFixed(2), "x")), /* @__PURE__ */ React.createElement(
+      "input",
+      {
+        type: "range",
+        min: "0.8",
+        max: "1.5",
+        step: "0.05",
+        value: copperMultiplier,
+        onChange: (e) => setCopperMultiplier(parseFloat(e.target.value)),
+        className: "w-32 accent-cyan-400 cursor-pointer"
+      }
+    )), /* @__PURE__ */ React.createElement("div", { className: "bg-[#0A0B0E] px-3 py-2 rounded-md border border-[#1E202B]" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-between text-xs mb-1" }, /* @__PURE__ */ React.createElement("span", { className: "text-gray-400 text-[11px]" }, "Site Electrician Rate:"), /* @__PURE__ */ React.createElement("span", { className: "font-mono font-bold text-cyan-400" }, "\u20AC", siteLaborRate, "/hr")), /* @__PURE__ */ React.createElement(
+      "input",
+      {
+        type: "range",
+        min: "40",
+        max: "100",
+        step: "5",
+        value: siteLaborRate,
+        onChange: (e) => setSiteLaborRate(parseInt(e.target.value, 10)),
+        className: "w-32 accent-cyan-400 cursor-pointer"
+      }
+    )), /* @__PURE__ */ React.createElement("div", { className: "bg-[#0A0B0E] px-3 py-2 rounded-md border border-[#1E202B]" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-between text-xs mb-1" }, /* @__PURE__ */ React.createElement("span", { className: "text-gray-400 text-[11px]" }, "Freight & Transport:"), /* @__PURE__ */ React.createElement("span", { className: "font-mono font-bold text-cyan-400" }, freightMultiplier.toFixed(2), "x")), /* @__PURE__ */ React.createElement(
+      "input",
+      {
+        type: "range",
+        min: "0.8",
+        max: "1.5",
+        step: "0.05",
+        value: freightMultiplier,
+        onChange: (e) => setFreightMultiplier(parseFloat(e.target.value)),
+        className: "w-32 accent-cyan-400 cursor-pointer"
+      }
+    )))), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-1 md:grid-cols-3 gap-4" }, financials.map((v) => {
+      const isVoltSwitch = v.id === "vendor-b";
+      return /* @__PURE__ */ React.createElement(
+        "div",
+        {
+          key: v.id,
+          className: `rounded-xl border p-4 flex flex-col justify-between transition-all duration-150 ${isVoltSwitch ? "bg-[#151722] border-cyan-500/40 shadow-[0_2px_12px_rgba(0,212,255,0.08)]" : "bg-[#12131A] border-[#1E202B]"}`
+        },
+        /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "flex items-center justify-between mb-2" }, /* @__PURE__ */ React.createElement("span", { className: "text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#0A0B0E] text-gray-300 border border-[#1E202B]" }, v.country), /* @__PURE__ */ React.createElement("span", { className: "text-[10px] font-mono px-2 py-0.5 rounded bg-[#0A0B0E] text-gray-400 border border-[#1E202B]" }, v.tier)), /* @__PURE__ */ React.createElement("h3", { className: "text-sm font-bold text-white" }, v.name), /* @__PURE__ */ React.createElement("div", { className: "mt-3 space-y-1.5 text-xs border-t border-[#1E202B] pt-3 font-mono" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-between text-gray-300" }, /* @__PURE__ */ React.createElement("span", null, "1. Base Bid Quote:"), /* @__PURE__ */ React.createElement("span", { className: "font-semibold text-white" }, "\u20AC", v.headlinePrice.toLocaleString())), /* @__PURE__ */ React.createElement("div", { className: "flex justify-between text-rose-400" }, /* @__PURE__ */ React.createElement("span", null, "2. Tech Deviation Penalties:"), /* @__PURE__ */ React.createElement("span", null, "+\u20AC", v.techPenalties.toLocaleString())), /* @__PURE__ */ React.createElement("div", { className: "flex justify-between text-amber-400" }, /* @__PURE__ */ React.createElement("span", null, "3. Commercial Scope Adders:"), /* @__PURE__ */ React.createElement("span", null, "+\u20AC", v.commercialAdders.toLocaleString())), v.clawedAmount > 0 && /* @__PURE__ */ React.createElement("div", { className: "flex justify-between text-emerald-400 bg-emerald-950/20 px-2 py-1 rounded border border-emerald-500/25" }, /* @__PURE__ */ React.createElement("span", null, "4. SpecClaw Clawback:"), /* @__PURE__ */ React.createElement("span", { className: "font-bold" }, "-\u20AC", v.clawedAmount.toLocaleString()))), /* @__PURE__ */ React.createElement(
+          WaterfallMiniBar,
+          {
+            headline: v.headlinePrice,
+            techPenalties: v.techPenalties,
+            commercialAdders: v.commercialAdders,
+            clawed: v.clawedAmount,
+            trueEvaluated: v.trueEvaluated
+          }
+        )),
+        /* @__PURE__ */ React.createElement("div", { className: "mt-5 pt-3 border-t border-[#1E202B]" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-baseline justify-between font-mono" }, /* @__PURE__ */ React.createElement("span", { className: "text-[10px] uppercase text-gray-400" }, "True Evaluated Cost:"), /* @__PURE__ */ React.createElement("span", { className: `text-lg font-bold ${v.trueEvaluated <= 44e4 ? "text-emerald-400" : "text-white"}` }, "\u20AC", v.trueEvaluated.toLocaleString())), /* @__PURE__ */ React.createElement("div", { className: "mt-2 text-[11px] text-gray-400 leading-tight" }, isVoltSwitch && v.clawedAmount === 0 && /* @__PURE__ */ React.createElement("span", { className: "text-rose-400" }, "Apparent \u20AC34k savings erased: true cost is \u20AC30.8k MORE than Siemens unless clawed back!"), isVoltSwitch && v.clawedAmount > 0 && /* @__PURE__ */ React.createElement("span", { className: "text-emerald-400" }, "Vendor B absorbed \u20AC", v.clawedAmount.toLocaleString(), " in upgrades at base \u20AC418k!"), !isVoltSwitch && /* @__PURE__ */ React.createElement("span", null, "Anonymized compliant benchmark to maintain leverage.")))
+      );
+    })), /* @__PURE__ */ React.createElement("div", { className: "bg-[#12131A] border border-cyan-500/30 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", { className: "text-xs font-bold text-white uppercase font-mono flex items-center gap-2" }, /* @__PURE__ */ React.createElement(SvgIcon, { name: "sparkles", className: "w-3.5 h-3.5 text-cyan-400" }), 'Trojan Horse Monetization: "Split-the-Clawback" Performance Share'), /* @__PURE__ */ React.createElement("p", { className: "text-xs text-gray-400 mt-0.5 max-w-xl" }, "By forcing the low bidder to absorb specifications without increasing their \u20AC418,000 base quote, immediate verified CAPEX savings are unlocked.")), /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-3 font-mono text-xs" }, /* @__PURE__ */ React.createElement("div", { className: "px-3 py-2 rounded bg-[#0A0B0E] border border-[#1E202B] text-center" }, /* @__PURE__ */ React.createElement("div", { className: "text-[9px] text-gray-400 uppercase" }, "Clawed-Back Value"), /* @__PURE__ */ React.createElement("div", { className: "text-sm font-bold text-emerald-400" }, "\u20AC", vendorBStats.clawedAmount.toLocaleString())), /* @__PURE__ */ React.createElement("div", { className: "px-3 py-2 rounded bg-[#0A0B0E] border border-[#1E202B] text-center" }, /* @__PURE__ */ React.createElement("div", { className: "text-[9px] text-gray-400 uppercase" }, "SpecClaw 15% Fee"), /* @__PURE__ */ React.createElement("div", { className: "text-sm font-bold text-cyan-400" }, "\u20AC", specClawFee.toLocaleString())), /* @__PURE__ */ React.createElement("div", { className: "px-3 py-2 rounded bg-emerald-950/40 border border-emerald-500/30 text-center" }, /* @__PURE__ */ React.createElement("div", { className: "text-[9px] text-emerald-300 uppercase" }, "Net EPC Savings"), /* @__PURE__ */ React.createElement("div", { className: "text-sm font-bold text-emerald-300" }, "\u20AC", netSavings.toLocaleString()))))), activeTab === "negotiator" && /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-12 gap-5 animate-in fade-in duration-200" }, /* @__PURE__ */ React.createElement("div", { className: "lg:col-span-5 space-y-4" }, /* @__PURE__ */ React.createElement("div", { className: "bg-[#12131A] border border-[#1E202B] rounded-xl p-4" }, /* @__PURE__ */ React.createElement("h2", { className: "text-sm font-semibold text-white flex items-center gap-2 mb-1" }, /* @__PURE__ */ React.createElement(SvgIcon, { name: "send", className: "w-4 h-4 text-cyan-400" }), "Autonomous Technical Query State Machine"), /* @__PURE__ */ React.createElement("p", { className: "text-xs text-gray-400 mb-4" }, "Dispatches coordinate-cited Technical Queries to vendor engineering leads."), /* @__PURE__ */ React.createElement("div", { className: "p-3 rounded bg-[#0A0B0E] border border-[#1E202B] font-mono text-xs space-y-1.5 mb-4" }, /* @__PURE__ */ React.createElement("div", { className: "flex justify-between text-gray-400" }, /* @__PURE__ */ React.createElement("span", null, "Idempotency-Key:"), /* @__PURE__ */ React.createElement("span", { className: "text-cyan-400 font-semibold" }, "sha256:402-vb-r", negotiationRound)), /* @__PURE__ */ React.createElement("div", { className: "flex justify-between text-gray-400" }, /* @__PURE__ */ React.createElement("span", null, "Citation Verification:"), /* @__PURE__ */ React.createElement("span", { className: "text-emerald-400 font-semibold" }, "6/6 BBox Coordinate Validated")), /* @__PURE__ */ React.createElement("div", { className: "flex justify-between text-gray-400" }, /* @__PURE__ */ React.createElement("span", null, "Dispatch Approval:"), /* @__PURE__ */ React.createElement("span", { className: "text-amber-300 font-semibold" }, "1-Click Human Gate Enforced"))), /* @__PURE__ */ React.createElement("div", { className: "space-y-2 mb-4" }, [
+      { r: 1, title: "Round 1: Initial Deviation Notice", desc: "Exposes \u20AC64,800 in unannounced spec downgrades." },
+      { r: 2, title: "Round 2: Technical Concessions", desc: "Vendor absorbs 50kA, IP54, and I-FAT (\u20AC33,900 clawed back)." },
+      { r: 3, title: "Round 3: Final Contract Closure", desc: "Vendor absorbs Cu Busbar & DDP freight (\u20AC57,400 clawed back)." }
+    ].map((step) => /* @__PURE__ */ React.createElement(
+      "div",
+      {
+        key: step.r,
+        className: `p-2.5 rounded-lg border text-xs transition-colors duration-150 ${negotiationRound === step.r ? "bg-cyan-950/20 border-cyan-500/50 text-white" : negotiationRound > step.r ? "bg-emerald-950/15 border-emerald-500/30 text-emerald-300" : "bg-[#0A0B0E] border-[#1E202B] text-gray-500"}`
+      },
+      /* @__PURE__ */ React.createElement("div", { className: "font-semibold flex items-center justify-between text-xs" }, /* @__PURE__ */ React.createElement("span", null, step.title), negotiationRound >= step.r && /* @__PURE__ */ React.createElement(SvgIcon, { name: "check", className: "w-3.5 h-3.5 text-emerald-400" })),
+      /* @__PURE__ */ React.createElement("div", { className: "text-[11px] opacity-80 mt-0.5" }, step.desc)
+    ))), /* @__PURE__ */ React.createElement("div", { className: "flex flex-col gap-2" }, /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        onClick: handleSimulateTurn,
+        className: "w-full py-2.5 px-3 rounded-md bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-98 cursor-pointer"
+      },
+      /* @__PURE__ */ React.createElement(SvgIcon, { name: "refresh", className: "w-3.5 h-3.5" }),
+      negotiationRound < 3 ? `Simulate Vendor Reply & Advance to Round ${negotiationRound + 1}` : "Reset Negotiation to Round 1"
+    ), /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        onClick: handleExportPdf,
+        disabled: isExportingPdf,
+        className: "w-full py-2 px-3 rounded-md bg-[#181A24] hover:bg-[#202230] text-gray-200 border border-[#2E3142] font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+      },
+      /* @__PURE__ */ React.createElement(SvgIcon, { name: "download", className: `w-3.5 h-3.5 ${isExportingPdf ? "animate-bounce" : ""}` }),
+      isExportingPdf ? "Generating Official PO PDF..." : `Export Signed Deviation PDF (Rev ${negotiationRound})`
+    )))), /* @__PURE__ */ React.createElement("div", { className: "lg:col-span-7 bg-[#12131A] border border-[#1E202B] rounded-xl overflow-hidden flex flex-col" }, /* @__PURE__ */ React.createElement("div", { className: "p-3 bg-[#0A0B0E] border-b border-[#1E202B] flex items-center justify-between text-xs font-mono" }, /* @__PURE__ */ React.createElement("span", { className: "text-gray-300" }, "DISPATCH PREVIEW \u2022 ROUND ", negotiationRound, " OF 3"), /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        onClick: handleCopyEmail,
+        className: "flex items-center gap-1 px-2 py-0.5 rounded bg-[#181A24] hover:bg-[#222432] text-gray-300 border border-[#262836] text-[10px] cursor-pointer transition-colors"
+      },
+      /* @__PURE__ */ React.createElement(SvgIcon, { name: "copy", className: "w-3 h-3 text-cyan-400" }),
+      copyFeedback ? "Copied!" : "Copy Text"
+    ), /* @__PURE__ */ React.createElement("span", { className: "text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 text-[11px]" }, "Clawed Back: \u20AC", vendorBStats.clawedAmount.toLocaleString()))), /* @__PURE__ */ React.createElement("div", { id: "negotiator-email-content", className: "p-5 space-y-4 text-xs font-mono text-gray-300 flex-1" }, /* @__PURE__ */ React.createElement("div", { className: "space-y-1 pb-3 border-b border-[#1E202B] text-gray-400 text-[11px]" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("span", { className: "text-gray-500" }, "To:"), " m.yilmaz@voltswitch-industrial.com"), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("span", { className: "text-gray-500" }, "Cc:"), " strategic-procurement@vogt-grid-epc.de"), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("span", { className: "text-gray-500" }, "Subject:"), " [ACTION REQUIRED] Technical Clarification & Commercial Leveling \u2014 ", TENDER_DATA.id, " (Round ", negotiationRound, ")")), negotiationRound === 1 && /* @__PURE__ */ React.createElement("div", { className: "space-y-3 font-sans text-gray-200 leading-relaxed text-xs" }, /* @__PURE__ */ React.createElement("p", null, "Dear VoltSwitch Tendering Team,"), /* @__PURE__ */ React.createElement("p", null, "Thank you for submitting Offer ", /* @__PURE__ */ React.createElement("strong", null, "Commercial_Tech_Bid_VoltSwitch_2026.pdf"), " (\u20AC418,000). While your cover letter asserts 100% compliance with ", /* @__PURE__ */ React.createElement("strong", null, "MR-33kV-GIS-Rev4"), ", our automated audit identified ", /* @__PURE__ */ React.createElement("strong", null, "6 critical deviations and scope exclusions"), " totaling ", /* @__PURE__ */ React.createElement("strong", null, "\u20AC64,800"), " in evaluated risk:"), /* @__PURE__ */ React.createElement("ul", { className: "list-disc pl-5 space-y-1.5 text-gray-300 text-xs" }, /* @__PURE__ */ React.createElement("li", null, /* @__PURE__ */ React.createElement("strong", null, "TQ-01 (Rating Conflict \u2014 Page 64, SLD Note 7):"), " Quoted 31.5 kA (1s) vs required 50.0 kA (3s). (+\u20AC18,500)"), /* @__PURE__ */ React.createElement("li", null, /* @__PURE__ */ React.createElement("strong", null, "TQ-02 (Busbar Material \u2014 Page 79):"), " Aluminum Alloy quoted vs Electrolytic Copper Cu-ETP 2500A. (+\u20AC14,200)"), /* @__PURE__ */ React.createElement("li", null, /* @__PURE__ */ React.createElement("strong", null, "TQ-03 (Enclosure Ingress \u2014 Page 88):"), " IP42 AFL (3-sided) vs required IP54 AFLR. (+\u20AC8,900)"), /* @__PURE__ */ React.createElement("li", null, /* @__PURE__ */ React.createElement("strong", null, "TQ-04 (SCADA Interface \u2014 Page 119):"), " Single RJ45 Modbus card vs Dual-Fiber IEC 61850 PRP wired to RTU. (+\u20AC7,400)"), /* @__PURE__ */ React.createElement("li", null, /* @__PURE__ */ React.createElement("strong", null, "TQ-05 & 06 (Testing & Incoterms):"), " Witnessed I-FAT excluded and EXW Izmir quoted vs DDP Brandenburg. (+\u20AC15,800)")), /* @__PURE__ */ React.createElement("p", { className: "p-3 rounded-lg bg-amber-950/20 border border-amber-500/30 text-amber-200" }, "Two competing compliant bidders have met the 50kA Cu-ETP standard. To remain in first position for PO award this Friday, please return the attached Deviation Closure Sheet confirming absorption of TQ-01 through TQ-06 within your \u20AC418,000 price.")), negotiationRound === 2 && /* @__PURE__ */ React.createElement("div", { className: "space-y-3 font-sans text-gray-200 leading-relaxed text-xs" }, /* @__PURE__ */ React.createElement("div", { className: "p-3 rounded-lg bg-emerald-950/20 border border-emerald-500/30 text-emerald-200" }, /* @__PURE__ */ React.createElement("strong", null, "Vendor Reply Ingested:"), " VoltSwitch agreed to absorb ", /* @__PURE__ */ React.createElement("strong", null, "50.0 kA (3s)"), ", ", /* @__PURE__ */ React.createElement("strong", null, "IP54 AFLR"), ", and the ", /* @__PURE__ */ React.createElement("strong", null, "5-Day Witnessed I-FAT"), " at zero price adder (\u20AC33,900 clawed back). They requested a \u20AC19,000 adder for Copper Busbars and DDP freight."), /* @__PURE__ */ React.createElement("p", null, "Dear VoltSwitch Tendering Team,"), /* @__PURE__ */ React.createElement("p", null, "We acknowledge and lock in your written confirmation closing ", /* @__PURE__ */ React.createElement("strong", null, "TQ-01"), ", ", /* @__PURE__ */ React.createElement("strong", null, "TQ-03"), ", and ", /* @__PURE__ */ React.createElement("strong", null, "TQ-05"), " at no cost impact."), /* @__PURE__ */ React.createElement("p", null, "Regarding your requested adder for ", /* @__PURE__ */ React.createElement("strong", null, "TQ-02 (Cu-ETP Busbars)"), " and ", /* @__PURE__ */ React.createElement("strong", null, "TQ-06 (DDP Freight)"), ": based on current LME Grade-A copper settlement indices and road freight rates from Izmir to Brandenburg, the net factory delta is \u20AC11,400\u2014and our competing compliant bidder is within 2.1% of your adjusted total."), /* @__PURE__ */ React.createElement("p", { className: "font-semibold text-cyan-300" }, "Final Counter-Offer for Immediate PO Release: Absorb Cu-ETP busbars (TQ-02) and DDP freight (TQ-06) at your \u20AC418,000 contract price, in exchange for moving milestone payment #2 (30%) from Site Delivery to successful I-FAT sign-off.")), negotiationRound === 3 && /* @__PURE__ */ React.createElement("div", { className: "space-y-3 font-sans text-gray-200 leading-relaxed text-xs" }, /* @__PURE__ */ React.createElement("div", { className: "p-3 rounded-lg bg-emerald-950/30 border border-emerald-500/40 text-emerald-200" }, /* @__PURE__ */ React.createElement("div", { className: "font-bold text-sm text-emerald-300 flex items-center gap-1.5 mb-1" }, /* @__PURE__ */ React.createElement(SvgIcon, { name: "check", className: "w-4 h-4" }), " DEVIATION CLOSURE SIGNED \u2014 \u20AC57,400 CLAWED BACK!"), /* @__PURE__ */ React.createElement("p", null, "VoltSwitch signed Revision 3 Deviation Closure Sheet absorbing 50kA (3s) vacuum breakers, Electrolytic Copper 2500A busbars, IP54 AFLR arc ducting, 5-Day Witnessed I-FAT, and DDP Brandenburg delivery at their original ", /* @__PURE__ */ React.createElement("strong", null, "\u20AC418,000"), " headline price.")), /* @__PURE__ */ React.createElement("div", { className: "p-3 rounded-lg bg-[#0A0B0E] border border-[#1E202B] font-mono text-xs space-y-1" }, /* @__PURE__ */ React.createElement("div", { className: "text-cyan-400 font-bold" }, "AUDIT PACKET READY FOR PURCHASE ORDER ATTACHMENT:"), /* @__PURE__ */ React.createElement("div", null, "\u2022 Initial Headline Quote: \u20AC418,000"), /* @__PURE__ */ React.createElement("div", null, "\u2022 Uncovered Hidden Deviation Risk: \u20AC64,800"), /* @__PURE__ */ React.createElement("div", null, "\u2022 SpecClaw Verified Clawback Concessions: \u20AC57,400 (Absorbed Free)"), /* @__PURE__ */ React.createElement("div", null, "\u2022 SpecClaw 15% Performance Fee: \u20AC8,610"), /* @__PURE__ */ React.createElement("div", { className: "text-emerald-400 font-bold" }, "\u2022 Net Verified EPC Savings Unlocked: \u20AC48,790"))))))), /* @__PURE__ */ React.createElement("footer", { className: "border-t border-[#181A24] bg-[#0A0B0E] py-2 px-4 text-center text-gray-500 text-[10px] font-mono flex items-center justify-between max-w-7xl mx-auto w-full" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ React.createElement("span", null, "Shortcuts:"), /* @__PURE__ */ React.createElement("kbd", { className: "px-1 py-0.5 rounded bg-[#14151D] border border-[#262836] text-gray-400" }, "[1-4] Tabs"), /* @__PURE__ */ React.createElement("kbd", { className: "px-1 py-0.5 rounded bg-[#14151D] border border-[#262836] text-gray-400" }, "[\u2191/\u2193] Select Spec")), /* @__PURE__ */ React.createElement("div", null, "SpecClaw Industrial TBE Engine \u2022 Vogt-Grid EPC Consortium GmbH")));
+  }
+  function mountSpecClaw() {
+    const container = document.getElementById("root");
+    if (container) {
+      const root = ReactDOM.createRoot(container);
+      root.render(React.createElement(SpecClawApp));
+      console.log("SpecClaw Minimalist Industrial UI mounted.");
+    }
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", mountSpecClaw);
+  } else {
+    mountSpecClaw();
+  }
+})();

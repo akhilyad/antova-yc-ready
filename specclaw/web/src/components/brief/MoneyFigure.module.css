@@ -1,0 +1,34 @@
+.figure {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.headline {
+  font-size: var(--text-18);
+  color: var(--ink);
+}
+
+.total {
+  font-size: var(--text-18);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* A superseded figure: kept legible, plainly not the one that counts. */
+.struck {
+  color: var(--ink-3);
+  text-decoration-line: line-through;
+  text-decoration-thickness: 1px;
+}
+
+/* What a gap costs: the hidden cost is the thing that is wrong. */
+.adder {
+  font-weight: 600;
+  color: var(--ox);
+}
+
+.adder.nothing {
+  font-weight: 400;
+  color: var(--ink);
+}

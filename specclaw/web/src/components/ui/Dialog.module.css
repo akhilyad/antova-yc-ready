@@ -1,0 +1,49 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: var(--space-24);
+  background: color-mix(in srgb, var(--ink) 32%, transparent);
+  animation: fade var(--duration-swap) var(--ease);
+}
+
+.dialog {
+  width: min(100%, 520px);
+  max-height: calc(100dvh - var(--space-48));
+  overflow-y: auto;
+  padding: var(--space-32);
+  background: var(--surface);
+  border-radius: var(--radius-paper);
+  box-shadow: var(--shadow-raised);
+  color: var(--ink);
+  animation: rise var(--duration-swap) var(--ease);
+}
+
+.wide {
+  width: min(100%, 880px);
+}
+
+@media (max-width: 600px) {
+  .wide {
+    padding: var(--space-24) var(--space-16);
+  }
+}
+
+.dialog:focus {
+  outline: none;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-8));
+  }
+}

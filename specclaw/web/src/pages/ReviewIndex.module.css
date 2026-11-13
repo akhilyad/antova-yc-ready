@@ -1,0 +1,94 @@
+/* A ledger of tenders: one table, ruled like the brief's, then the ingest form in a band. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-32);
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: var(--space-64) var(--space-24) var(--space-96);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-16);
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-14);
+}
+
+.table th,
+.table td {
+  padding: var(--space-12) var(--space-16) var(--space-12) 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: baseline;
+}
+
+.table thead th {
+  font-size: var(--text-12);
+  font-weight: 600;
+  color: var(--ink-3);
+  border-bottom-color: var(--edge);
+  white-space: nowrap;
+}
+
+.id {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.title {
+  min-width: 18rem;
+  max-width: 40ch;
+  font-family: var(--font-display);
+  font-size: var(--text-16);
+}
+
+.status,
+.number {
+  white-space: nowrap;
+}
+
+/* On a phone the title wraps narrower, so status and open items stay on the first screen. */
+@media (max-width: 599px) {
+  .page {
+    padding: var(--space-48) var(--space-16) var(--space-64);
+  }
+
+  .title {
+    min-width: 12rem;
+  }
+}
+
+/* Open items are the one thing here that is wrong until the founder fixes it. */
+.open {
+  color: var(--ox);
+}
+
+.empty {
+  max-width: 68ch;
+  color: var(--ink-2);
+}
+
+.ingest {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  padding: var(--space-24);
+  background: var(--band);
+  border-radius: var(--radius-paper);
+}
+
+.ingestHeading {
+  font-size: var(--text-20);
+}

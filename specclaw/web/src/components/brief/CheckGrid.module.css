@@ -1,0 +1,91 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.scroll {
+  /* Positioned, so visually hidden (absolute) text inside scrolls with it, not the page. */
+  position: relative;
+  overflow-x: auto;
+  border-radius: var(--radius-paper);
+}
+
+.grid {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.grid th,
+.grid td {
+  padding: var(--space-8);
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--rule);
+}
+
+.corner,
+.vendor {
+  font-size: var(--text-12);
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--ink-3);
+  vertical-align: bottom;
+  border-bottom-color: var(--ink);
+}
+
+.vendor {
+  min-width: 9rem;
+}
+
+.param {
+  min-width: 12rem;
+  max-width: 18rem;
+  font-size: var(--text-14);
+  font-weight: 500;
+}
+
+.cell {
+  padding: 0;
+}
+
+/* Colour only where something is wrong: gap cells sit on the oxblood wash. */
+.wrong {
+  background: var(--ox-wash);
+}
+
+.link {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  min-height: 44px;
+  padding: var(--space-8);
+  color: inherit;
+  text-decoration: none;
+  border-radius: var(--radius-paper);
+  transition: background-color var(--duration-hover) var(--ease);
+}
+
+.link:hover {
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+}
+
+.number {
+  color: var(--ox);
+  font-weight: 600;
+}
+
+.selected .link {
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+/* Review mode: a dashed oxblood frame marks a cell that needs the founder. */
+.highlight .link {
+  outline: 2px dashed var(--ox);
+  outline-offset: -4px;
+}
+
+.highlight .link:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}

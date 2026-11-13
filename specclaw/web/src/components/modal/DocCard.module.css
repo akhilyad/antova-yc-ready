@@ -1,0 +1,75 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-16);
+  background: var(--paper);
+  /* The state shows on the whole border, never one side (design-skill B4). */
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-paper);
+  transition: border-color var(--duration-swap) var(--ease);
+}
+
+.card[data-state='active'] {
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+
+.card[data-state='done'] {
+  border-color: var(--ink-3);
+}
+
+.card[data-state='failed'] {
+  border-color: var(--ox);
+}
+
+.title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-8);
+  font-size: var(--text-14);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.mark {
+  color: var(--ink);
+}
+
+.card[data-state='failed'] .mark {
+  color: var(--ox);
+}
+
+.filename {
+  font-size: var(--text-12);
+  color: var(--ink-3);
+  overflow-wrap: anywhere;
+}
+
+.pages {
+  font-family: var(--font-display);
+  font-size: var(--text-14);
+  font-variant-numeric: var(--figures);
+  color: var(--ink-2);
+}
+
+/*
+ * On a phone the cards sit above the steps; kept to name and pages, they leave the steps
+ * (the part that moves) on the first screen.
+ */
+@media (max-width: 719px) {
+  .card {
+    padding: var(--space-8) var(--space-12);
+  }
+
+  .filename {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+}
