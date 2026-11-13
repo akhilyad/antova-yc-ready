@@ -1,0 +1,37 @@
+.passed,
+.failed {
+  font-size: var(--text-14);
+  font-variant-numeric: var(--figures);
+}
+
+.passed > *,
+.failed > * {
+  padding: var(--space-8) var(--space-8) var(--space-8) 0;
+  border-top: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: baseline;
+  font-weight: 400;
+}
+
+.field {
+  font-weight: 500;
+}
+
+.result {
+  width: 1.5em;
+  font-size: var(--text-16);
+}
+
+.passed .result {
+  color: var(--ink);
+}
+
+/* A failed check is the wrong thing: its mark and the offered value go oxblood. */
+.failed .result,
+.failed .offered {
+  color: var(--ox);
+}
+
+.canonical {
+  color: var(--ink-3);
+}

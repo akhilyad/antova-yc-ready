@@ -1,0 +1,63 @@
+.crop {
+  position: relative;
+  min-height: 72px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-paper);
+  overflow: hidden;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* The crop as a link to its full-size image, with a quiet label under it. */
+.open {
+  display: block;
+  color: var(--ink-2);
+  text-decoration: none;
+  cursor: zoom-in;
+}
+
+.openLabel {
+  display: block;
+  padding: var(--space-4) var(--space-8);
+  border-top: 1px solid var(--rule);
+  font-size: var(--text-12);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.open:hover .openLabel {
+  color: var(--ink);
+}
+
+/* .crop clips its overflow, so the focus ring sits inside the edge. */
+.open:focus-visible {
+  outline-offset: -3px;
+}
+
+/* In the layout while it loads, so its size is known; revealed once it has arrived. */
+.pending {
+  display: block;
+  width: 100%;
+  height: auto;
+  opacity: 0;
+}
+
+/* A still placeholder: the spec's motion tokens have no loading loop, so none is invented. */
+.skeleton {
+  position: absolute;
+  inset: 0;
+  background: var(--band);
+}
+
+.fallback {
+  padding: var(--space-12);
+  background: var(--band);
+  border-radius: var(--radius-paper);
+  font-size: var(--text-14);
+  color: var(--ink-2);
+}

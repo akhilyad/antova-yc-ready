@@ -1,0 +1,109 @@
+.findings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-32);
+}
+
+.vendor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.vendorHeading {
+  font-size: var(--text-18);
+  font-variant-numeric: var(--figures);
+}
+
+.none {
+  font-size: var(--text-14);
+  color: var(--ink-2);
+}
+
+.rows {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rows td,
+.rows th {
+  padding: var(--space-8) var(--space-12) var(--space-8) 0;
+  vertical-align: baseline;
+  text-align: left;
+  border-top: 1px solid var(--rule);
+}
+
+.rows tr:last-child td,
+.rows tr:last-child th {
+  border-bottom: 1px solid var(--rule);
+}
+
+/* The selected footnote's row: a band, so the eye finds it again after reading the margin. */
+.selected td,
+.selected th {
+  background: var(--band);
+}
+
+.ref {
+  width: 2.5rem;
+  padding-left: var(--space-8);
+}
+
+.requirement {
+  font-size: var(--text-14);
+  font-weight: 500;
+}
+
+.offered {
+  font-family: var(--font-display);
+  font-size: var(--text-14);
+  color: var(--ink-2);
+}
+
+.status {
+  white-space: nowrap;
+}
+
+.adder {
+  text-align: right;
+  white-space: nowrap;
+}
+
+@media (max-width: 599px) {
+  .rows,
+  .rows tbody,
+  .rows tr {
+    display: block;
+  }
+
+  .rows tr {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr auto;
+    column-gap: var(--space-8);
+    padding: var(--space-8) 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  .rows td,
+  .rows th {
+    padding: 0;
+    border: 0;
+  }
+
+  .rows tr:last-child td,
+  .rows tr:last-child th {
+    border: 0;
+  }
+
+  .ref {
+    grid-row: span 3;
+  }
+
+  .requirement {
+    grid-column: 2 / 4;
+  }
+
+  .offered {
+    grid-column: 2 / 4;
+  }
+}

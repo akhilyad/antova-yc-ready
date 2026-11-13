@@ -1,0 +1,47 @@
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12) var(--space-24);
+  padding: var(--space-12) var(--space-24);
+  border-block: 1px solid var(--rule);
+  font-size: var(--text-14);
+  color: var(--ink);
+}
+
+.message {
+  max-width: 72ch;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  max-width: 72ch;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
+/* Draft and replay are neutral bands; verified is ink, never green. */
+.draft,
+.replay {
+  background: var(--band);
+}
+
+.verified {
+  background: var(--surface);
+  border-color: var(--ink);
+  font-weight: 500;
+}
+
+/* Something went wrong: the only coloured banner. */
+.error {
+  background: var(--ox-wash);
+  border-color: var(--ox);
+  color: var(--ox);
+}

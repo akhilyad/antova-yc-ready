@@ -1,0 +1,14 @@
+node_modules
+dist
+dist-ssr
+dist-e2e
+dist-e2e-ssr
+test-results
+playwright-report
+coverage
+package-lock.json
+src/test/fixtures/
+# Hex values stay uppercase, character for character as in spec §8.1.
+src/design/tokens.css
+src/generated/
+e2e/.tmp/

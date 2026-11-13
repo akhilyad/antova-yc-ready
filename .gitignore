@@ -26,8 +26,6 @@ secrets/
 *.sqlite
 *.sqlite3
 
-# Separate repository (github.com/akhilyad/Antovaclaw), checked out here locally
-specclaw/
 
 # Local tool state
 .superpowers/

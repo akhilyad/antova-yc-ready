@@ -1,0 +1,46 @@
+{
+  "tender_id": "TENDER-2026-417",
+  "title": "120 MW Wind Farm Collector Substation — 33kV GIS Switchgear Package",
+  "client": "Halden Ridge Renewables AS (fictional)",
+  "equipment_class": "mv_gis_switchgear",
+  "rate_table": "mv_gis_switchgear_v1",
+  "documents": [
+    {
+      "file": "MR-Collector-GIS-Rev2.pdf",
+      "role": "mr_spec"
+    },
+    {
+      "file": "Bid_vendor-a_Kestrel.pdf",
+      "role": "vendor_bid",
+      "vendor_id": "vendor-a",
+      "vendor_name": "Kestrel Switchgear AG",
+      "country": "Switzerland"
+    },
+    {
+      "file": "Bid_vendor-b_Orbis.pdf",
+      "role": "vendor_bid",
+      "vendor_id": "vendor-b",
+      "vendor_name": "Orbis Elektrik A.S.",
+      "country": "Turkey"
+    },
+    {
+      "file": "Bid_vendor-c_Tavish.pdf",
+      "role": "vendor_bid",
+      "vendor_id": "vendor-c",
+      "vendor_name": "Tavish Power Systems Ltd",
+      "country": "United Kingdom"
+    },
+    {
+      "file": "Bid_vendor-d_Lindqvist.pdf",
+      "role": "vendor_bid",
+      "vendor_id": "vendor-d",
+      "vendor_name": "Lindqvist Energi AB",
+      "country": "Sweden"
+    }
+  ],
+  "engineering_estimates": {
+    "busbar_cu_kg": 940,
+    "heavy_haul_loads": 1
+  },
+  "synthetic": true
+}

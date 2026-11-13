@@ -1,0 +1,626 @@
+{
+  "tender_id": "TENDER-2026-402",
+  "bay_count": 11,
+  "requirements": {
+    "PARAM-01": {
+      "page": 5,
+      "quotes": [
+        "Rated short-time withstand current Ik shall be 50 kA RMS for a duration of 3 s."
+      ],
+      "values": {
+        "ik": "50 kA",
+        "ik_duration": "3 s"
+      }
+    },
+    "PARAM-02": {
+      "page": 6,
+      "quotes": [
+        "Main busbars shall be electrolytic copper Cu-ETP rated for 2500 A continuous current."
+      ],
+      "values": {
+        "material": "Cu-ETP",
+        "rated_current": "2500 A"
+      }
+    },
+    "PARAM-03": {
+      "page": 6,
+      "quotes": [
+        "Enclosure protection shall be IP54 with internal arc classification IAC AFLR."
+      ],
+      "values": {
+        "ip": "IP54",
+        "iac_class": "AFLR"
+      }
+    },
+    "PARAM-04": {
+      "page": 7,
+      "quotes": [
+        "Protection IEDs shall communicate via IEC 61850 Edition 2 with PRP redundancy, with pre-wired RTU marshalling in a central marshalling cabinet."
+      ],
+      "values": {
+        "protocol": "IEC 61850 Ed. 2 with PRP",
+        "marshalling": "pre-wired"
+      }
+    },
+    "PARAM-05": {
+      "page": 13,
+      "quotes": [
+        "A 5-day witnessed integrated factory acceptance test (I-FAT) with primary injection shall be included in the contract price."
+      ],
+      "values": {
+        "witnessed_fat_days_included": "5"
+      }
+    },
+    "PARAM-06": {
+      "page": 14,
+      "quotes": [
+        "Delivery shall be DDP project site Brandenburg (Incoterms 2020).",
+        "The defect liability period shall be 36 months from commissioning."
+      ],
+      "values": {
+        "incoterm": "DDP",
+        "warranty_months": "36"
+      }
+    },
+    "PARAM-07": {
+      "page": 5,
+      "quotes": [
+        "Rated voltage Ur shall be not less than 36 kV."
+      ],
+      "values": {
+        "rated_voltage": "36 kV"
+      }
+    },
+    "PARAM-08": {
+      "page": 7,
+      "quotes": [
+        "Equipment shall be rated for a maximum ambient air temperature of +40 °C without derating."
+      ],
+      "values": {
+        "max_ambient": "40 °C"
+      }
+    }
+  },
+  "cells": {
+    "vendor-a": {
+      "PARAM-01": {
+        "status": "COMPLIANT",
+        "page": 6,
+        "quote": "Rated short-time withstand current (main busbar and breaker): 50 kA / 3 s.",
+        "values": {
+          "ik": "50 kA",
+          "ik_duration": "3 s"
+        },
+        "secondary_page": null,
+        "adder": "0.00"
+      },
+      "PARAM-02": {
+        "status": "COMPLIANT",
+        "page": 6,
+        "quote": "Main busbars: silver-plated high-conductivity electrolytic copper Cu-ETP, 2.5 kA continuous.",
+        "values": {
+          "material": "Cu-ETP",
+          "rated_current": "2.5 kA"
+        },
+        "secondary_page": null,
+        "adder": "0.00"
+      },
+      "PARAM-03": {
+        "status": "COMPLIANT",
+        "page": 7,
+        "quote": "Enclosure protection IP54 with rear gas exhaust ducting, internal arc classification IAC AFLR 50 kA 1 s.",
+        "values": {
+          "ip": "IP54",
+          "iac_class": "AFLR"
+        },
+        "secondary_page": null,
+        "adder": "0.00"
+      },
+      "PARAM-04": {
+        "status": "COMPLIANT",
+        "page": 8,
+        "quote": "Protection IEDs NW-Prot 5 with IEC 61850 Ed.2 PRP dual-port fibre, pre-wired to the central RTU marshalling cabinet.",
+        "values": {
+          "protocol": "IEC 61850 Ed. 2 with PRP",
+          "marshalling": "pre-wired"
+        },
+        "secondary_page": null,
+        "adder": "0.00"
+      },
+      "PARAM-05": {
+        "status": "COMPLIANT",
+        "page": 18,
+        "quote": "The price includes a 5-day client-witnessed I-FAT with primary injection.",
+        "values": {
+          "witnessed_fat_days_included": "5"
+        },
+        "secondary_page": null,
+        "adder": "0.00"
+      },
+      "PARAM-06": {
+        "status": "COMPLIANT",
+        "page": 21,
+        "quote": "Delivery DDP project site Brandenburg (Incoterms 2020) with a 36-month defect liability period.",
+        "values": {
+          "incoterm": "DDP",
+          "warranty_months": "36"
+        },
+        "secondary_page": null,
+        "adder": "0.00"
+      },
+      "PARAM-07": {
+        "status": "COMPLIANT",
+        "page": 6,
+        "quote": "Rated voltage Ur: 36 kV.",
+        "values": {
+          "rated_voltage": "36 kV"
+        },
+        "secondary_page": null,
+        "adder": "0.00"
+      },
+      "PARAM-08": {
+        "status": "COMPLIANT",
+        "page": 7,
+        "quote": "Rated for ambient temperatures from -25 °C to +40 °C without derating.",
+        "values": {
+          "max_ambient": "40 °C"
+        },
+        "secondary_page": null,
+        "adder": "0.00"
+      }
+    },
+    "vendor-b": {
+      "PARAM-01": {
+        "status": "CONFLICT_DOWNGRADE",
+        "page": 11,
+        "quote": "NOTE 7: Standard switchgear bay rated 31.5kA 1s. 50kA high-duty upgrade excluded from base price.",
+        "values": {
+          "ik": "31.5 kA",
+          "ik_duration": "1 s"
+        },
+        "secondary_page": 2,
+        "adder": "18500.00"
+      },
+      "PARAM-02": {
+        "status": "DEVIATION_DOWNGRADE",
+        "page": 6,
+        "quote": "Busbar system manufactured from tin-plated E-AlMgSi0.5 aluminium alloy profiles rated 2500 A continuous.",
+        "values": {
+          "material": "Al",
+          "rated_current": "2500 A"
+        },
+        "secondary_page": null,
+        "adder": "14200.00"
+      },
+      "PARAM-03": {
+        "status": "DEVIATION_DOWNGRADE",
+        "page": 7,
+        "quote": "Standard indoor enclosure IP42 with ventilation louvres; internal arc classification IAC AFL (front and lateral only).",
+        "values": {
+          "ip": "IP42",
+          "iac_class": "AFL"
+        },
+        "secondary_page": null,
+        "adder": "8900.00"
+      },
+      "PARAM-04": {
+        "status": "CONFLICT_DOWNGRADE",
+        "page": 15,
+        "quote": "BOM Pos 44: Standard communication port RJ45 Modbus TCP; SCADA marshalling terminals supplied loose for EPC field termination.",
+        "values": {
+          "protocol": "not IEC 61850",
+          "marshalling": "not pre-wired"
+        },
+        "secondary_page": 3,
+        "adder": "7400.00"
+      },
+      "PARAM-05": {
+        "status": "OMITTED",
+        "page": 18,
+        "quote": "Standard routine test certificates provided. Witnessed FAT charged extra at €1,300/day plus test bay setup.",
+        "values": {
+          "witnessed_fat_days_included": "0"
+        },
+        "secondary_page": null,
+        "adder": "6500.00"
+      },
+      "PARAM-06": {
+        "status": "DEVIATION_DOWNGRADE",
+        "page": 21,
+        "quote": "Prices are quoted Ex-Works (EXW) Izmir factory loading dock; standard warranty 18 months from dispatch.",
+        "values": {
+          "incoterm": "EXW",
+          "warranty_months": "18"
+        },
+        "secondary_page": null,
+        "adder": "9300.00"
+      },
+      "PARAM-07": {
+        "status": "COMPLIANT",
+        "page": 6,
+        "quote": "Rated voltage Ur: 36,000 V.",
+        "values": {
+          "rated_voltage": "36000 V"
+        },
+        "secondary_page": null,
+        "adder": "0.00"
+      },
+      "PARAM-08": {
+        "status": "COMPLIANT",
+        "page": 7,
+        "quote": "Maximum ambient temperature 40 °C without derating.",
+        "values": {
+          "max_ambient": "40 °C"
+        },
+        "secondary_page": null,
+        "adder": "0.00"
+      }
+    },
+    "vendor-c": {
+      "PARAM-01": {
+        "status": "DEVIATION_DOWNGRADE",
+        "page": 6,
+        "quote": "Short-time withstand capability tested for 50 kA RMS at 1.0 second thermal duration.",
+        "values": {
+          "ik": "50 kA",
+          "ik_duration": "1 s"
+        },
+        "secondary_page": null,
+        "adder": "6200.00"
+      },
+      "PARAM-02": {
+        "status": "COMPLIANT",
+        "page": 6,
+        "quote": "HDHC electrolytic copper busbar system rated 2500 A continuous throughout all MV compartments.",
+        "values": {
+          "material": "Cu-ETP",
+          "rated_current": "2500 A"
+        },
+        "secondary_page": null,
+        "adder": "0.00"
+      },
+      "PARAM-03": {
+        "status": "COMPLIANT",
+        "page": 7,
+        "quote": "Full IP54 dust and splash sealing with 4-sided IAC AFLR internal arc containment.",
+        "values": {
+          "ip": "IP54",
+          "iac_class": "AFLR"
+        },
+        "secondary_page": null,
+        "adder": "0.00"
+      },
+      "PARAM-04": {
+        "status": "DEVIATION_DOWNGRADE",
+        "page": 8,
+        "quote": "IEC 61850 Ed.2 relays DSC-R200 with PRP fibre ports; RTU marshalling excluded, customer SCADA wiring directly to individual bay LV compartments.",
+        "values": {
+          "protocol": "IEC 61850 Ed. 2 with PRP",
+          "marshalling": "not pre-wired"
+        },
+        "secondary_page": null,
+        "adder": "4100.00"
+      },
+      "PARAM-05": {
+        "status": "DEVIATION_DOWNGRADE",
+        "page": 18,
+        "quote": "Includes 3 days witnessed inspection; additional days billed per tariff.",
+        "values": {
+          "witnessed_fat_days_included": "3"
+        },
+        "secondary_page": null,
+        "adder": "2600.00"
+      },
+      "PARAM-06": {
+        "status": "DEVIATION_DOWNGRADE",
+        "page": 21,
+        "quote": "Delivered At Place (DAP) project site; warranty 24 months from commissioning.",
+        "values": {
+          "incoterm": "DAP",
+          "warranty_months": "24"
+        },
+        "secondary_page": null,
+        "adder": "2100.00"
+      },
+      "PARAM-07": {
+        "status": "COMPLIANT",
+        "page": 6,
+        "quote": "Rated voltage Ur: 36 kV.",
+        "values": {
+          "rated_voltage": "36 kV"
+        },
+        "secondary_page": null,
+        "adder": "0.00"
+      },
+      "PARAM-08": {
+        "status": "COMPLIANT",
+        "page": 7,
+        "quote": "Maximum ambient temperature 104 °F without derating.",
+        "values": {
+          "max_ambient": "104 °F"
+        },
+        "secondary_page": null,
+        "adder": "0.00"
+      }
+    }
+  },
+  "vendors": {
+    "vendor-a": {
+      "name": "Nordwerk Schaltanlagen GmbH",
+      "headline_price": "452000.00",
+      "total_adders": "0.00",
+      "true_evaluated_price": "452000.00"
+    },
+    "vendor-b": {
+      "name": "VoltSwitch Industrial",
+      "headline_price": "418000.00",
+      "total_adders": "64800.00",
+      "true_evaluated_price": "482800.00"
+    },
+    "vendor-c": {
+      "name": "Deltaport Skid Consortium B.V.",
+      "headline_price": "439000.00",
+      "total_adders": "15000.00",
+      "true_evaluated_price": "454000.00"
+    }
+  },
+  "negotiating_vendor": "vendor-a",
+  "clawback": {
+    "vendor_id": "vendor-b",
+    "round_2": "33900.00",
+    "round_3": "57400.00"
+  },
+  "ideal_locate": {
+    "MR-33kV-GIS-Rev4.pdf": {
+      "page_sections": [],
+      "candidates": [
+        {
+          "param_id": "PARAM-07",
+          "page": 5,
+          "quote": "Rated voltage Ur shall be not less than 36 kV."
+        },
+        {
+          "param_id": "PARAM-01",
+          "page": 5,
+          "quote": "Rated short-time withstand current Ik shall be 50 kA RMS for a duration of 3 s."
+        },
+        {
+          "param_id": "PARAM-02",
+          "page": 6,
+          "quote": "Main busbars shall be electrolytic copper Cu-ETP rated for 2500 A continuous current."
+        },
+        {
+          "param_id": "PARAM-03",
+          "page": 6,
+          "quote": "Enclosure protection shall be IP54 with internal arc classification IAC AFLR."
+        },
+        {
+          "param_id": "PARAM-04",
+          "page": 7,
+          "quote": "Protection IEDs shall communicate via IEC 61850 Edition 2 with PRP redundancy, with pre-wired RTU marshalling in a central marshalling cabinet."
+        },
+        {
+          "param_id": "PARAM-08",
+          "page": 7,
+          "quote": "Equipment shall be rated for a maximum ambient air temperature of +40 °C without derating."
+        },
+        {
+          "param_id": "PARAM-05",
+          "page": 13,
+          "quote": "A 5-day witnessed integrated factory acceptance test (I-FAT) with primary injection shall be included in the contract price."
+        },
+        {
+          "param_id": "PARAM-06",
+          "page": 14,
+          "quote": "Delivery shall be DDP project site Brandenburg (Incoterms 2020)."
+        },
+        {
+          "param_id": "PARAM-06",
+          "page": 14,
+          "quote": "The defect liability period shall be 36 months from commissioning."
+        }
+      ],
+      "tender_facts": [
+        {
+          "fact": "bay_count",
+          "page": 3,
+          "quote": "The switchgear lineup comprises 11 bays (2 incomers, 1 bus coupler, 8 feeders) of gas-insulated switchgear."
+        }
+      ],
+      "headline_price": null,
+      "cover_claim": null
+    },
+    "Bid_vendor-a_Nordwerk.pdf": {
+      "page_sections": [
+        {
+          "page": 1,
+          "section": "general"
+        }
+      ],
+      "candidates": [
+        {
+          "param_id": "PARAM-01",
+          "page": 6,
+          "quote": "Rated short-time withstand current (main busbar and breaker): 50 kA / 3 s."
+        },
+        {
+          "param_id": "PARAM-02",
+          "page": 6,
+          "quote": "Main busbars: silver-plated high-conductivity electrolytic copper Cu-ETP, 2.5 kA continuous."
+        },
+        {
+          "param_id": "PARAM-07",
+          "page": 6,
+          "quote": "Rated voltage Ur: 36 kV."
+        },
+        {
+          "param_id": "PARAM-03",
+          "page": 7,
+          "quote": "Enclosure protection IP54 with rear gas exhaust ducting, internal arc classification IAC AFLR 50 kA 1 s."
+        },
+        {
+          "param_id": "PARAM-08",
+          "page": 7,
+          "quote": "Rated for ambient temperatures from -25 °C to +40 °C without derating."
+        },
+        {
+          "param_id": "PARAM-04",
+          "page": 8,
+          "quote": "Protection IEDs NW-Prot 5 with IEC 61850 Ed.2 PRP dual-port fibre, pre-wired to the central RTU marshalling cabinet."
+        },
+        {
+          "param_id": "PARAM-05",
+          "page": 18,
+          "quote": "The price includes a 5-day client-witnessed I-FAT with primary injection."
+        },
+        {
+          "param_id": "PARAM-06",
+          "page": 21,
+          "quote": "Delivery DDP project site Brandenburg (Incoterms 2020) with a 36-month defect liability period."
+        }
+      ],
+      "tender_facts": [],
+      "headline_price": {
+        "page": 22,
+        "quote": "Total lump-sum price for the complete scope: €452,000"
+      },
+      "cover_claim": {
+        "page": 2,
+        "quote": "Our offer is in full compliance with MR-33kV-GIS-Rev4 except minor commercial notes."
+      }
+    },
+    "Bid_vendor-b_VoltSwitch.pdf": {
+      "page_sections": [
+        {
+          "page": 1,
+          "section": "general"
+        }
+      ],
+      "candidates": [
+        {
+          "param_id": "PARAM-01",
+          "page": 2,
+          "quote": "The switchgear is fully compliant with the Material Requisition, including the 50 kA / 3 s short-time withstand rating."
+        },
+        {
+          "param_id": "PARAM-04",
+          "page": 3,
+          "quote": "IEC 61850 Ed.2 with PRP redundancy - Complied"
+        },
+        {
+          "param_id": "PARAM-02",
+          "page": 6,
+          "quote": "Busbar system manufactured from tin-plated E-AlMgSi0.5 aluminium alloy profiles rated 2500 A continuous."
+        },
+        {
+          "param_id": "PARAM-07",
+          "page": 6,
+          "quote": "Rated voltage Ur: 36,000 V."
+        },
+        {
+          "param_id": "PARAM-03",
+          "page": 7,
+          "quote": "Standard indoor enclosure IP42 with ventilation louvres; internal arc classification IAC AFL (front and lateral only)."
+        },
+        {
+          "param_id": "PARAM-08",
+          "page": 7,
+          "quote": "Maximum ambient temperature 40 °C without derating."
+        },
+        {
+          "param_id": "PARAM-01",
+          "page": 11,
+          "quote": "NOTE 7: Standard switchgear bay rated 31.5kA 1s. 50kA high-duty upgrade excluded from base price."
+        },
+        {
+          "param_id": "PARAM-04",
+          "page": 15,
+          "quote": "BOM Pos 44: Standard communication port RJ45 Modbus TCP; SCADA marshalling terminals supplied loose for EPC field termination."
+        },
+        {
+          "param_id": "PARAM-05",
+          "page": 18,
+          "quote": "Standard routine test certificates provided. Witnessed FAT charged extra at €1,300/day plus test bay setup."
+        },
+        {
+          "param_id": "PARAM-06",
+          "page": 21,
+          "quote": "Prices are quoted Ex-Works (EXW) Izmir factory loading dock; standard warranty 18 months from dispatch."
+        }
+      ],
+      "tender_facts": [],
+      "headline_price": {
+        "page": 22,
+        "quote": "Total lump-sum price for the complete scope: €418,000"
+      },
+      "cover_claim": {
+        "page": 2,
+        "quote": "We confirm our offer is 100% compliant with Material Requisition MR-33kV-GIS-Rev4."
+      }
+    },
+    "Bid_vendor-c_Deltaport.pdf": {
+      "page_sections": [
+        {
+          "page": 1,
+          "section": "general"
+        }
+      ],
+      "candidates": [
+        {
+          "param_id": "PARAM-01",
+          "page": 3,
+          "quote": "Deviation 1: Short-time withstand current 50 kA for 1.0 s instead of 3 s."
+        },
+        {
+          "param_id": "PARAM-01",
+          "page": 6,
+          "quote": "Short-time withstand capability tested for 50 kA RMS at 1.0 second thermal duration."
+        },
+        {
+          "param_id": "PARAM-02",
+          "page": 6,
+          "quote": "HDHC electrolytic copper busbar system rated 2500 A continuous throughout all MV compartments."
+        },
+        {
+          "param_id": "PARAM-07",
+          "page": 6,
+          "quote": "Rated voltage Ur: 36 kV."
+        },
+        {
+          "param_id": "PARAM-03",
+          "page": 7,
+          "quote": "Full IP54 dust and splash sealing with 4-sided IAC AFLR internal arc containment."
+        },
+        {
+          "param_id": "PARAM-08",
+          "page": 7,
+          "quote": "Maximum ambient temperature 104 °F without derating."
+        },
+        {
+          "param_id": "PARAM-04",
+          "page": 8,
+          "quote": "IEC 61850 Ed.2 relays DSC-R200 with PRP fibre ports; RTU marshalling excluded, customer SCADA wiring directly to individual bay LV compartments."
+        },
+        {
+          "param_id": "PARAM-05",
+          "page": 18,
+          "quote": "Includes 3 days witnessed inspection; additional days billed per tariff."
+        },
+        {
+          "param_id": "PARAM-06",
+          "page": 21,
+          "quote": "Delivered At Place (DAP) project site; warranty 24 months from commissioning."
+        }
+      ],
+      "tender_facts": [],
+      "headline_price": {
+        "page": 22,
+        "quote": "Total lump-sum price for the complete scope: €439,000"
+      },
+      "cover_claim": {
+        "page": 2,
+        "quote": "Our offer is compliant per the attached Schedule of Deviations."
+      }
+    }
+  }
+}
