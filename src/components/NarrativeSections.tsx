@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
-import { HOW_IT_WORKS, IMPACT_COPY, INTRO_COPY, MANIFESTO_COPY, SAMPLE_DATA_LABEL, STATUS_PLAIN } from '../constants';
+import { HOW_IT_WORKS, INTRO_COPY, MANIFESTO_COPY, SAMPLE_DATA_LABEL, STATUS_PLAIN } from '../constants';
 import { CELLS, COMPARE_KEYS, VENDORS, cellAdder, vendorPrice } from '../data/tender402';
 import { formatEuro } from '../utils/audit';
 
@@ -144,6 +144,7 @@ export function IntroSection() {
 
       <Reveal className="mx-auto mt-20 max-w-6xl">
         <BeforeAfter />
+        <p className="mt-6 text-center font-mono text-[11px] text-ink/55">{SAMPLE_DATA_LABEL}</p>
       </Reveal>
     </section>
   );
@@ -187,31 +188,6 @@ export function HowItWorksSection() {
         </Reveal>
 
         <p className="mx-auto mt-10 max-w-2xl text-center font-sans text-sm text-ink/60">{HOW_IT_WORKS.audience}</p>
-      </div>
-    </section>
-  );
-}
-
-/** Bottom-line numbers from the sample audit. */
-export function ImpactSection() {
-  return (
-    <section id="impact" className="scroll-mt-12 px-4 py-32 text-ink sm:py-44 md:px-6">
-      <div className="mx-auto max-w-6xl">
-        <Reveal>
-          <h2 className="text-center font-serif text-4xl tracking-tight sm:text-5xl md:text-6xl">
-            {IMPACT_COPY.heading}
-          </h2>
-        </Reveal>
-        <div className="mt-20 grid gap-16 sm:grid-cols-3 sm:gap-8">
-          {IMPACT_COPY.stats.map((s) => (
-            <Reveal key={s.label} className="text-center">
-              <p className="font-serif text-5xl tracking-tight text-ink md:text-6xl">{s.value}</p>
-              <p className="mt-3 font-sans text-sm text-ink/60">{s.label}</p>
-            </Reveal>
-          ))}
-        </div>
-        <p className="mt-20 text-center font-mono text-[11px] text-ink/55">{IMPACT_COPY.footnote}</p>
-        <p className="mt-2 text-center font-mono text-[11px] text-ink/55">{SAMPLE_DATA_LABEL}</p>
       </div>
     </section>
   );

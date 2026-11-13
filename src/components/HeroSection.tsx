@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
-import { HERO_COPY } from '../constants';
+import { HERO_COPY, SAMPLE_DATA_LABEL } from '../constants';
 import { CELLS, VENDORS, vendorAdders, vendorPrice } from '../data/tender402';
 import { formatEuro } from '../utils/audit';
 import { pillButtonClass } from './ui/hero-dithering-card';
@@ -109,6 +109,7 @@ function BidPreview() {
           );
         })}
       </ul>
+      <p className="mt-6 font-mono text-[11px] text-ink/55">{SAMPLE_DATA_LABEL}</p>
     </div>
   );
 }
