@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { HOW_IT_WORKS, INTRO_COPY, MANIFESTO_COPY, SAMPLE_DATA_LABEL, STATUS_PLAIN } from '../constants';
-import { CELLS, COMPARE_KEYS, VENDORS, cellAdder, vendorPrice } from '../data/tender402';
+import { CELLS, COMPARE_KEYS, VENDORS, cellAdder, isLowerBound, vendorPrice } from '../data/tender402';
 import { formatEuro } from '../utils/audit';
 
 /** Scroll reveal shared by the narrative beats. */
@@ -121,7 +121,7 @@ function BeforeAfter() {
               <span>True cost</span>
               {order.map((v, j) => (
                 <span key={v.id} className={evaluated[j] === lowestEval ? 'text-ink' : 'text-ink/60'}>
-                  {formatEuro(evaluated[j])}
+                  {isLowerBound(v.id) ? 'from ' : ''}{formatEuro(evaluated[j])}
                   {evaluated[j] === lowestEval && <span className="ml-1 text-brand-text">✓</span>}
                 </span>
               ))}

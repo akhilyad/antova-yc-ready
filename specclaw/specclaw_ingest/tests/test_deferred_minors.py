@@ -143,7 +143,9 @@ def test_m4_breakdown_items_carry_pricing_status():
     statuses = {item["param_id"]: item["pricing_status"] for item in results["vendor-b"]["itemized_breakdown"]}
     assert statuses["PARAM-01"] == "PRICED"
     assert statuses["PARAM-07"] == "NONE"
-    assert results["vendor-b"]["price_status"] == "PRICED"
+    # Rate table v2 leaves the dispatch-basis warranty of PARAM-06 unpriced, so the total is a lower bound.
+    assert statuses["PARAM-06"] == "UNPRICED"
+    assert results["vendor-b"]["price_status"] == "UNPRICED_ITEMS"
 
 
 def test_m4_vendor_without_headline_is_flagged():
@@ -192,7 +194,7 @@ def test_m4_evaluate_api_never_shows_a_true_price_without_a_headline(client, oth
     financials = _by_vendor(response.json()["financials"])
     assert financials["vendor-b"]["price_status"] == "NO_HEADLINE"
     assert financials["vendor-b"]["true_evaluated_price"] is None
-    assert financials["vendor-b"]["total_adders"] == 64800.0
+    assert financials["vendor-b"]["total_adders"] == 61650.0
     assert financials["vendor-c"]["true_evaluated_price"] == 454000.0
     assert all("pricing_status" in item for item in financials["vendor-b"]["itemized_breakdown"])
 

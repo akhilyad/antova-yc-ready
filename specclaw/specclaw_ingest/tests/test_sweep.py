@@ -78,10 +78,14 @@ def test_sweep_refinds_every_answer_key_passage(result, expected):
 
 
 def test_sweep_changes_nothing_on_the_sample(result, expected):
-    """No new candidate, no flag, no status change on TENDER-2026-402."""
+    """No new candidate, no sweep flag, no status change on TENDER-2026-402.
+
+    The one flag on the sample is not the sweep's: rate table v2 flags VoltSwitch's warranty measured from dispatch.
+    """
     assert result.stats["sweep_new_candidates"] == 0
     for (vendor_id, param_id), cell in _cells(result.tender).items():
-        assert cell.flags == [], (vendor_id, param_id)
+        codes = [f["code"] for f in cell.flags]
+        assert codes == (["WARRANTY_BASIS"] if (vendor_id, param_id) == ("vendor-b", "PARAM-06") else []), (vendor_id, param_id)
         assert cell.status.value == expected["cells"][vendor_id][param_id]["status"]
 
 
@@ -183,7 +187,7 @@ def test_locator_missing_the_failing_passage_still_ends_in_conflict(expected):
     assert [f["code"] for f in cell.flags] == ["SWEEP_GOVERNS"]
     assert cell.cost_adder == 18500.0
     assert result.stats["sweep_new_candidates"] == 1
-    assert result.stats["flags_raised"] == 1
+    assert result.stats["flags_raised"] == 2  # SWEEP_GOVERNS here, and WARRANTY_BASIS on PARAM-06 (rate table v2)
 
 
 def test_unparsed_sweep_hit_becomes_a_review_flag(expected, tmp_path):

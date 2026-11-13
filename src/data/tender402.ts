@@ -47,6 +47,8 @@ export interface MatrixCell {
   /** Overridden lower-tier claim, kept for conflicts. */
   secondary?: Citation;
   costLines: CostLine[];
+  /** Set when part of the gap cannot be priced; the vendor's evaluated price is then a lower bound. */
+  unpriced?: string;
 }
 
 export interface Parameter {
@@ -82,7 +84,7 @@ export const TENDER = {
     { file: 'Bid_vendor-c.pdf', role: 'vendor_bid', pages: 30 },
   ],
   /** What Vendor B recovers if it closes every gap except PARAM-04 (round 3 of the sample). */
-  clawbackRound3: 57400,
+  clawbackRound3: 54250,
 } as const;
 
 export const TOTAL_PAGES = TENDER.documents.reduce((s, d) => s + d.pages, 0);
@@ -335,8 +337,9 @@ export const CELLS: Record<VendorId, Record<string, MatrixCell>> = {
       costLines: [
         { label: 'Heavy haul EXW → DDP', qty: 2, unit: 'loads', rate: 2600 },
         { label: 'Transit insurance', qty: 1, unit: 'lot', rate: 950 },
-        { label: 'Warranty shortfall', qty: 18, unit: 'months', rate: 175 },
       ],
+      unpriced:
+        'Warranty runs from dispatch; the spec counts from commissioning and states no gap, so the shortfall is flagged and left unpriced.',
     },
     'PARAM-07': ok('36,000 V', 6, 'datasheet', 'Rated voltage Ur: 36,000 V.'),
     'PARAM-08': ok('40 °C', 7, 'datasheet', 'Maximum ambient temperature 40 °C without derating.'),
@@ -438,6 +441,10 @@ export function vendorAdders(vendorId: VendorId): number {
   return Object.values(CELLS[vendorId]).reduce((s, c) => s + cellAdder(c), 0);
 }
 
+/** A vendor with an unpriced gap: its evaluated price is a lower bound, not a final figure. */
+export const isLowerBound = (vendorId: VendorId): boolean =>
+  Object.values(CELLS[vendorId]).some((cell) => Boolean(cell.unpriced));
+
 export type PriceView = 'headline' | 'evaluated' | 'round3';
 
 /**
@@ -457,7 +464,7 @@ export function vendorPrice(vendor: Vendor, view: PriceView): number {
 /**
  * The vendor the pipeline names to negotiate with: the lowest true evaluated
  * price among fully priced bids (Vendor A, 452,000), not the lowest headline
- * (Vendor B, 418,000 quoted, 482,800 evaluated). Pipeline amendment A2.
+ * (Vendor B, 418,000 quoted, at least 479,650 evaluated). Pipeline amendment A2.
  */
 export const NEGOTIATING_VENDOR: VendorId = 'vendor-a';
 

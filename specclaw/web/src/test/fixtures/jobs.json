@@ -13,8 +13,8 @@
       "deviations_found": 10,
       "documents": 4,
       "duration_s": 41.7,
-      "exposed_risk_eur": 64800.0,
-      "flags_raised": 0,
+      "exposed_risk_eur": 61650.0,
+      "flags_raised": 1,
       "ingest_mode": "answer_key",
       "locales": {
         "Bid_vendor-a_Nordwerk.pdf": "en",
@@ -24,7 +24,13 @@
       },
       "negotiating_vendor": {
         "basis": "lowest true evaluated price",
-        "excluded": [],
+        "excluded": [
+          {
+            "detail": "has deviations with no rate (PARAM-06), so its price is only a lower bound",
+            "reason": "UNPRICED_ITEMS",
+            "vendor_id": "vendor-b"
+          }
+        ],
         "lowest_headline": "vendor-b",
         "true_evaluated_price": 452000.0,
         "vendor_id": "vendor-a"
@@ -39,7 +45,7 @@
         }
       ],
       "pages_parsed": 116,
-      "rate_table_effective_date": "2026-11-03",
+      "rate_table_effective_date": "2026-11-13",
       "rules_evaluated": 39,
       "run_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
       "run_id": "e2e0e2e0e2e0e2e0e2e0e2e0e2e0e2e0",
@@ -86,7 +92,15 @@
       "sweep_recall": 1.0,
       "synthetic": true,
       "tender_id": "TENDER-2026-402",
-      "unpriced_items": [],
+      "unpriced_items": [
+        {
+          "classes": [
+            "PARAM-06.warranty_basis_unresolved"
+          ],
+          "param_id": "PARAM-06",
+          "vendor_id": "vendor-b"
+        }
+      ],
       "warnings": []
     },
     "stage": "Persist",

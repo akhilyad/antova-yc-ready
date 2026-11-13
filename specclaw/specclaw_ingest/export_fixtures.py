@@ -22,6 +22,7 @@ from typing import Any
 
 from specclaw_db import TenderMeta
 from specclaw_engine import Override, SensitivitySettings, TenderPackage, evaluate_vendor_financials
+from specclaw_ingest.dev_seed import founder_resolution
 from specclaw_ingest.pipeline import STAGES, run_ingest
 from specclaw_ingest.tests.fakes import PACK, AnswerKeyLocator, load_expected
 from specclaw_models import JobStatus, JobStatusResponse
@@ -84,7 +85,7 @@ def _draft_tender(tender: TenderPackage) -> TenderPackage:
     return draft
 
 
-def _review_row(meta: TenderMeta, tender: TenderPackage) -> dict:
+def _review_row(meta: TenderMeta, tender: TenderPackage, overrides: dict, reviews: dict) -> dict:
     """One row of GET /api/review/tenders."""
     return {
         "tender_id": meta.tender_id,
@@ -93,14 +94,15 @@ def _review_row(meta: TenderMeta, tender: TenderPackage) -> dict:
         "share_id": meta.share_id,
         "ingested_at": meta.ingested_at.isoformat(),
         "verified_at": meta.verified_at.isoformat() if meta.verified_at is not None else None,
-        "open_items": len(open_items(tender, {})),
+        "open_items": len(open_items(tender, overrides, reviews)),
     }
 
 
-def _parity_cases(tender: TenderPackage) -> list[dict]:
+def _parity_cases(tender: TenderPackage, base: dict) -> list[dict]:
+    """Every grid case carries the founder's overrides on the sample (`base`), plus the parity override in half."""
     cases = []
     for copper, labour, freight, overrides in itertools.product(
-            PARITY_COPPER, PARITY_LABOUR, PARITY_FREIGHT, [{}, PARITY_OVERRIDE]):
+            PARITY_COPPER, PARITY_LABOUR, PARITY_FREIGHT, [base, {**base, **PARITY_OVERRIDE}]):
         sensitivity = SensitivitySettings(copper_multiplier=copper, site_labor_rate=labour,
                                           freight_multiplier=freight)
         financials = evaluate_vendor_financials(tender, sensitivity, [], overrides=overrides)
@@ -142,12 +144,16 @@ def build() -> dict[str, Any]:
     draft = _draft_tender(tender)
     draft_meta = _meta(draft, stats, "DRAFT")
     defaults = SensitivitySettings()
+    # Rate table v2 leaves one sample cell flagged and unpriced; a verified brief carries the founder's
+    # approval of the flag and price for the gap (the draft keeps them too, so its one open item is its own).
+    overrides, reviews = founder_resolution(tender)
     return {
         # GET /api/briefs/{share_id} (public, no run cost) and GET /api/review/tenders/{id} (the founder's).
-        "verified-brief.json": public_brief_payload(brief_payload(tender, verified_meta, documents, {}, defaults)),
-        "draft-brief.json": brief_payload(draft, draft_meta, documents, {}, defaults),
-        "review-list.json": [_review_row(draft_meta, draft)],
-        "parity-cases.json": _parity_cases(tender),
+        "verified-brief.json": public_brief_payload(
+            brief_payload(tender, verified_meta, documents, overrides, defaults, reviews)),
+        "draft-brief.json": brief_payload(draft, draft_meta, documents, overrides, defaults, reviews),
+        "review-list.json": [_review_row(draft_meta, draft, overrides, reviews)],
+        "parity-cases.json": _parity_cases(tender, overrides),
         "jobs.json": _jobs(stats),
     }
 

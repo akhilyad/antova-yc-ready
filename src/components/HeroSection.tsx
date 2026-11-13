@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { HERO_COPY, SAMPLE_DATA_LABEL } from '../constants';
-import { CELLS, VENDORS, vendorAdders, vendorPrice } from '../data/tender402';
+import { CELLS, VENDORS, isLowerBound, vendorAdders, vendorPrice } from '../data/tender402';
 import { formatEuro } from '../utils/audit';
 import { pillButtonClass } from './ui/hero-dithering-card';
 
@@ -103,7 +103,7 @@ function BidPreview() {
                     : ' '
                   : gaps === 0
                     ? 'meets spec'
-                    : `${gaps} gaps · +${formatEuro(adders)}`}
+                    : `${gaps} gaps · +${formatEuro(adders)}${isLowerBound(v.id) ? ' · 1 unpriced' : ''}`}
               </span>
             </motion.li>
           );

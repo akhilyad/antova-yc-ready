@@ -14,13 +14,23 @@ from specclaw_ingest.tests.helpers import sample_tender
 from specclaw_review import OpenItem, brief_payload, open_items
 
 
+def _clean_sample(headlines=None):
+    """The sample priced with the months-only table v1, which prices every cell, so it has no open items.
+
+    Under the sample's own table (v2) the dispatch-basis warranty is unpriced and open; see
+    test_the_sample_under_the_strict_table_has_one_open_item. These tests are about open items in general,
+    so they start from a tender with none.
+    """
+    return sample_tender(headlines, rate_table="mv_gis_switchgear_v1")
+
+
 def _cell(tender, param_id, vendor_id):
     return next(p for p in tender.parameters if p.id == param_id).vendors[vendor_id]
 
 
 def _tender_with_open_cells():
     """vendor-c PARAM-03 unpriced, vendor-a PARAM-05 needs inspection; the sample has no other open items."""
-    tender = sample_tender()
+    tender = _clean_sample()
     _cell(tender, "PARAM-03", "vendor-c").pricing_status = "UNPRICED"
     _cell(tender, "PARAM-05", "vendor-a").status = ComplianceStatus.MANUAL_INSPECTION_REQUIRED
     return tender
@@ -37,7 +47,16 @@ def _meta(**changes):
 
 
 def test_sample_tender_has_no_open_items():
-    assert open_items(sample_tender(), {}) == []
+    assert open_items(_clean_sample(), {}) == []
+
+
+def test_the_sample_under_the_strict_table_has_one_open_item():
+    """Rate table v2 leaves VoltSwitch's dispatch-basis warranty unpriced, and an override resolves it."""
+    tender = sample_tender()
+    assert open_items(tender, {}) == [
+        OpenItem(kind="unpriced", vendor_id="vendor-b", param_id="PARAM-06", message="Gap found but not priced")]
+    priced = {("PARAM-06", "vendor-b"): Override(adder_eur=Decimal("9300.00"), note="founder's price")}
+    assert open_items(tender, priced) == []
 
 
 def test_open_items_unpriced_and_inspection():
@@ -51,7 +70,7 @@ def test_open_items_unpriced_and_inspection():
 
 
 def test_cell_both_unpriced_and_needing_inspection_lists_both():
-    tender = sample_tender()
+    tender = _clean_sample()
     cell = _cell(tender, "PARAM-02", "vendor-b")
     cell.pricing_status = "UNPRICED"
     cell.status = ComplianceStatus.MANUAL_INSPECTION_REQUIRED
@@ -72,7 +91,7 @@ def test_override_resolves_open_item():
 
 
 def test_missing_headline_is_open_item():
-    tender = sample_tender(headlines={"vendor-a": 452000.0, "vendor-b": 0.0, "vendor-c": 439000.0})
+    tender = _clean_sample(headlines={"vendor-a": 452000.0, "vendor-b": 0.0, "vendor-c": 439000.0})
     assert open_items(tender, {}) == [
         OpenItem(kind="missing_price", vendor_id="vendor-b", param_id=None,
                  message="Bid price not found; fix the source and re-ingest"),
@@ -80,7 +99,7 @@ def test_missing_headline_is_open_item():
 
 
 def test_missing_headline_comes_before_the_vendors_cell_items():
-    tender = sample_tender(headlines={"vendor-a": 0.0, "vendor-b": 418000.0, "vendor-c": 439000.0})
+    tender = _clean_sample(headlines={"vendor-a": 0.0, "vendor-b": 418000.0, "vendor-c": 439000.0})
     _cell(tender, "PARAM-05", "vendor-a").status = ComplianceStatus.MANUAL_INSPECTION_REQUIRED
     assert [(i.kind, i.vendor_id, i.param_id) for i in open_items(tender, {})] == [
         ("missing_price", "vendor-a", None), ("needs_inspection", "vendor-a", "PARAM-05"),
@@ -141,7 +160,7 @@ def test_brief_payload_keys_and_override_shape():
 def test_brief_payload_verified_at_from_the_database_keeps_utc_offset(tmp_path):
     db_engine = create_engine(f"sqlite:///{(tmp_path / 'review.db').as_posix()}")
     init_db(db_engine)
-    tender = sample_tender()
+    tender = _clean_sample()
     with Session(db_engine) as session:
         repo = TenderRepository(session)
         repo.save_tender(tender, [], datetime(2026, 11, 5, 9, 0, tzinfo=timezone.utc))
@@ -152,7 +171,7 @@ def test_brief_payload_verified_at_from_the_database_keeps_utc_offset(tmp_path):
 
 
 def test_brief_payload_draft_has_no_verified_at():
-    payload = brief_payload(sample_tender(), _meta(status="DRAFT", verified_at=None), [], {}, SensitivitySettings())
+    payload = brief_payload(_clean_sample(), _meta(status="DRAFT", verified_at=None), [], {}, SensitivitySettings())
     assert payload["status"] == "DRAFT"
     assert payload["verified_at"] is None
     assert payload["overrides"] == []

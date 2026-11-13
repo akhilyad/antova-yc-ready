@@ -105,16 +105,16 @@ def test_answer_key_quotes_are_on_their_pages():
 def test_answer_key_money():
     vendors = _expected()["vendors"]
     assert vendors["vendor-a"]["total_adders"] == "0.00"
-    assert vendors["vendor-b"]["total_adders"] == "64800.00"
+    assert vendors["vendor-b"]["total_adders"] == "61650.00"
     assert vendors["vendor-c"]["total_adders"] == "15000.00"
     assert vendors["vendor-a"]["true_evaluated_price"] == "452000.00"
-    assert vendors["vendor-b"]["true_evaluated_price"] == "482800.00"
+    assert vendors["vendor-b"]["true_evaluated_price"] == "479650.00"
     assert vendors["vendor-c"]["true_evaluated_price"] == "454000.00"
     for vendor_id, cells in _expected()["cells"].items():
         total = sum(Decimal(cell["adder"]) for cell in cells.values())
         assert f"{total:.2f}" == vendors[vendor_id]["total_adders"], vendor_id
     # Amendment A2: the figures are what closing VoltSwitch's deviations recovers; Nordwerk negotiates.
-    assert _expected()["clawback"] == {"vendor_id": "vendor-b", "round_2": "33900.00", "round_3": "57400.00"}
+    assert _expected()["clawback"] == {"vendor_id": "vendor-b", "round_2": "33900.00", "round_3": "54250.00"}
     assert _expected()["negotiating_vendor"] == "vendor-a"
 
 

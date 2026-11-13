@@ -76,9 +76,11 @@ def test_financial_leveling_initial_baseline(tender):
     voltswitch, nordwerk = results["vendor-b"], results["vendor-a"]
     assert voltswitch["headline_price"] == 418000.0
     assert nordwerk["headline_price"] == 452000.0
-    # 64,800 of hidden adders: 50 kA, Cu busbar, IP54, SCADA, FAT, EXW
-    assert voltswitch["total_adders"] == 64800.0
-    assert voltswitch["true_evaluated_price"] == 482800.0
+    # 61,650 of priced hidden adders: 50 kA, Cu busbar, IP54, SCADA, FAT, EXW. Rate table v2 flags the
+    # warranty measured from dispatch and leaves it unpriced, so this is a lower bound, not a final price.
+    assert voltswitch["total_adders"] == 61650.0
+    assert voltswitch["true_evaluated_price"] == 479650.0
+    assert voltswitch["price_status"] == "UNPRICED_ITEMS"
     assert nordwerk["total_adders"] == 0.0
     assert nordwerk["true_evaluated_price"] == 452000.0
     assert voltswitch["true_evaluated_price"] > nordwerk["true_evaluated_price"]
@@ -92,14 +94,15 @@ def test_multi_round_clawback_concessions(tender):
     r2 = engine.evaluate_vendor_financials(tender, sensitivity, ["PARAM-01", "PARAM-03", "PARAM-05"], "vendor-b")
     vb_r2 = next(r for r in r2 if r["vendor_id"] == "vendor-b")
     assert vb_r2["clawed_back_amount"] == 33900.0
-    assert vb_r2["total_adders"] == 30900.0
+    assert vb_r2["total_adders"] == 27750.0
     r3 = engine.evaluate_vendor_financials(
         tender, sensitivity, ["PARAM-01", "PARAM-02", "PARAM-03", "PARAM-05", "PARAM-06"], "vendor-b")
     vb_r3 = next(r for r in r3 if r["vendor_id"] == "vendor-b")
-    assert vb_r3["clawed_back_amount"] == 57400.0
+    # PARAM-06 recovers its priced EXW-to-DDP class (6,150); the unpriced warranty shortfall adds nothing.
+    assert vb_r3["clawed_back_amount"] == 54250.0
     fee = round(vb_r3["clawed_back_amount"] * 0.15, 2)
-    assert fee == 8610.0
-    assert round(vb_r3["clawed_back_amount"] - fee, 2) == 48790.0
+    assert fee == 8137.5
+    assert round(vb_r3["clawed_back_amount"] - fee, 2) == 46112.5
 
 
 def test_fastapi_evaluate_api(client):
@@ -179,7 +182,7 @@ def test_background_queue_workers(ingested, monkeypatch):
     assert status["status"] == "COMPLETED", status
     assert status["progress_pct"] == 100
     assert status["result"]["deviations_found"] == 10
-    assert status["result"]["exposed_risk_eur"] == 64800.0
+    assert status["result"]["exposed_risk_eur"] == 61650.0  # a lower bound: the dispatch warranty is unpriced
     assert status["result"]["pages_parsed"] == 116
     assert status["result"]["overrides_cleared"] == []
 
