@@ -4,13 +4,12 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { AuditMatrixSection } from './components/AuditMatrixSection';
 import { HeroSection } from './components/HeroSection';
 import { Navbar, PageView } from './components/Navbar';
 import { OfferFormAndFaqSection } from './components/OfferFormAndFaqSection';
 import { ProblemStackSection } from './components/ProblemStackSection';
 import { SiteFooter } from './components/SiteFooter';
-import { HowItWorksSection, ImpactSection, IntroSection, ManifestoSection } from './components/NarrativeSections';
+import { HowItWorksSection, IntroSection, ManifestoSection } from './components/NarrativeSections';
 import { TeamPage } from './components/TeamPage';
 
 function getInitialView(): PageView {
@@ -97,12 +96,6 @@ export default function App() {
 
             {/* 2c. How it is built, what comes back, who it is for */}
             <HowItWorksSection />
-
-            {/* 3. Interactive proof: click through the sample audit */}
-            <AuditMatrixSection />
-
-            {/* 4. Bottom line */}
-            <ImpactSection />
 
             {/* Pricing, FAQ, final CTA with intake form */}
             <OfferFormAndFaqSection />
