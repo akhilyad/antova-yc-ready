@@ -1,0 +1,23 @@
+/* A band: the one interactive section of the brief, set apart from the document around it. */
+.rates {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  padding: var(--space-24);
+  background: var(--band);
+  border-radius: var(--radius-paper);
+}
+
+.heading {
+  font-size: var(--text-20);
+}
+
+.intro {
+  font-size: var(--text-14);
+  color: var(--ink-2);
+}
+
+.failed {
+  font-size: var(--text-14);
+  color: var(--ox);
+}

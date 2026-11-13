@@ -1,0 +1,119 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stage {
+  display: grid;
+  grid-template-columns: var(--space-32) 1fr;
+  gap: var(--space-12);
+  padding: var(--space-12) 0;
+  border-top: 1px solid var(--rule);
+}
+
+.stage:first-child {
+  border-top: 0;
+}
+
+.marker {
+  display: inline-grid;
+  place-items: center;
+  width: var(--space-24);
+  height: var(--space-24);
+  margin-top: 1px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-tag);
+  font-family: var(--font-display);
+  font-size: var(--text-14);
+  font-variant-numeric: var(--figures);
+  line-height: 1;
+  color: var(--ink-3);
+}
+
+.stage[data-state='active'] .marker {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.stage[data-state='done'] .marker {
+  border-color: transparent;
+  color: var(--ink);
+}
+
+.stage[data-state='failed'] .marker {
+  border-color: var(--ox);
+  color: var(--ox);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.label {
+  font-size: var(--text-16);
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--ink-3);
+  transition: color var(--duration-swap) var(--ease);
+}
+
+.stage[data-state='active'] .label {
+  color: var(--ink);
+}
+
+.stage[data-state='done'] .label {
+  color: var(--ink-2);
+}
+
+.stage[data-state='failed'] .label {
+  color: var(--ox);
+}
+
+.finding {
+  font-family: var(--font-display);
+  font-size: var(--text-18);
+  font-variant-numeric: var(--figures);
+  line-height: 1.4;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+/* The active stage's time on screen, filling left to right; it stops while paused. */
+.progress {
+  display: block;
+  height: 2px;
+  margin-top: var(--space-8);
+  background: var(--ink);
+  transform-origin: left center;
+  animation: fill var(--stage-ms) linear forwards;
+}
+
+.progress[data-paused] {
+  animation-play-state: paused;
+}
+
+@keyframes fill {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress {
+    display: none;
+  }
+
+  .label {
+    transition: none;
+  }
+}

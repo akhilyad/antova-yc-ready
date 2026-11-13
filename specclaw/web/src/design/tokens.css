@@ -1,0 +1,92 @@
+/*
+ * Design tokens: the Footnote palette (spec §8.1) on the design-skill visual system
+ * (elayadesign/ai-design-skills, landing-page-design Part B): Geist, Tailwind type and spacing
+ * steps, one easing curve.
+ * Rule: colour appears only when something is wrong. Passing items are ink.
+ */
+:root {
+  /* Colour (contrast on --paper in comments) */
+  --paper: #FAF8F5; /* soft warm paper white */
+  --surface: #FFFFFF; /* crisp solid white */
+  --band: #F3EFE6; /* section bands, slider track fill */
+  --border-stone: #E7E5E4; /* border-stone-200 */
+  --border-stone-light: rgba(231, 229, 228, 0.6); /* border-stone-200/60 */
+  --border-card: rgba(231, 229, 228, 0.8); /* border-stone-200/80 */
+  --ink: #16130F; /* 17.7:1 text, ✓ marks, focus ring */
+  --ink-2: #4A443C; /* 9.2:1 secondary text */
+  --ink-3: #675F55; /* 6.0:1 labels, captions (5.3:1 on wash) */
+  --rule: #E7E5E4; /* decorative dividers only */
+  --edge: #8F877A; /* 3.4:1 control boundaries: inputs, slider track, checkbox */
+  --ox: #9E2B1F; /* 7.1:1 gaps, hidden cost, footnote markers, ✗ */
+  --ox-wash: #F7EAE6; /* background of gap cells */
+
+  /*
+   * Type: one family, Geist (design-skill B1). --font-display is the role for headings,
+   * figures and quotes, --font-sans for UI; both are Geist, so they can diverge later.
+   */
+  --font-display: 'Geist Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-sans: 'Geist Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  --figures: tabular-nums lining-nums;
+
+  /* Type scale (px), Tailwind's steps only (design-skill B1). Body is 16. */
+  --text-12: 12px; /* text-xs, 16 line */
+  --text-14: 14px; /* text-sm, 20 line */
+  --text-16: 16px; /* text-base, 24 line */
+  --text-18: 18px; /* text-lg, 28 line */
+  --text-20: 20px; /* text-xl, 28 line */
+  --text-24: 24px; /* text-2xl, 32 line */
+  --text-30: 30px; /* text-3xl, 36 line */
+  --text-36: 36px; /* text-4xl, 40 line */
+  --text-48: 48px; /* text-5xl, line 1 */
+  --text-60: 60px; /* text-6xl, line 1 */
+  --text-body: var(--text-16);
+
+  /* Spacing: the design-skill B2 table only */
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --space-80: 80px;
+  --space-96: 96px;
+
+  /* Radius (clean rounded-lg 8px) */
+  --radius-paper: 4px; /* paper objects */
+  --radius-control: 8px; /* buttons and inputs: rounded-lg */
+  --radius-card: 8px; /* cards: rounded-lg */
+  --radius-tag: 999px; /* tags */
+  --radius-bar: 8px; /* header bar */
+
+  /* Shadow: one soft elevation, for the sidenote and dialog only */
+  --shadow-raised: 0 1px 2px rgb(22 19 15 / 6%), 0 8px 24px rgb(22 19 15 / 8%);
+
+  /* Motion (design-skill B7): one decelerating curve; nothing under 200 ms */
+  --duration-hover: 300ms; /* hover colour and opacity */
+  --duration-swap: 300ms; /* sidenote swap, focus */
+  --duration-settle: 500ms; /* layout and position, number settle, sheet */
+  --duration-stamp: 500ms; /* verified stamp, once */
+  --duration-reveal: 700ms; /* sections rising into view, once */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Layout */
+  --nav-height: 48px; /* the floating bar's own height */
+  --nav-gap: 12px; /* between the bar and the top edge */
+  /* Everything sticky or anchored clears the bar: its gap, its height and the gap again. */
+  --nav-height-total: calc(var(--nav-gap) * 2 + var(--nav-height));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-hover: 0ms;
+    --duration-swap: 0ms;
+    --duration-settle: 0ms;
+    --duration-stamp: 0ms;
+    --duration-reveal: 0ms;
+  }
+}

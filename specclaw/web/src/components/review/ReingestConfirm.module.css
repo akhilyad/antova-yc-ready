@@ -1,0 +1,17 @@
+/* The re-ingest confirmation, laid out as VerifyBar's dialogs. */
+.title {
+  font-size: var(--text-24);
+}
+
+.body {
+  margin-top: var(--space-12);
+  color: var(--ink-2);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-8);
+  margin-top: var(--space-24);
+}

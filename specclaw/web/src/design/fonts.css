@@ -1,0 +1,5 @@
+/*
+ * Self-hosted variable font (bundled by Vite from node_modules; no runtime third-party
+ * requests). Geist is the one typeface (design-skill B1); there is no italic.
+ */
+@import '@fontsource-variable/geist/index.css';

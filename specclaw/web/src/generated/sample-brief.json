@@ -1,0 +1,1952 @@
+{
+  "documents": [
+    {
+      "filename": "MR-33kV-GIS-Rev4.pdf",
+      "page_count": 26,
+      "role": "mr_spec",
+      "vendor_id": null
+    },
+    {
+      "filename": "Bid_vendor-a_Bidder-B.pdf",
+      "page_count": 30,
+      "role": "vendor_bid",
+      "vendor_id": "vendor-a"
+    },
+    {
+      "filename": "Bid_vendor-b_Bidder-A.pdf",
+      "page_count": 30,
+      "role": "vendor_bid",
+      "vendor_id": "vendor-b"
+    },
+    {
+      "filename": "Bid_vendor-c_Bidder-C.pdf",
+      "page_count": 30,
+      "role": "vendor_bid",
+      "vendor_id": "vendor-c"
+    }
+  ],
+  "financials": [
+    {
+      "badge": "Compliant Baseline",
+      "clawed_back_amount": 0.0,
+      "country": "Germany",
+      "headline_price": 452000.0,
+      "itemized_breakdown": [
+        {
+          "adder_eur": 0.0,
+          "criticality": "MANDATORY",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-01",
+          "param_name": "Rated Short-Time Withstand Current (Ik)",
+          "status": "COMPLIANT"
+        },
+        {
+          "adder_eur": 0.0,
+          "criticality": "MANDATORY",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-02",
+          "param_name": "Main Busbar Material & Continuous Current",
+          "status": "COMPLIANT"
+        },
+        {
+          "adder_eur": 0.0,
+          "criticality": "HIGH",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-03",
+          "param_name": "Enclosure Ingress & Internal Arc Rating",
+          "status": "COMPLIANT"
+        },
+        {
+          "adder_eur": 0.0,
+          "criticality": "HIGH",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-04",
+          "param_name": "IED Protection & Redundant IEC 61850 PRP",
+          "status": "COMPLIANT"
+        },
+        {
+          "adder_eur": 0.0,
+          "criticality": "COMMERCIAL",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-05",
+          "param_name": "Witnessed Factory Acceptance Test (I-FAT)",
+          "status": "COMPLIANT"
+        },
+        {
+          "adder_eur": 0.0,
+          "criticality": "COMMERCIAL",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-06",
+          "param_name": "Incoterms 2020 & Site Unloading",
+          "status": "COMPLIANT"
+        },
+        {
+          "adder_eur": 0.0,
+          "criticality": "MANDATORY",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-07",
+          "param_name": "Rated Voltage (Ur)",
+          "status": "COMPLIANT"
+        },
+        {
+          "adder_eur": 0.0,
+          "criticality": "MANDATORY",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-08",
+          "param_name": "Max Ambient Temperature (No Derating)",
+          "status": "COMPLIANT"
+        }
+      ],
+      "name": "Bidder B (Evaluated Low)",
+      "total_adders": 0.0,
+      "total_commercial_adder": 0.0,
+      "total_tech_penalty": 0.0,
+      "true_evaluated_price": 452000.0,
+      "vendor_id": "vendor-a"
+    },
+    {
+      "badge": "Apparent Low Bidder",
+      "clawed_back_amount": 0.0,
+      "country": "Turkey / EU",
+      "headline_price": 418000.0,
+      "itemized_breakdown": [
+        {
+          "adder_eur": 18500.0,
+          "criticality": "MANDATORY",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-01",
+          "param_name": "Rated Short-Time Withstand Current (Ik)",
+          "status": "CONFLICT_DOWNGRADE"
+        },
+        {
+          "adder_eur": 14200.0,
+          "criticality": "MANDATORY",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-02",
+          "param_name": "Main Busbar Material & Continuous Current",
+          "status": "DEVIATION_DOWNGRADE"
+        },
+        {
+          "adder_eur": 8900.0,
+          "criticality": "HIGH",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-03",
+          "param_name": "Enclosure Ingress & Internal Arc Rating",
+          "status": "DEVIATION_DOWNGRADE"
+        },
+        {
+          "adder_eur": 7400.0,
+          "criticality": "HIGH",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-04",
+          "param_name": "IED Protection & Redundant IEC 61850 PRP",
+          "status": "CONFLICT_DOWNGRADE"
+        },
+        {
+          "adder_eur": 6500.0,
+          "criticality": "COMMERCIAL",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-05",
+          "param_name": "Witnessed Factory Acceptance Test (I-FAT)",
+          "status": "OMITTED"
+        },
+        {
+          "adder_eur": 9300.0,
+          "criticality": "COMMERCIAL",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-06",
+          "param_name": "Incoterms 2020 & Site Unloading",
+          "status": "DEVIATION_DOWNGRADE"
+        },
+        {
+          "adder_eur": 0.0,
+          "criticality": "MANDATORY",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-07",
+          "param_name": "Rated Voltage (Ur)",
+          "status": "COMPLIANT"
+        },
+        {
+          "adder_eur": 0.0,
+          "criticality": "MANDATORY",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-08",
+          "param_name": "Max Ambient Temperature (No Derating)",
+          "status": "COMPLIANT"
+        }
+      ],
+      "name": "Bidder A (Apparent Low)",
+      "total_adders": 64800.0,
+      "total_commercial_adder": 15800.0,
+      "total_tech_penalty": 49000.0,
+      "true_evaluated_price": 482800.0,
+      "vendor_id": "vendor-b"
+    },
+    {
+      "badge": "Bidder",
+      "clawed_back_amount": 0.0,
+      "country": "Netherlands",
+      "headline_price": 439000.0,
+      "itemized_breakdown": [
+        {
+          "adder_eur": 6200.0,
+          "criticality": "MANDATORY",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-01",
+          "param_name": "Rated Short-Time Withstand Current (Ik)",
+          "status": "DEVIATION_DOWNGRADE"
+        },
+        {
+          "adder_eur": 0.0,
+          "criticality": "MANDATORY",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-02",
+          "param_name": "Main Busbar Material & Continuous Current",
+          "status": "COMPLIANT"
+        },
+        {
+          "adder_eur": 0.0,
+          "criticality": "HIGH",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-03",
+          "param_name": "Enclosure Ingress & Internal Arc Rating",
+          "status": "COMPLIANT"
+        },
+        {
+          "adder_eur": 4100.0,
+          "criticality": "HIGH",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-04",
+          "param_name": "IED Protection & Redundant IEC 61850 PRP",
+          "status": "DEVIATION_DOWNGRADE"
+        },
+        {
+          "adder_eur": 2600.0,
+          "criticality": "COMMERCIAL",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-05",
+          "param_name": "Witnessed Factory Acceptance Test (I-FAT)",
+          "status": "DEVIATION_DOWNGRADE"
+        },
+        {
+          "adder_eur": 2100.0,
+          "criticality": "COMMERCIAL",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-06",
+          "param_name": "Incoterms 2020 & Site Unloading",
+          "status": "DEVIATION_DOWNGRADE"
+        },
+        {
+          "adder_eur": 0.0,
+          "criticality": "MANDATORY",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-07",
+          "param_name": "Rated Voltage (Ur)",
+          "status": "COMPLIANT"
+        },
+        {
+          "adder_eur": 0.0,
+          "criticality": "MANDATORY",
+          "is_conceded": false,
+          "is_overridden": false,
+          "override_note": null,
+          "param_id": "PARAM-08",
+          "param_name": "Max Ambient Temperature (No Derating)",
+          "status": "COMPLIANT"
+        }
+      ],
+      "name": "Bidder C",
+      "total_adders": 15000.0,
+      "total_commercial_adder": 4700.0,
+      "total_tech_penalty": 10300.0,
+      "true_evaluated_price": 454000.0,
+      "vendor_id": "vendor-c"
+    }
+  ],
+  "ingest_mode": "answer_key",
+  "ingest_stats": {
+    "candidates_accepted": 36,
+    "candidates_rejected": 0,
+    "deviations_found": 10,
+    "documents": 4,
+    "duration_s": 41.7,
+    "exposed_risk_eur": 64800.0,
+    "ingest_mode": "answer_key",
+    "pages_parsed": 116,
+    "rate_table_effective_date": "2026-11-03",
+    "rules_evaluated": 39,
+    "sld_sheets": 12,
+    "synthetic": true,
+    "tender_id": "TENDER-2026-402",
+    "unpriced_items": [],
+    "warnings": []
+  },
+  "open_items": [],
+  "overrides": [],
+  "share_id": "e2e-sample-share-id-000000",
+  "stage_log": [
+    {
+      "pct": 5,
+      "stage": "Intake",
+      "t_ms": 15
+    },
+    {
+      "pct": 20,
+      "stage": "Parse",
+      "t_ms": 2840
+    },
+    {
+      "pct": 60,
+      "stage": "Locate",
+      "t_ms": 41260
+    },
+    {
+      "pct": 70,
+      "stage": "Verify citations",
+      "t_ms": 41390
+    },
+    {
+      "pct": 80,
+      "stage": "Read values",
+      "t_ms": 41520
+    },
+    {
+      "pct": 85,
+      "stage": "Resolve precedence",
+      "t_ms": 41580
+    },
+    {
+      "pct": 90,
+      "stage": "Price",
+      "t_ms": 41660
+    }
+  ],
+  "status": "VERIFIED",
+  "synthetic": true,
+  "tender": {
+    "client": "Vogt-Grid EPC Consortium GmbH (Berlin / Madrid)",
+    "equipment_class": "mv_gis_switchgear",
+    "id": "TENDER-2026-402",
+    "latency_sec": 42,
+    "mr_doc": "MR-33kV-GIS-Rev4.pdf (26 pages)",
+    "pages_parsed": 116,
+    "parameters": [
+      {
+        "category": "Electrical Ratings (IEC 62271-200)",
+        "checks_spec": [
+          {
+            "field": "ik",
+            "label": "Ik",
+            "operator": "ge",
+            "required": "50 kA"
+          },
+          {
+            "field": "ik_duration",
+            "label": "t",
+            "operator": "ge",
+            "required": "3 s"
+          }
+        ],
+        "criticality": "MANDATORY",
+        "id": "PARAM-01",
+        "mr_requirement": "Rated short-time withstand current Ik shall be 50 kA RMS for a duration of 3 s.",
+        "name": "Rated Short-Time Withstand Current (Ik)",
+        "pint_rule": "Ik ≥ 50 kA AND t ≥ 3 s",
+        "requirement_citation": {
+          "bbox": [
+            56.0,
+            111.2,
+            401.7,
+            125.0
+          ],
+          "filename": "MR-33kV-GIS-Rev4.pdf",
+          "page": 5,
+          "paragraph": "Rated short-time withstand current Ik shall be 50 kA RMS for a duration of 3 s.",
+          "quote": "Rated short-time withstand current Ik shall be 50 kA RMS for a duration of 3 s.",
+          "section": "mr_spec"
+        },
+        "vendors": {
+          "vendor-a": {
+            "adder_formula": "",
+            "bbox": "Page 6 (Datasheet), BBox [56.0, 65.2, 385.0, 79.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-a_Bidder-B.pdf#p6",
+                "field": "ik",
+                "offered": "50 kA",
+                "offered_canonical": "50 kA",
+                "operator": "ge",
+                "passed": true,
+                "required": "50 kA"
+              },
+              {
+                "citation_ref": "Bid_vendor-a_Bidder-B.pdf#p6",
+                "field": "ik_duration",
+                "offered": "3 s",
+                "offered_canonical": "3 s",
+                "operator": "ge",
+                "passed": true,
+                "required": "3 s"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                65.2,
+                385.0,
+                79.0
+              ],
+              "filename": "Bid_vendor-a_Bidder-B.pdf",
+              "page": 6,
+              "paragraph": "Rated short-time withstand current (main busbar and breaker): 50 kA / 3 s.",
+              "quote": "Rated short-time withstand current (main busbar and breaker): 50 kA / 3 s.",
+              "section": "datasheet"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 0.0,
+            "cost_lines": [],
+            "extracted_text": "50 kA (3 s)",
+            "pricing_status": "NONE",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "Rated short-time withstand current (main busbar and breaker): 50 kA / 3 s.",
+            "status": "COMPLIANT"
+          },
+          "vendor-b": {
+            "adder_formula": "11 bays × €1,600.00 + 1 lot × €900.00",
+            "bbox": "Page 11 (Drawing), BBox [56.0, 65.2, 509.5, 79.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-b_Bidder-A.pdf#p11",
+                "field": "ik",
+                "offered": "31.5 kA",
+                "offered_canonical": "31.5 kA",
+                "operator": "ge",
+                "passed": false,
+                "required": "50 kA"
+              },
+              {
+                "citation_ref": "Bid_vendor-b_Bidder-A.pdf#p11",
+                "field": "ik_duration",
+                "offered": "1 s",
+                "offered_canonical": "1 s",
+                "operator": "ge",
+                "passed": false,
+                "required": "3 s"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                65.2,
+                509.5,
+                79.0
+              ],
+              "filename": "Bid_vendor-b_Bidder-A.pdf",
+              "page": 11,
+              "paragraph": "NOTE 7: Standard switchgear bay rated 31.5kA 1s. 50kA high-duty upgrade excluded from base price.",
+              "quote": "NOTE 7: Standard switchgear bay rated 31.5kA 1s. 50kA high-duty upgrade excluded from base price.",
+              "section": "drawing"
+            },
+            "confidence": 0.9,
+            "conflict_note": "Cover letter p.2 claims 50 kA / 3 s; Drawing p.11 states 31.5 kA / 1 s. Drawing governs.",
+            "cost_adder": 18500.0,
+            "cost_lines": [
+              {
+                "driver": "fixed",
+                "label": "Vacuum breaker & CT core upgrade to 50 kA / 3 s",
+                "qty": "11",
+                "rate": "1600.00",
+                "unit": "bays"
+              },
+              {
+                "driver": "fixed",
+                "label": "Type-test documentation",
+                "qty": "1",
+                "rate": "900.00",
+                "unit": "lot"
+              }
+            ],
+            "extracted_text": "31.5 kA (1 s)",
+            "pricing_status": "PRICED",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": {
+              "bbox": [
+                56.0,
+                111.2,
+                531.7,
+                138.0
+              ],
+              "filename": "Bid_vendor-b_Bidder-A.pdf",
+              "page": 2,
+              "paragraph": "The switchgear is fully compliant with the Material Requisition, including the 50 kA / 3 s short-time withstand rating.",
+              "quote": "The switchgear is fully compliant with the Material Requisition, including the 50 kA / 3 s short-time withstand rating.",
+              "section": "cover_letter"
+            },
+            "snippet": "NOTE 7: Standard switchgear bay rated 31.5kA 1s. 50kA high-duty upgrade excluded from base price.",
+            "status": "CONFLICT_DOWNGRADE"
+          },
+          "vendor-c": {
+            "adder_formula": "11 bays × €500.00 + 1 lot × €700.00",
+            "bbox": "Page 6 (Datasheet), BBox [56.0, 65.2, 430.0, 79.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-c_Bidder-C.pdf#p6",
+                "field": "ik",
+                "offered": "50 kA",
+                "offered_canonical": "50 kA",
+                "operator": "ge",
+                "passed": true,
+                "required": "50 kA"
+              },
+              {
+                "citation_ref": "Bid_vendor-c_Bidder-C.pdf#p6",
+                "field": "ik_duration",
+                "offered": "1 s",
+                "offered_canonical": "1 s",
+                "operator": "ge",
+                "passed": false,
+                "required": "3 s"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                65.2,
+                430.0,
+                79.0
+              ],
+              "filename": "Bid_vendor-c_Bidder-C.pdf",
+              "page": 6,
+              "paragraph": "Short-time withstand capability tested for 50 kA RMS at 1.0 second thermal duration.",
+              "quote": "Short-time withstand capability tested for 50 kA RMS at 1.0 second thermal duration.",
+              "section": "datasheet"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 6200.0,
+            "cost_lines": [
+              {
+                "driver": "fixed",
+                "label": "Thermal step-up for 3 s fault duration",
+                "qty": "11",
+                "rate": "500.00",
+                "unit": "bays"
+              },
+              {
+                "driver": "fixed",
+                "label": "Thermal withstand study",
+                "qty": "1",
+                "rate": "700.00",
+                "unit": "lot"
+              }
+            ],
+            "extracted_text": "50 kA (1 s)",
+            "pricing_status": "PRICED",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "Short-time withstand capability tested for 50 kA RMS at 1.0 second thermal duration.",
+            "status": "DEVIATION_DOWNGRADE"
+          }
+        }
+      },
+      {
+        "category": "Primary Conductors & Materials",
+        "checks_spec": [
+          {
+            "field": "material",
+            "label": "Material",
+            "operator": "eq",
+            "required": "Cu-ETP"
+          },
+          {
+            "field": "rated_current",
+            "label": "Ir",
+            "operator": "ge",
+            "required": "2500 A"
+          }
+        ],
+        "criticality": "MANDATORY",
+        "id": "PARAM-02",
+        "mr_requirement": "Main busbars shall be electrolytic copper Cu-ETP rated for 2500 A continuous current.",
+        "name": "Main Busbar Material & Continuous Current",
+        "pint_rule": "Material = Cu-ETP AND Ir ≥ 2500 A",
+        "requirement_citation": {
+          "bbox": [
+            56.0,
+            65.2,
+            437.3,
+            79.0
+          ],
+          "filename": "MR-33kV-GIS-Rev4.pdf",
+          "page": 6,
+          "paragraph": "Main busbars shall be electrolytic copper Cu-ETP rated for 2500 A continuous current.",
+          "quote": "Main busbars shall be electrolytic copper Cu-ETP rated for 2500 A continuous current.",
+          "section": "mr_spec"
+        },
+        "vendors": {
+          "vendor-a": {
+            "adder_formula": "",
+            "bbox": "Page 6 (Datasheet), BBox [56.0, 85.2, 462.3, 99.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-a_Bidder-B.pdf#p6",
+                "field": "material",
+                "offered": "Cu-ETP",
+                "offered_canonical": "Cu-ETP",
+                "operator": "eq",
+                "passed": true,
+                "required": "Cu-ETP"
+              },
+              {
+                "citation_ref": "Bid_vendor-a_Bidder-B.pdf#p6",
+                "field": "rated_current",
+                "offered": "2.5 kA",
+                "offered_canonical": "2500 A",
+                "operator": "ge",
+                "passed": true,
+                "required": "2500 A"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                85.2,
+                462.3,
+                99.0
+              ],
+              "filename": "Bid_vendor-a_Bidder-B.pdf",
+              "page": 6,
+              "paragraph": "Main busbars: silver-plated high-conductivity electrolytic copper Cu-ETP, 2.5 kA continuous.",
+              "quote": "Main busbars: silver-plated high-conductivity electrolytic copper Cu-ETP, 2.5 kA continuous.",
+              "section": "datasheet"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 0.0,
+            "cost_lines": [],
+            "extracted_text": "Cu-ETP, 2.5 kA",
+            "pricing_status": "NONE",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "Main busbars: silver-plated high-conductivity electrolytic copper Cu-ETP, 2.5 kA continuous.",
+            "status": "COMPLIANT"
+          },
+          "vendor-b": {
+            "adder_formula": "1480 kg × €8.50 + 1 lot × €1,620.00",
+            "bbox": "Page 6 (Datasheet), BBox [56.0, 65.2, 531.7, 79.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-b_Bidder-A.pdf#p6",
+                "field": "material",
+                "offered": "Al",
+                "offered_canonical": "Al",
+                "operator": "eq",
+                "passed": false,
+                "required": "Cu-ETP"
+              },
+              {
+                "citation_ref": "Bid_vendor-b_Bidder-A.pdf#p6",
+                "field": "rated_current",
+                "offered": "2500 A",
+                "offered_canonical": "2500 A",
+                "operator": "ge",
+                "passed": true,
+                "required": "2500 A"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                65.2,
+                531.7,
+                79.0
+              ],
+              "filename": "Bid_vendor-b_Bidder-A.pdf",
+              "page": 6,
+              "paragraph": "Busbar system manufactured from tin-plated E-AlMgSi0.5 aluminium alloy profiles rated 2500 A continuous.",
+              "quote": "Busbar system manufactured from tin-plated E-AlMgSi0.5 aluminium alloy profiles rated 2500 A continuous.",
+              "section": "datasheet"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 14200.0,
+            "cost_lines": [
+              {
+                "driver": "copper",
+                "label": "Cu-Al price delta (LME)",
+                "qty": "1480",
+                "rate": "8.50",
+                "unit": "kg"
+              },
+              {
+                "driver": "fixed",
+                "label": "Bimetallic joint kit",
+                "qty": "1",
+                "rate": "1620.00",
+                "unit": "lot"
+              }
+            ],
+            "extracted_text": "Al, 2500 A",
+            "pricing_status": "PRICED",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "Busbar system manufactured from tin-plated E-AlMgSi0.5 aluminium alloy profiles rated 2500 A continuous.",
+            "status": "DEVIATION_DOWNGRADE"
+          },
+          "vendor-c": {
+            "adder_formula": "",
+            "bbox": "Page 6 (Datasheet), BBox [56.0, 85.2, 497.3, 99.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-c_Bidder-C.pdf#p6",
+                "field": "material",
+                "offered": "Cu-ETP",
+                "offered_canonical": "Cu-ETP",
+                "operator": "eq",
+                "passed": true,
+                "required": "Cu-ETP"
+              },
+              {
+                "citation_ref": "Bid_vendor-c_Bidder-C.pdf#p6",
+                "field": "rated_current",
+                "offered": "2500 A",
+                "offered_canonical": "2500 A",
+                "operator": "ge",
+                "passed": true,
+                "required": "2500 A"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                85.2,
+                497.3,
+                99.0
+              ],
+              "filename": "Bid_vendor-c_Bidder-C.pdf",
+              "page": 6,
+              "paragraph": "HDHC electrolytic copper busbar system rated 2500 A continuous throughout all MV compartments.",
+              "quote": "HDHC electrolytic copper busbar system rated 2500 A continuous throughout all MV compartments.",
+              "section": "datasheet"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 0.0,
+            "cost_lines": [],
+            "extracted_text": "Cu-ETP, 2500 A",
+            "pricing_status": "NONE",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "HDHC electrolytic copper busbar system rated 2500 A continuous throughout all MV compartments.",
+            "status": "COMPLIANT"
+          }
+        }
+      },
+      {
+        "category": "Mechanical & Safety Protection",
+        "checks_spec": [
+          {
+            "field": "ip",
+            "label": "IP",
+            "operator": "ge",
+            "required": "IP54"
+          },
+          {
+            "field": "iac_class",
+            "label": "IAC",
+            "operator": "eq",
+            "required": "AFLR"
+          }
+        ],
+        "criticality": "HIGH",
+        "id": "PARAM-03",
+        "mr_requirement": "Enclosure protection shall be IP54 with internal arc classification IAC AFLR.",
+        "name": "Enclosure Ingress & Internal Arc Rating",
+        "pint_rule": "IP ≥ IP54 AND IAC = AFLR",
+        "requirement_citation": {
+          "bbox": [
+            56.0,
+            85.2,
+            390.6,
+            99.0
+          ],
+          "filename": "MR-33kV-GIS-Rev4.pdf",
+          "page": 6,
+          "paragraph": "Enclosure protection shall be IP54 with internal arc classification IAC AFLR.",
+          "quote": "Enclosure protection shall be IP54 with internal arc classification IAC AFLR.",
+          "section": "mr_spec"
+        },
+        "vendors": {
+          "vendor-a": {
+            "adder_formula": "",
+            "bbox": "Page 7 (Datasheet), BBox [56.0, 65.2, 512.9, 79.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-a_Bidder-B.pdf#p7",
+                "field": "ip",
+                "offered": "IP54",
+                "offered_canonical": "IP54",
+                "operator": "ge",
+                "passed": true,
+                "required": "IP54"
+              },
+              {
+                "citation_ref": "Bid_vendor-a_Bidder-B.pdf#p7",
+                "field": "iac_class",
+                "offered": "AFLR",
+                "offered_canonical": "AFLR",
+                "operator": "eq",
+                "passed": true,
+                "required": "AFLR"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                65.2,
+                512.9,
+                79.0
+              ],
+              "filename": "Bid_vendor-a_Bidder-B.pdf",
+              "page": 7,
+              "paragraph": "Enclosure protection IP54 with rear gas exhaust ducting, internal arc classification IAC AFLR 50 kA 1 s.",
+              "quote": "Enclosure protection IP54 with rear gas exhaust ducting, internal arc classification IAC AFLR 50 kA 1 s.",
+              "section": "datasheet"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 0.0,
+            "cost_lines": [],
+            "extracted_text": "IP54 / IAC AFLR",
+            "pricing_status": "NONE",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "Enclosure protection IP54 with rear gas exhaust ducting, internal arc classification IAC AFLR 50 kA 1 s.",
+            "status": "COMPLIANT"
+          },
+          "vendor-b": {
+            "adder_formula": "11 bays × €400.00 + 1 lot × €4,500.00",
+            "bbox": "Page 7 (Datasheet), BBox [56.0, 65.2, 530.6, 92.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-b_Bidder-A.pdf#p7",
+                "field": "ip",
+                "offered": "IP42",
+                "offered_canonical": "IP42",
+                "operator": "ge",
+                "passed": false,
+                "required": "IP54"
+              },
+              {
+                "citation_ref": "Bid_vendor-b_Bidder-A.pdf#p7",
+                "field": "iac_class",
+                "offered": "AFL",
+                "offered_canonical": "AFL",
+                "operator": "eq",
+                "passed": false,
+                "required": "AFLR"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                65.2,
+                530.6,
+                92.0
+              ],
+              "filename": "Bid_vendor-b_Bidder-A.pdf",
+              "page": 7,
+              "paragraph": "Standard indoor enclosure IP42 with ventilation louvres; internal arc classification IAC AFL (front and lateral only).",
+              "quote": "Standard indoor enclosure IP42 with ventilation louvres; internal arc classification IAC AFL (front and lateral only).",
+              "section": "datasheet"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 8900.0,
+            "cost_lines": [
+              {
+                "driver": "fixed",
+                "label": "IP54 gasket and filter kit",
+                "qty": "11",
+                "rate": "400.00",
+                "unit": "bays"
+              },
+              {
+                "driver": "fixed",
+                "label": "Rear arc plenum ducting (AFL to AFLR)",
+                "qty": "1",
+                "rate": "4500.00",
+                "unit": "lot"
+              }
+            ],
+            "extracted_text": "IP42 / IAC AFL",
+            "pricing_status": "PRICED",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "Standard indoor enclosure IP42 with ventilation louvres; internal arc classification IAC AFL (front and lateral only).",
+            "status": "DEVIATION_DOWNGRADE"
+          },
+          "vendor-c": {
+            "adder_formula": "",
+            "bbox": "Page 7 (Datasheet), BBox [56.0, 65.2, 418.9, 79.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-c_Bidder-C.pdf#p7",
+                "field": "ip",
+                "offered": "IP54",
+                "offered_canonical": "IP54",
+                "operator": "ge",
+                "passed": true,
+                "required": "IP54"
+              },
+              {
+                "citation_ref": "Bid_vendor-c_Bidder-C.pdf#p7",
+                "field": "iac_class",
+                "offered": "AFLR",
+                "offered_canonical": "AFLR",
+                "operator": "eq",
+                "passed": true,
+                "required": "AFLR"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                65.2,
+                418.9,
+                79.0
+              ],
+              "filename": "Bid_vendor-c_Bidder-C.pdf",
+              "page": 7,
+              "paragraph": "Full IP54 dust and splash sealing with 4-sided IAC AFLR internal arc containment.",
+              "quote": "Full IP54 dust and splash sealing with 4-sided IAC AFLR internal arc containment.",
+              "section": "datasheet"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 0.0,
+            "cost_lines": [],
+            "extracted_text": "IP54 / IAC AFLR",
+            "pricing_status": "NONE",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "Full IP54 dust and splash sealing with 4-sided IAC AFLR internal arc containment.",
+            "status": "COMPLIANT"
+          }
+        }
+      },
+      {
+        "category": "Control, SCADA & Protection Relays",
+        "checks_spec": [
+          {
+            "field": "protocol",
+            "label": "Protocol",
+            "operator": "eq",
+            "required": "IEC 61850 Ed. 2 with PRP"
+          },
+          {
+            "field": "marshalling",
+            "label": "Marshalling",
+            "operator": "eq",
+            "required": "pre-wired"
+          }
+        ],
+        "criticality": "HIGH",
+        "id": "PARAM-04",
+        "mr_requirement": "Protection IEDs shall communicate via IEC 61850 Edition 2 with PRP redundancy, with pre-wired RTU marshalling in a central marshalling cabinet.",
+        "name": "IED Protection & Redundant IEC 61850 PRP",
+        "pint_rule": "Protocol = IEC 61850 Ed. 2 with PRP AND Marshalling = pre-wired",
+        "requirement_citation": {
+          "bbox": [
+            56.0,
+            65.2,
+            508.4,
+            92.0
+          ],
+          "filename": "MR-33kV-GIS-Rev4.pdf",
+          "page": 7,
+          "paragraph": "Protection IEDs shall communicate via IEC 61850 Edition 2 with PRP redundancy, with pre-wired RTU marshalling in a central marshalling cabinet.",
+          "quote": "Protection IEDs shall communicate via IEC 61850 Edition 2 with PRP redundancy, with pre-wired RTU marshalling in a central marshalling cabinet.",
+          "section": "mr_spec"
+        },
+        "vendors": {
+          "vendor-a": {
+            "adder_formula": "",
+            "bbox": "Page 8 (Datasheet), BBox [56.0, 65.2, 487.8, 92.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-a_Bidder-B.pdf#p8",
+                "field": "protocol",
+                "offered": "IEC 61850 Ed. 2 with PRP",
+                "offered_canonical": "IEC 61850 Ed. 2 with PRP",
+                "operator": "eq",
+                "passed": true,
+                "required": "IEC 61850 Ed. 2 with PRP"
+              },
+              {
+                "citation_ref": "Bid_vendor-a_Bidder-B.pdf#p8",
+                "field": "marshalling",
+                "offered": "pre-wired",
+                "offered_canonical": "pre-wired",
+                "operator": "eq",
+                "passed": true,
+                "required": "pre-wired"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                65.2,
+                487.8,
+                92.0
+              ],
+              "filename": "Bid_vendor-a_Bidder-B.pdf",
+              "page": 8,
+              "paragraph": "Protection IEDs NW-Prot 5 with IEC 61850 Ed.2 PRP dual-port fibre, pre-wired to the central RTU marshalling cabinet.",
+              "quote": "Protection IEDs NW-Prot 5 with IEC 61850 Ed.2 PRP dual-port fibre, pre-wired to the central RTU marshalling cabinet.",
+              "section": "datasheet"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 0.0,
+            "cost_lines": [],
+            "extracted_text": "IEC 61850 Ed. 2 with PRP; pre-wired",
+            "pricing_status": "NONE",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "Protection IEDs NW-Prot 5 with IEC 61850 Ed.2 PRP dual-port fibre, pre-wired to the central RTU marshalling cabinet.",
+            "status": "COMPLIANT"
+          },
+          "vendor-b": {
+            "adder_formula": "11 bays × €300.00 + 65 h × €60.00 + 1 lot × €200.00",
+            "bbox": "Page 15 (BOM), BBox [56.0, 65.2, 513.4, 92.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-b_Bidder-A.pdf#p15",
+                "field": "protocol",
+                "offered": "not IEC 61850",
+                "offered_canonical": "not IEC 61850",
+                "operator": "eq",
+                "passed": false,
+                "required": "IEC 61850 Ed. 2 with PRP"
+              },
+              {
+                "citation_ref": "Bid_vendor-b_Bidder-A.pdf#p15",
+                "field": "marshalling",
+                "offered": "not pre-wired",
+                "offered_canonical": "not pre-wired",
+                "operator": "eq",
+                "passed": false,
+                "required": "pre-wired"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                65.2,
+                513.4,
+                92.0
+              ],
+              "filename": "Bid_vendor-b_Bidder-A.pdf",
+              "page": 15,
+              "paragraph": "BOM Pos 44: Standard communication port RJ45 Modbus TCP; SCADA marshalling terminals supplied loose for EPC field termination.",
+              "quote": "BOM Pos 44: Standard communication port RJ45 Modbus TCP; SCADA marshalling terminals supplied loose for EPC field termination.",
+              "section": "bom"
+            },
+            "confidence": 0.9,
+            "conflict_note": "Compliance table p.3 claims IEC 61850 Ed. 2 with PRP; BOM p.15 states not IEC 61850. BOM governs.",
+            "cost_adder": 7400.0,
+            "cost_lines": [
+              {
+                "driver": "fixed",
+                "label": "Dual-fibre PRP communication card",
+                "qty": "11",
+                "rate": "300.00",
+                "unit": "bays"
+              },
+              {
+                "driver": "labour",
+                "label": "Site termination and point-to-point ring-out",
+                "qty": "65",
+                "rate": "60.00",
+                "unit": "h"
+              },
+              {
+                "driver": "fixed",
+                "label": "Ring-out test kit hire",
+                "qty": "1",
+                "rate": "200.00",
+                "unit": "lot"
+              }
+            ],
+            "extracted_text": "not IEC 61850; not pre-wired",
+            "pricing_status": "PRICED",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": {
+              "bbox": [
+                56.0,
+                71.2,
+                276.6,
+                85.0
+              ],
+              "filename": "Bid_vendor-b_Bidder-A.pdf",
+              "page": 3,
+              "paragraph": "IEC 61850 Ed.2 with PRP redundancy - Complied",
+              "quote": "IEC 61850 Ed.2 with PRP redundancy - Complied",
+              "section": "compliance_table"
+            },
+            "snippet": "BOM Pos 44: Standard communication port RJ45 Modbus TCP; SCADA marshalling terminals supplied loose for EPC field termination.",
+            "status": "CONFLICT_DOWNGRADE"
+          },
+          "vendor-c": {
+            "adder_formula": "65 h × €60.00 + 1 lot × €200.00",
+            "bbox": "Page 8 (Datasheet), BBox [56.0, 65.2, 533.9, 92.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-c_Bidder-C.pdf#p8",
+                "field": "protocol",
+                "offered": "IEC 61850 Ed. 2 with PRP",
+                "offered_canonical": "IEC 61850 Ed. 2 with PRP",
+                "operator": "eq",
+                "passed": true,
+                "required": "IEC 61850 Ed. 2 with PRP"
+              },
+              {
+                "citation_ref": "Bid_vendor-c_Bidder-C.pdf#p8",
+                "field": "marshalling",
+                "offered": "not pre-wired",
+                "offered_canonical": "not pre-wired",
+                "operator": "eq",
+                "passed": false,
+                "required": "pre-wired"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                65.2,
+                533.9,
+                92.0
+              ],
+              "filename": "Bid_vendor-c_Bidder-C.pdf",
+              "page": 8,
+              "paragraph": "IEC 61850 Ed.2 relays DSC-R200 with PRP fibre ports; RTU marshalling excluded, customer SCADA wiring directly to individual bay LV compartments.",
+              "quote": "IEC 61850 Ed.2 relays DSC-R200 with PRP fibre ports; RTU marshalling excluded, customer SCADA wiring directly to individual bay LV compartments.",
+              "section": "datasheet"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 4100.0,
+            "cost_lines": [
+              {
+                "driver": "labour",
+                "label": "Site termination and point-to-point ring-out",
+                "qty": "65",
+                "rate": "60.00",
+                "unit": "h"
+              },
+              {
+                "driver": "fixed",
+                "label": "Ring-out test kit hire",
+                "qty": "1",
+                "rate": "200.00",
+                "unit": "lot"
+              }
+            ],
+            "extracted_text": "IEC 61850 Ed. 2 with PRP; not pre-wired",
+            "pricing_status": "PRICED",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "IEC 61850 Ed.2 relays DSC-R200 with PRP fibre ports; RTU marshalling excluded, customer SCADA wiring directly to individual bay LV compartments.",
+            "status": "DEVIATION_DOWNGRADE"
+          }
+        }
+      },
+      {
+        "category": "Quality Assurance & Testing",
+        "checks_spec": [
+          {
+            "field": "witnessed_fat_days_included",
+            "label": "Witnessed FAT days",
+            "operator": "ge",
+            "required": "5"
+          }
+        ],
+        "criticality": "COMMERCIAL",
+        "id": "PARAM-05",
+        "mr_requirement": "A 5-day witnessed integrated factory acceptance test (I-FAT) with primary injection shall be included in the contract price.",
+        "name": "Witnessed Factory Acceptance Test (I-FAT)",
+        "pint_rule": "Witnessed FAT days ≥ 5",
+        "requirement_citation": {
+          "bbox": [
+            56.0,
+            91.2,
+            525.6,
+            118.0
+          ],
+          "filename": "MR-33kV-GIS-Rev4.pdf",
+          "page": 13,
+          "paragraph": "A 5-day witnessed integrated factory acceptance test (I-FAT) with primary injection shall be included in the contract price.",
+          "quote": "A 5-day witnessed integrated factory acceptance test (I-FAT) with primary injection shall be included in the contract price.",
+          "section": "mr_spec"
+        },
+        "vendors": {
+          "vendor-a": {
+            "adder_formula": "",
+            "bbox": "Page 18 (Test plan), BBox [56.0, 65.2, 373.9, 79.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-a_Bidder-B.pdf#p18",
+                "field": "witnessed_fat_days_included",
+                "offered": "5",
+                "offered_canonical": "5",
+                "operator": "ge",
+                "passed": true,
+                "required": "5"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                65.2,
+                373.9,
+                79.0
+              ],
+              "filename": "Bid_vendor-a_Bidder-B.pdf",
+              "page": 18,
+              "paragraph": "The price includes a 5-day client-witnessed I-FAT with primary injection.",
+              "quote": "The price includes a 5-day client-witnessed I-FAT with primary injection.",
+              "section": "test_plan"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 0.0,
+            "cost_lines": [],
+            "extracted_text": "5 witnessed FAT days included",
+            "pricing_status": "NONE",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "The price includes a 5-day client-witnessed I-FAT with primary injection.",
+            "status": "COMPLIANT"
+          },
+          "vendor-b": {
+            "adder_formula": "5 days × €1,300.00",
+            "bbox": "Page 18 (Test plan), BBox [56.0, 65.2, 530.7, 79.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-b_Bidder-A.pdf#p18",
+                "field": "witnessed_fat_days_included",
+                "offered": "0",
+                "offered_canonical": "0",
+                "operator": "ge",
+                "passed": false,
+                "required": "5"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                65.2,
+                530.7,
+                79.0
+              ],
+              "filename": "Bid_vendor-b_Bidder-A.pdf",
+              "page": 18,
+              "paragraph": "Standard routine test certificates provided. Witnessed FAT charged extra at €1,300/day plus test bay setup.",
+              "quote": "Standard routine test certificates provided. Witnessed FAT charged extra at €1,300/day plus test bay setup.",
+              "section": "test_plan"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 6500.0,
+            "cost_lines": [
+              {
+                "driver": "fixed",
+                "label": "Witnessed I-FAT day (test bay and engineer)",
+                "qty": "5",
+                "rate": "1300.00",
+                "unit": "days"
+              }
+            ],
+            "extracted_text": "0 witnessed FAT days included",
+            "pricing_status": "PRICED",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "Standard routine test certificates provided. Witnessed FAT charged extra at €1,300/day plus test bay setup.",
+            "status": "OMITTED"
+          },
+          "vendor-c": {
+            "adder_formula": "2 days × €1,300.00",
+            "bbox": "Page 18 (Test plan), BBox [56.0, 65.2, 361.1, 79.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-c_Bidder-C.pdf#p18",
+                "field": "witnessed_fat_days_included",
+                "offered": "3",
+                "offered_canonical": "3",
+                "operator": "ge",
+                "passed": false,
+                "required": "5"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                65.2,
+                361.1,
+                79.0
+              ],
+              "filename": "Bid_vendor-c_Bidder-C.pdf",
+              "page": 18,
+              "paragraph": "Includes 3 days witnessed inspection; additional days billed per tariff.",
+              "quote": "Includes 3 days witnessed inspection; additional days billed per tariff.",
+              "section": "test_plan"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 2600.0,
+            "cost_lines": [
+              {
+                "driver": "fixed",
+                "label": "Witnessed I-FAT day (test bay and engineer)",
+                "qty": "2",
+                "rate": "1300.00",
+                "unit": "days"
+              }
+            ],
+            "extracted_text": "3 witnessed FAT days included",
+            "pricing_status": "PRICED",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "Includes 3 days witnessed inspection; additional days billed per tariff.",
+            "status": "DEVIATION_DOWNGRADE"
+          }
+        }
+      },
+      {
+        "category": "Commercial & Logistics Terms",
+        "checks_spec": [
+          {
+            "field": "incoterm",
+            "label": "Incoterm",
+            "operator": "eq",
+            "required": "DDP"
+          },
+          {
+            "field": "warranty_months",
+            "label": "Warranty months",
+            "operator": "ge",
+            "required": "36"
+          }
+        ],
+        "criticality": "COMMERCIAL",
+        "id": "PARAM-06",
+        "mr_requirement": "Delivery shall be DDP project site Brandenburg (Incoterms 2020). The defect liability period shall be 36 months from commissioning.",
+        "name": "Incoterms 2020 & Site Unloading",
+        "pint_rule": "Incoterm = DDP AND Warranty months ≥ 36",
+        "requirement_citation": {
+          "bbox": [
+            56.0,
+            91.2,
+            346.1,
+            105.0
+          ],
+          "filename": "MR-33kV-GIS-Rev4.pdf",
+          "page": 14,
+          "paragraph": "Delivery shall be DDP project site Brandenburg (Incoterms 2020).",
+          "quote": "Delivery shall be DDP project site Brandenburg (Incoterms 2020).",
+          "section": "mr_spec"
+        },
+        "vendors": {
+          "vendor-a": {
+            "adder_formula": "",
+            "bbox": "Page 21 (Commercial terms), BBox [56.0, 65.2, 476.1, 79.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-a_Bidder-B.pdf#p21",
+                "field": "incoterm",
+                "offered": "DDP",
+                "offered_canonical": "DDP",
+                "operator": "eq",
+                "passed": true,
+                "required": "DDP"
+              },
+              {
+                "citation_ref": "Bid_vendor-a_Bidder-B.pdf#p21",
+                "field": "warranty_months",
+                "offered": "36",
+                "offered_canonical": "36",
+                "operator": "ge",
+                "passed": true,
+                "required": "36"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                65.2,
+                476.1,
+                79.0
+              ],
+              "filename": "Bid_vendor-a_Bidder-B.pdf",
+              "page": 21,
+              "paragraph": "Delivery DDP project site Brandenburg (Incoterms 2020) with a 36-month defect liability period.",
+              "quote": "Delivery DDP project site Brandenburg (Incoterms 2020) with a 36-month defect liability period.",
+              "section": "commercial"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 0.0,
+            "cost_lines": [],
+            "extracted_text": "DDP / 36 months",
+            "pricing_status": "NONE",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "Delivery DDP project site Brandenburg (Incoterms 2020) with a 36-month defect liability period.",
+            "status": "COMPLIANT"
+          },
+          "vendor-b": {
+            "adder_formula": "2 loads × €2,600.00 + 1 lot × €950.00 + 18 months × €175.00",
+            "bbox": "Page 21 (Commercial terms), BBox [56.0, 65.2, 529.5, 79.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-b_Bidder-A.pdf#p21",
+                "field": "incoterm",
+                "offered": "EXW",
+                "offered_canonical": "EXW",
+                "operator": "eq",
+                "passed": false,
+                "required": "DDP"
+              },
+              {
+                "citation_ref": "Bid_vendor-b_Bidder-A.pdf#p21",
+                "field": "warranty_months",
+                "offered": "18",
+                "offered_canonical": "18",
+                "operator": "ge",
+                "passed": false,
+                "required": "36"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                65.2,
+                529.5,
+                79.0
+              ],
+              "filename": "Bid_vendor-b_Bidder-A.pdf",
+              "page": 21,
+              "paragraph": "Prices are quoted Ex-Works (EXW) Izmir factory loading dock; standard warranty 18 months from dispatch.",
+              "quote": "Prices are quoted Ex-Works (EXW) Izmir factory loading dock; standard warranty 18 months from dispatch.",
+              "section": "commercial"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 9300.0,
+            "cost_lines": [
+              {
+                "driver": "freight",
+                "label": "Heavy-haul low-loader transport",
+                "qty": "2",
+                "rate": "2600.00",
+                "unit": "loads"
+              },
+              {
+                "driver": "fixed",
+                "label": "Transit insurance",
+                "qty": "1",
+                "rate": "950.00",
+                "unit": "lot"
+              },
+              {
+                "driver": "fixed",
+                "label": "Extended defect liability bond",
+                "qty": "18",
+                "rate": "175.00",
+                "unit": "months"
+              }
+            ],
+            "extracted_text": "EXW / 18 months",
+            "pricing_status": "PRICED",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "Prices are quoted Ex-Works (EXW) Izmir factory loading dock; standard warranty 18 months from dispatch.",
+            "status": "DEVIATION_DOWNGRADE"
+          },
+          "vendor-c": {
+            "adder_formula": "1 lot × €0.00 + 12 months × €175.00",
+            "bbox": "Page 21 (Commercial terms), BBox [56.0, 65.2, 407.2, 79.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-c_Bidder-C.pdf#p21",
+                "field": "incoterm",
+                "offered": "DAP",
+                "offered_canonical": "DAP",
+                "operator": "eq",
+                "passed": false,
+                "required": "DDP"
+              },
+              {
+                "citation_ref": "Bid_vendor-c_Bidder-C.pdf#p21",
+                "field": "warranty_months",
+                "offered": "24",
+                "offered_canonical": "24",
+                "operator": "ge",
+                "passed": false,
+                "required": "36"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                65.2,
+                407.2,
+                79.0
+              ],
+              "filename": "Bid_vendor-c_Bidder-C.pdf",
+              "page": 21,
+              "paragraph": "Delivered At Place (DAP) project site; warranty 24 months from commissioning.",
+              "quote": "Delivered At Place (DAP) project site; warranty 24 months from commissioning.",
+              "section": "commercial"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 2100.0,
+            "cost_lines": [
+              {
+                "driver": "fixed",
+                "label": "Intra-EU delivery, no import clearance",
+                "qty": "1",
+                "rate": "0.00",
+                "unit": "lot"
+              },
+              {
+                "driver": "fixed",
+                "label": "Extended defect liability bond",
+                "qty": "12",
+                "rate": "175.00",
+                "unit": "months"
+              }
+            ],
+            "extracted_text": "DAP / 24 months",
+            "pricing_status": "PRICED",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "Delivered At Place (DAP) project site; warranty 24 months from commissioning.",
+            "status": "DEVIATION_DOWNGRADE"
+          }
+        }
+      },
+      {
+        "category": "Electrical Ratings (IEC 62271-200)",
+        "checks_spec": [
+          {
+            "field": "rated_voltage",
+            "label": "Ur",
+            "operator": "ge",
+            "required": "36 kV"
+          }
+        ],
+        "criticality": "MANDATORY",
+        "id": "PARAM-07",
+        "mr_requirement": "Rated voltage Ur shall be not less than 36 kV.",
+        "name": "Rated Voltage (Ur)",
+        "pint_rule": "Ur ≥ 36 kV",
+        "requirement_citation": {
+          "bbox": [
+            56.0,
+            91.2,
+            258.9,
+            105.0
+          ],
+          "filename": "MR-33kV-GIS-Rev4.pdf",
+          "page": 5,
+          "paragraph": "Rated voltage Ur shall be not less than 36 kV.",
+          "quote": "Rated voltage Ur shall be not less than 36 kV.",
+          "section": "mr_spec"
+        },
+        "vendors": {
+          "vendor-a": {
+            "adder_formula": "",
+            "bbox": "Page 6 (Datasheet), BBox [56.0, 105.2, 164.9, 119.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-a_Bidder-B.pdf#p6",
+                "field": "rated_voltage",
+                "offered": "36 kV",
+                "offered_canonical": "36 kV",
+                "operator": "ge",
+                "passed": true,
+                "required": "36 kV"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                105.2,
+                164.9,
+                119.0
+              ],
+              "filename": "Bid_vendor-a_Bidder-B.pdf",
+              "page": 6,
+              "paragraph": "Rated voltage Ur: 36 kV.",
+              "quote": "Rated voltage Ur: 36 kV.",
+              "section": "datasheet"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 0.0,
+            "cost_lines": [],
+            "extracted_text": "36 kV",
+            "pricing_status": "NONE",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "Rated voltage Ur: 36 kV.",
+            "status": "COMPLIANT"
+          },
+          "vendor-b": {
+            "adder_formula": "",
+            "bbox": "Page 6 (Datasheet), BBox [56.0, 85.2, 179.4, 99.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-b_Bidder-A.pdf#p6",
+                "field": "rated_voltage",
+                "offered": "36000 V",
+                "offered_canonical": "36 kV",
+                "operator": "ge",
+                "passed": true,
+                "required": "36 kV"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                85.2,
+                179.4,
+                99.0
+              ],
+              "filename": "Bid_vendor-b_Bidder-A.pdf",
+              "page": 6,
+              "paragraph": "Rated voltage Ur: 36,000 V.",
+              "quote": "Rated voltage Ur: 36,000 V.",
+              "section": "datasheet"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 0.0,
+            "cost_lines": [],
+            "extracted_text": "36000 V",
+            "pricing_status": "NONE",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "Rated voltage Ur: 36,000 V.",
+            "status": "COMPLIANT"
+          },
+          "vendor-c": {
+            "adder_formula": "",
+            "bbox": "Page 6 (Datasheet), BBox [56.0, 105.2, 164.9, 119.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-c_Bidder-C.pdf#p6",
+                "field": "rated_voltage",
+                "offered": "36 kV",
+                "offered_canonical": "36 kV",
+                "operator": "ge",
+                "passed": true,
+                "required": "36 kV"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                105.2,
+                164.9,
+                119.0
+              ],
+              "filename": "Bid_vendor-c_Bidder-C.pdf",
+              "page": 6,
+              "paragraph": "Rated voltage Ur: 36 kV.",
+              "quote": "Rated voltage Ur: 36 kV.",
+              "section": "datasheet"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 0.0,
+            "cost_lines": [],
+            "extracted_text": "36 kV",
+            "pricing_status": "NONE",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "Rated voltage Ur: 36 kV.",
+            "status": "COMPLIANT"
+          }
+        }
+      },
+      {
+        "category": "Thermal & Environmental",
+        "checks_spec": [
+          {
+            "field": "max_ambient",
+            "label": "Tamb",
+            "operator": "ge",
+            "required": "40 °C"
+          }
+        ],
+        "criticality": "MANDATORY",
+        "id": "PARAM-08",
+        "mr_requirement": "Equipment shall be rated for a maximum ambient air temperature of +40 °C without derating.",
+        "name": "Max Ambient Temperature (No Derating)",
+        "pint_rule": "Tamb ≥ 40 °C",
+        "requirement_citation": {
+          "bbox": [
+            56.0,
+            98.2,
+            465.4,
+            112.0
+          ],
+          "filename": "MR-33kV-GIS-Rev4.pdf",
+          "page": 7,
+          "paragraph": "Equipment shall be rated for a maximum ambient air temperature of +40 °C without derating.",
+          "quote": "Equipment shall be rated for a maximum ambient air temperature of +40 °C without derating.",
+          "section": "mr_spec"
+        },
+        "vendors": {
+          "vendor-a": {
+            "adder_formula": "",
+            "bbox": "Page 7 (Datasheet), BBox [56.0, 85.2, 372.2, 99.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-a_Bidder-B.pdf#p7",
+                "field": "max_ambient",
+                "offered": "40 °C",
+                "offered_canonical": "40 °C",
+                "operator": "ge",
+                "passed": true,
+                "required": "40 °C"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                85.2,
+                372.2,
+                99.0
+              ],
+              "filename": "Bid_vendor-a_Bidder-B.pdf",
+              "page": 7,
+              "paragraph": "Rated for ambient temperatures from -25 °C to +40 °C without derating.",
+              "quote": "Rated for ambient temperatures from -25 °C to +40 °C without derating.",
+              "section": "datasheet"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 0.0,
+            "cost_lines": [],
+            "extracted_text": "max ambient 40 °C",
+            "pricing_status": "NONE",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "Rated for ambient temperatures from -25 °C to +40 °C without derating.",
+            "status": "COMPLIANT"
+          },
+          "vendor-b": {
+            "adder_formula": "",
+            "bbox": "Page 7 (Datasheet), BBox [56.0, 98.2, 298.4, 112.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-b_Bidder-A.pdf#p7",
+                "field": "max_ambient",
+                "offered": "40 °C",
+                "offered_canonical": "40 °C",
+                "operator": "ge",
+                "passed": true,
+                "required": "40 °C"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                98.2,
+                298.4,
+                112.0
+              ],
+              "filename": "Bid_vendor-b_Bidder-A.pdf",
+              "page": 7,
+              "paragraph": "Maximum ambient temperature 40 °C without derating.",
+              "quote": "Maximum ambient temperature 40 °C without derating.",
+              "section": "datasheet"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 0.0,
+            "cost_lines": [],
+            "extracted_text": "max ambient 40 °C",
+            "pricing_status": "NONE",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "Maximum ambient temperature 40 °C without derating.",
+            "status": "COMPLIANT"
+          },
+          "vendor-c": {
+            "adder_formula": "",
+            "bbox": "Page 7 (Datasheet), BBox [56.0, 85.2, 302.9, 99.0]",
+            "checks": [
+              {
+                "citation_ref": "Bid_vendor-c_Bidder-C.pdf#p7",
+                "field": "max_ambient",
+                "offered": "104 °F",
+                "offered_canonical": "40 °C",
+                "operator": "ge",
+                "passed": true,
+                "required": "40 °C"
+              }
+            ],
+            "citation": {
+              "bbox": [
+                56.0,
+                85.2,
+                302.9,
+                99.0
+              ],
+              "filename": "Bid_vendor-c_Bidder-C.pdf",
+              "page": 7,
+              "paragraph": "Maximum ambient temperature 104 °F without derating.",
+              "quote": "Maximum ambient temperature 104 °F without derating.",
+              "section": "datasheet"
+            },
+            "confidence": 1.0,
+            "conflict_note": null,
+            "cost_adder": 0.0,
+            "cost_lines": [],
+            "extracted_text": "max ambient 104 °F",
+            "pricing_status": "NONE",
+            "rate_table_version": "mv_gis_switchgear_v1",
+            "secondary_citation": null,
+            "snippet": "Maximum ambient temperature 104 °F without derating.",
+            "status": "COMPLIANT"
+          }
+        }
+      }
+    ],
+    "rate_table_version": "mv_gis_switchgear_v1",
+    "title": "350 MWp Solar + BESS Substation — 33kV GIS Switchgear & RTU Protection Package",
+    "vendors": [
+      {
+        "badge": "Compliant Baseline",
+        "country": "Germany",
+        "cover_claim": "Our offer is in full compliance with MR-33kV-GIS-Rev4 except minor commercial notes.",
+        "doc_name": "Bid_vendor-a_Bidder-B.pdf (30 pages)",
+        "headline_citation": {
+          "bbox": [
+            56.0,
+            65.2,
+            300.5,
+            79.0
+          ],
+          "filename": "Bid_vendor-a_Bidder-B.pdf",
+          "page": 22,
+          "paragraph": "Total lump-sum price for the complete scope: €452,000",
+          "quote": "Total lump-sum price for the complete scope: €452,000",
+          "section": "commercial"
+        },
+        "headline_price": 452000.0,
+        "id": "vendor-a",
+        "name": "Bidder B (Evaluated Low)"
+      },
+      {
+        "badge": "Apparent Low Bidder",
+        "country": "Turkey / EU",
+        "cover_claim": "We confirm our offer is 100% compliant with Material Requisition MR-33kV-GIS-Rev4.",
+        "doc_name": "Bid_vendor-b_Bidder-A.pdf (30 pages)",
+        "headline_citation": {
+          "bbox": [
+            56.0,
+            65.2,
+            300.5,
+            79.0
+          ],
+          "filename": "Bid_vendor-b_Bidder-A.pdf",
+          "page": 22,
+          "paragraph": "Total lump-sum price for the complete scope: €418,000",
+          "quote": "Total lump-sum price for the complete scope: €418,000",
+          "section": "commercial"
+        },
+        "headline_price": 418000.0,
+        "id": "vendor-b",
+        "name": "Bidder A (Apparent Low)"
+      },
+      {
+        "badge": "Bidder",
+        "country": "Netherlands",
+        "cover_claim": "Our offer is compliant per the attached Schedule of Deviations.",
+        "doc_name": "Bid_vendor-c_Bidder-C.pdf (30 pages)",
+        "headline_citation": {
+          "bbox": [
+            56.0,
+            65.2,
+            300.5,
+            79.0
+          ],
+          "filename": "Bid_vendor-c_Bidder-C.pdf",
+          "page": 22,
+          "paragraph": "Total lump-sum price for the complete scope: €439,000",
+          "quote": "Total lump-sum price for the complete scope: €439,000",
+          "section": "commercial"
+        },
+        "headline_price": 439000.0,
+        "id": "vendor-c",
+        "name": "Bidder C"
+      }
+    ]
+  },
+  "verified_at": "2026-11-05T00:00:00+00:00"
+}

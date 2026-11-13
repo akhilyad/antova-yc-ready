@@ -1,0 +1,16 @@
+/* One column of sections, left-aligned, on a measure wide enough for the hero's two halves. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-96);
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 var(--space-24) var(--space-64);
+}
+
+@media (max-width: 30rem) {
+  .page {
+    gap: var(--space-64);
+    padding: 0 var(--space-16) var(--space-48);
+  }
+}

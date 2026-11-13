@@ -1,0 +1,125 @@
+/*
+ * The review band under the site header. Draft and verified are both ink on paper: the only
+ * colour here is an error. The stamp is the one flourish, pressed once when a brief is verified.
+ */
+.bar {
+  display: flex;
+  flex-direction: column;
+}
+
+.reason {
+  font-size: var(--text-14);
+  color: var(--ink-2);
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: var(--space-12) var(--space-24) 0;
+  font-size: var(--text-14);
+}
+
+.detail:has(> .status:empty:only-child) {
+  display: none;
+}
+
+.open {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.items {
+  margin: 0;
+  padding-left: var(--space-24);
+  color: var(--ink-2);
+}
+
+.share {
+  overflow-wrap: anywhere;
+}
+
+.shareLabel {
+  font-weight: 600;
+}
+
+.status {
+  color: var(--ink-2);
+}
+
+.status:empty {
+  display: none;
+}
+
+.status:focus {
+  outline: none;
+}
+
+.status:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* A rubber stamp in the serif: double-ruled, set a few degrees off true, pressed once. */
+.stamp {
+  display: inline-block;
+  margin-right: var(--space-12);
+  padding: 0 var(--space-8);
+  border: 3px double var(--ink);
+  border-radius: var(--radius-paper);
+  font-family: var(--font-display);
+  font-size: var(--text-14);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 28px;
+  transform: rotate(-4deg);
+  animation: press var(--duration-stamp) var(--ease) 1 both;
+}
+
+@keyframes press {
+  0% {
+    opacity: 0;
+    transform: rotate(-4deg) scale(1.6);
+  }
+
+  60% {
+    opacity: 1;
+    transform: rotate(-4deg) scale(0.96);
+  }
+
+  100% {
+    opacity: 1;
+    transform: rotate(-4deg) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp {
+    animation: none;
+  }
+}
+
+.dialogTitle {
+  font-size: var(--text-24);
+}
+
+.dialogBody {
+  margin-top: var(--space-12);
+  color: var(--ink-2);
+}
+
+.dialogActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-8);
+  margin-top: var(--space-24);
+}
+
+.error {
+  margin-top: var(--space-12);
+  font-size: var(--text-14);
+  color: var(--ox);
+}

@@ -1,0 +1,125 @@
+/* The offer section: early access request */
+.section {
+  padding: var(--space-48) var(--space-32);
+  background: var(--surface);
+  border: 1px solid rgba(231, 229, 228, 0.8);
+  border-radius: var(--radius-card, 8px);
+  box-shadow: 0 1px 2px rgb(22 19 15 / 3%);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-32);
+  align-items: start;
+}
+
+@media (min-width: 56rem) {
+  .layout {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: var(--space-48);
+  }
+}
+
+.pitch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+}
+
+.heading {
+  max-width: 24ch;
+  font-size: var(--text-30);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.body {
+  max-width: 34rem;
+  font-size: var(--text-16);
+  line-height: 26px;
+  color: var(--ink-2);
+}
+
+.contact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12) var(--space-24);
+  margin-top: var(--space-4);
+}
+
+/* Selectable as plain text, for readers who copy the address instead. */
+.address {
+  font-size: var(--text-14);
+  color: var(--ink-2);
+  user-select: text;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+}
+
+.panel {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-24);
+  padding: var(--space-24);
+  background: #faf8f5;
+  border: 1px solid rgba(231, 229, 228, 0.8);
+  border-radius: var(--radius-card, 8px);
+  box-shadow: 0 1px 2px rgb(22 19 15 / 2%);
+}
+
+@media (min-width: 36rem) {
+  .panel {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.subheading {
+  margin: 0;
+  font-size: var(--text-14);
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.01em;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-8);
+  font-size: var(--text-14);
+  line-height: 20px;
+  color: var(--ink-2);
+}
+
+.bullet {
+  color: var(--ink-3);
+  font-weight: 700;
+  user-select: none;
+}
+
+.check {
+  color: #15803d;
+  font-weight: 700;
+  user-select: none;
+}

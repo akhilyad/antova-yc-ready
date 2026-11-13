@@ -1,0 +1,86 @@
+/*
+ * "Brief with sidenotes": the argument in a reading column, the evidence in the margin.
+ * One column below 960 px, where the evidence opens in a bottom sheet.
+ */
+.brief {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: var(--space-48) var(--space-24) var(--space-96);
+}
+
+.wide {
+  grid-template-columns: minmax(0, 46rem) minmax(20rem, 24rem);
+  justify-content: center;
+  column-gap: var(--space-64);
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-64);
+  min-width: 0;
+}
+
+/*
+ * The margin follows the reader down the page; its own scroll keeps long evidence reachable.
+ * Scrolling is not contained: once the evidence reaches its end, the wheel moves the page.
+ */
+.margin {
+  position: sticky;
+  top: calc(var(--nav-height-total) + var(--space-8));
+  align-self: start;
+  max-height: calc(100dvh - var(--nav-height-total) - var(--space-32));
+  overflow-y: auto;
+  padding: var(--space-4);
+}
+
+.hint {
+  padding: var(--space-24);
+  font-size: var(--text-14);
+  color: var(--ink-2);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-paper);
+}
+
+.endnotes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  margin: var(--space-16) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.endnote {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  column-gap: var(--space-8);
+}
+
+.endnoteNumber {
+  font-family: var(--font-display);
+  font-size: var(--text-18);
+  font-weight: 600;
+  color: var(--ox);
+  font-variant-numeric: var(--figures);
+}
+
+.colophon {
+  padding-top: var(--space-16);
+  border-top: 1px solid var(--rule);
+  font-size: var(--text-12);
+  color: var(--ink-3);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 599px) {
+  .brief {
+    padding: var(--space-32) var(--space-16) var(--space-64);
+  }
+
+  .column {
+    gap: var(--space-48);
+  }
+}

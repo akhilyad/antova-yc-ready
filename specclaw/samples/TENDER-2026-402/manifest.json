@@ -1,0 +1,39 @@
+{
+  "tender_id": "TENDER-2026-402",
+  "title": "350 MWp Solar + BESS Substation — 33kV GIS Switchgear & RTU Protection Package",
+  "client": "Vogt-Grid EPC Consortium GmbH (Berlin / Madrid)",
+  "equipment_class": "mv_gis_switchgear",
+  "rate_table": "mv_gis_switchgear_v1",
+  "documents": [
+    {
+      "file": "MR-33kV-GIS-Rev4.pdf",
+      "role": "mr_spec"
+    },
+    {
+      "file": "Bid_vendor-a_Nordwerk.pdf",
+      "role": "vendor_bid",
+      "vendor_id": "vendor-a",
+      "vendor_name": "Nordwerk Schaltanlagen GmbH",
+      "country": "Germany"
+    },
+    {
+      "file": "Bid_vendor-b_VoltSwitch.pdf",
+      "role": "vendor_bid",
+      "vendor_id": "vendor-b",
+      "vendor_name": "VoltSwitch Industrial",
+      "country": "Turkey / EU"
+    },
+    {
+      "file": "Bid_vendor-c_Deltaport.pdf",
+      "role": "vendor_bid",
+      "vendor_id": "vendor-c",
+      "vendor_name": "Deltaport Skid Consortium B.V.",
+      "country": "Netherlands"
+    }
+  ],
+  "engineering_estimates": {
+    "busbar_cu_kg": 1480,
+    "heavy_haul_loads": 2
+  },
+  "synthetic": true
+}

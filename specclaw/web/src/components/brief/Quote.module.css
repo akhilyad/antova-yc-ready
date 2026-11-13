@@ -1,0 +1,34 @@
+.quote {
+  margin: 0;
+  padding-left: var(--space-12);
+  border-left: 2px solid var(--rule);
+}
+
+.text {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-16);
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.source {
+  margin-top: var(--space-4);
+  font-size: var(--text-12);
+  color: var(--ink-3);
+}
+
+/* The bid text that governs: the one quote with a firm rule. */
+.governing {
+  border-left-color: var(--ink);
+}
+
+/* Contradicted text: still legible, struck in oxblood because it is the wrong claim. */
+.superseded .text {
+  color: var(--ink-2);
+}
+
+.superseded s {
+  text-decoration-color: var(--ox);
+  text-decoration-thickness: 1px;
+}
