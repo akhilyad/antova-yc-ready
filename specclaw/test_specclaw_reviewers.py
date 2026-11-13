@@ -24,9 +24,7 @@ def ingested():
     return run_ingest(PACK, locator=AnswerKeyLocator(load_expected()))
 
 
-@pytest.fixture
-def fresh(ingested):
-    """The sample tender saved afresh, with no reviews or overrides from other tests."""
+def _reset(ingested):
     db = SessionLocal()
     try:
         persist(ingested, db)
@@ -35,6 +33,14 @@ def fresh(ingested):
         db.commit()
     finally:
         db.close()
+
+
+@pytest.fixture
+def fresh(ingested):
+    """The sample tender saved afresh, with no reviews or overrides from other tests, and left clean."""
+    _reset(ingested)
+    yield
+    _reset(ingested)
 
 
 @pytest.fixture

@@ -33,6 +33,13 @@ async function copyText(text: string): Promise<boolean> {
   }
 }
 
+/** A 409 from verify because the tender was ingested again since this page loaded. */
+function runChanged(error: unknown): boolean {
+  if (!(error instanceof ApiError) || error.kind !== 'conflict') return false
+  const body = error.body
+  return typeof body === 'object' && body !== null && 'code' in body && body.code === 'run_changed'
+}
+
 /** A 409 from verify: how many open items the server still counts. */
 function openItemsIn(error: unknown): number | null {
   if (!(error instanceof ApiError) || error.kind !== 'conflict') return null
@@ -89,7 +96,7 @@ export function VerifyBar({ brief, tenderId, token }: VerifyBarProps) {
   }
 
   const confirmVerify = () => {
-    verify.mutate(undefined, {
+    verify.mutate(brief.ingest_stats?.run_id, {
       onSuccess: async (result) => {
         const copied = await copyText(shareUrlFor(result.share_id))
         setDialog(null)
@@ -117,6 +124,7 @@ export function VerifyBar({ brief, tenderId, token }: VerifyBarProps) {
 
   const verifyFailed = verify.isError
     ? (() => {
+        if (runChanged(verify.error)) return copy.review.verify.runChanged
         const n = openItemsIn(verify.error)
         return n === null || n === 0 ? copy.review.verify.failed : copy.review.verify.disabled(n)
       })()

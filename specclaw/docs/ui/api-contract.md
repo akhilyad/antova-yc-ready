@@ -31,7 +31,7 @@ If you change a field, change the backend, `schemas.ts`, the fixtures and this f
 | `useReviewBrief(tenderId, token)` | `GET /api/review/tenders/{id}` | token | `Brief` (any status, with `open_items`) |
 | `usePutOverride` | `PUT /api/review/tenders/{id}/overrides/{param}/{vendor}` | token | none (204) |
 | `useDeleteOverride` | `DELETE` same path | token | 204 |
-| `useVerify` | `POST /api/review/tenders/{id}/verify` | token | `VerifyResponse` (`share_id`, `verified_at`) |
+| `useVerify(runId)` | `POST /api/review/tenders/{id}/verify`, body `{run_id?}` | token | `VerifyResponse` (`share_id`, `verified_at`) |
 | `useWithdraw` | `POST /api/review/tenders/{id}/withdraw` | token | `WithdrawResponse` (`status: DRAFT`) |
 | `useStartIngest(token)` | `POST /api/jobs/ingest` body `{tender_id, mode}` | token | `StartIngestResponse` (`job_id`, `QUEUED`) |
 | `useJob(jobId, token)` | `GET /api/jobs/{job_id}` | token | `Job` |
@@ -70,7 +70,7 @@ Things the UI depends on:
 |---|---|---|
 | `not_found` | 404 | public brief: the "not available" page (unknown and unverified look identical). Evidence crop: fall back to the quote text. |
 | `unauthorized` | 401 | show the token gate with "That token didn't work." |
-| `conflict` | 409 | verify refused (body lists `open_items`), or an override change on a VERIFIED brief |
+| `conflict` | 409 | verify refused (body lists `open_items`, or `code: "run_changed"` when the tender was ingested again after the page loaded or `run_id` is not the stored run), or an override change on a VERIFIED brief |
 | `invalid` | 422 | the form shows the server's detail |
 | `network` | none | "can't reach the server" banner with retry |
 | `server` | other | same banner. A **503** on a review route means the server has no review token configured: show "not configured" (`review/access.ts`). |

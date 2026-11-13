@@ -142,12 +142,19 @@ export function useDeleteOverride(tenderId: string, token: string) {
   })
 }
 
-/** Publish the brief. A 409 carries `{detail, open_items}` in the ApiError's body. */
+/**
+ * Publish the brief. `runId` is the ingest run the reviewer is looking at: the server refuses to
+ * verify a different one. A 409 carries `{detail, open_items}`, or `{detail, code: 'run_changed'}`,
+ * in the ApiError's body.
+ */
 export function useVerify(tenderId: string, token: string) {
   const client = useQueryClient()
   return useMutation({
-    mutationFn: () =>
-      apiRequest('POST', `${tenderPath(tenderId)}/verify`, VerifyResponse, { token }),
+    mutationFn: (runId: string | undefined) =>
+      apiRequest('POST', `${tenderPath(tenderId)}/verify`, VerifyResponse, {
+        token,
+        body: runId === undefined ? undefined : { run_id: runId },
+      }),
     onSettled: () =>
       Promise.all([
         invalidateTender(client, tenderId, token),
