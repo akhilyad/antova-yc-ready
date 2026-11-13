@@ -81,7 +81,7 @@ export const TENDER = {
     { file: 'Bid_vendor-b_VoltSwitch.pdf', role: 'vendor_bid', pages: 30 },
     { file: 'Bid_vendor-c_Deltaport.pdf', role: 'vendor_bid', pages: 30 },
   ],
-  /** Negotiation round 3 concedes every adder except PARAM-04. */
+  /** What VoltSwitch recovers if it closes every gap except PARAM-04 (round 3 of the sample). */
   clawbackRound3: 57400,
 } as const;
 
@@ -145,7 +145,7 @@ export const PARAMETERS: Parameter[] = [
     id: 'PARAM-03',
     name: 'Enclosure ingress & internal arc',
     short: 'Enclosure IP / IAC',
-    rule: 'IP ≥ IP54 AND IAC = AFLR',
+    rule: 'IP ≥ IP54 AND IAC ≥ AFLR',
     criticality: 'HIGH',
     requirement: {
       page: 6,
@@ -184,7 +184,7 @@ export const PARAMETERS: Parameter[] = [
     id: 'PARAM-06',
     name: 'Incoterms & defect liability',
     short: 'Incoterm / warranty',
-    rule: 'incoterm = DDP AND warranty ≥ 36 months',
+    rule: 'incoterm ≥ DDP AND warranty ≥ 36 months',
     criticality: 'COMMERCIAL',
     requirement: {
       page: 14,
@@ -441,19 +441,28 @@ export function vendorAdders(vendorId: VendorId): number {
 export type PriceView = 'headline' | 'evaluated' | 'round3';
 
 /**
- * Round 3 applies to the negotiating vendor (lowest headline: VoltSwitch) and
- * concedes every adder except PARAM-04.
+ * Round 3 shows VoltSwitch (CLOSURE_VENDOR) closing every gap except PARAM-04.
+ * It is a what-if for the bid that looked cheapest; the pipeline's own
+ * negotiating vendor is NEGOTIATING_VENDOR.
  */
 export function vendorPrice(vendor: Vendor, view: PriceView): number {
   if (view === 'headline') return vendor.headline;
   const adders = vendorAdders(vendor.id);
-  if (view === 'round3' && vendor.id === NEGOTIATING_VENDOR) {
+  if (view === 'round3' && vendor.id === CLOSURE_VENDOR) {
     return vendor.headline + adders - TENDER.clawbackRound3;
   }
   return vendor.headline + adders;
 }
 
-export const NEGOTIATING_VENDOR: VendorId = 'vendor-b';
+/**
+ * The vendor the pipeline names to negotiate with: the lowest true evaluated
+ * price among fully priced bids (Nordwerk, 452,000), not the lowest headline
+ * (VoltSwitch, 418,000 quoted, 482,800 evaluated). Pipeline amendment A2.
+ */
+export const NEGOTIATING_VENDOR: VendorId = 'vendor-a';
+
+/** The lowest headline. The round-3 view shows this vendor closing its gaps. */
+export const CLOSURE_VENDOR: VendorId = 'vendor-b';
 
 /** Rows of the spreadsheet-vs-Antova comparison: every check that carries a cost. */
 export const COMPARE_KEYS = ['PARAM-01', 'PARAM-02', 'PARAM-03', 'PARAM-04', 'PARAM-05', 'PARAM-06'] as const;
