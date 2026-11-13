@@ -1,5 +1,5 @@
 """
-SpecClaw Database & Repository Layer (schema v4)
+SpecClaw Database & Repository Layer (schema v5)
 
 - Tender-scoped keys: vendor and parameter IDs repeat across tenders, so they
   are keyed by (tender_id, id).
@@ -13,6 +13,8 @@ SpecClaw Database & Repository Layer (schema v4)
 - v4 adds the run record (fingerprint and stage artifacts), the human review
   record, and an `extras` JSON column for cell and vendor fields added later.
   A v2 or v3 database is upgraded to v4 in one transaction.
+- v5 adds `ingest_jobs`, so a job's status survives a restart. A v4 database is upgraded by
+  creating the table in one transaction.
 """
 
 import json
@@ -35,7 +37,7 @@ import specclaw_engine as engine_models
 log = logging.getLogger(__name__)
 
 DATABASE_URL = os.getenv("SPECCLAW_DATABASE_URL", "sqlite:///./specclaw_enterprise.db")
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 LEGACY_TABLES = ("extracted_parameters", "parameters", "vendors", "tenders")
 TENDER_STATUSES = ("DRAFT", "VERIFIED")
 
@@ -235,6 +237,22 @@ class CellReviewRecord(Base):
     note = Column(Text, nullable=False)
     evidence_hash = Column(String(64), nullable=False)
     created_at = Column(DateTime, nullable=False)
+
+
+class IngestJobRecord(Base):
+    """One queued or finished ingest job. No foreign key: a tender may not exist until its first job ends."""
+    __tablename__ = "ingest_jobs"
+
+    job_id = Column(String(32), primary_key=True)
+    tender_id = Column(String(64), nullable=False, index=True)
+    mode = Column(String(16), nullable=False)
+    status = Column(String(16), nullable=False, default="PENDING")
+    progress_pct = Column(Integer, nullable=False, default=0)
+    stage = Column(String(255), nullable=False, default="")
+    created_at = Column(DateTime, nullable=False)
+    completed_at = Column(DateTime, nullable=True)
+    result = Column(Text, nullable=True)  # JSON
+    error = Column(Text, nullable=True)
 
 
 class AuditLedgerRecord(Base):
@@ -558,6 +576,54 @@ class TenderRepository:
         """The most recent review of each cell, keyed (param_id, vendor_id)."""
         return {(r["param_id"], r["vendor_id"]): r for r in self.list_reviews(tender_id)}
 
+    # --- ingest jobs ---
+
+    def create_job(self, job_id: str, tender_id: str, mode: str) -> dict:
+        self.db.add(IngestJobRecord(job_id=job_id, tender_id=tender_id, mode=mode, status="PENDING",
+                                    progress_pct=0, stage="Queued in worker pipeline",
+                                    created_at=datetime.now(timezone.utc)))
+        self.db.commit()
+        return self.get_job(job_id)
+
+    def update_job(self, job_id: str, *, status: Optional[str] = None, progress_pct: Optional[int] = None,
+                   stage: Optional[str] = None, result: Optional[dict] = None, error: Optional[str] = None,
+                   finished: bool = False) -> None:
+        """Change the given fields of a job; `finished` stamps completed_at."""
+        record = self.db.get(IngestJobRecord, job_id)
+        if record is None:
+            return
+        if status is not None:
+            record.status = status
+        if progress_pct is not None:
+            record.progress_pct = progress_pct
+        if stage is not None:
+            record.stage = stage
+        if result is not None:
+            record.result = _dump(result)
+        if error is not None:
+            record.error = error
+        if finished:
+            record.completed_at = datetime.now(timezone.utc)
+        self.db.commit()
+
+    def get_job(self, job_id: str) -> Optional[dict]:
+        record = self.db.get(IngestJobRecord, job_id)
+        if record is None:
+            return None
+        return {"job_id": record.job_id, "tender_id": record.tender_id, "mode": record.mode,
+                "status": record.status, "progress_pct": record.progress_pct, "stage": record.stage,
+                "created_at": _utc(record.created_at), "completed_at": _utc(record.completed_at),
+                "result": _load(record.result), "error": record.error}
+
+    def fail_unfinished_jobs(self, reason: str) -> int:
+        """Mark every PENDING or PROCESSING job FAILED. For service start: such a job died with its process."""
+        now = datetime.now(timezone.utc)
+        rows = self.db.query(IngestJobRecord).filter(IngestJobRecord.status.in_(("PENDING", "PROCESSING"))).all()
+        for record in rows:
+            record.status, record.error, record.completed_at = "FAILED", reason, now
+        self.db.commit()
+        return len(rows)
+
     def log_negotiation_round(
         self,
         tender_id: str,
@@ -634,6 +700,12 @@ def _upgrade_v3_to_v4(conn: Connection) -> None:
     _write_version(conn)
 
 
+def _upgrade_v4_to_v5(conn: Connection) -> None:
+    """Create ingest_jobs (and anything else missing) and record v5."""
+    Base.metadata.create_all(bind=conn)
+    _write_version(conn)
+
+
 def _write_version(conn: Connection) -> None:
     conn.execute(text("DELETE FROM schema_version"))
     conn.execute(text("INSERT INTO schema_version (version) VALUES (:v)"), {"v": SCHEMA_VERSION})
@@ -666,7 +738,7 @@ def check_foreign_keys(bind: Engine) -> None:
 
 
 def init_db(bind: Optional[Engine] = None) -> None:
-    """Create or upgrade the schema to version 4."""
+    """Create or upgrade the schema to the current version."""
     if bind is None:
         bind = engine
     elif bind is not engine:
@@ -685,6 +757,11 @@ def init_db(bind: Optional[Engine] = None) -> None:
             if version == 2:
                 _upgrade_v2_to_v3(conn)
             _upgrade_v3_to_v4(conn)
+        check_foreign_keys(bind)
+        return
+    if version == 4:
+        with bind.begin() as conn:
+            _upgrade_v4_to_v5(conn)
         check_foreign_keys(bind)
         return
     legacy = [t for t in LEGACY_TABLES if t in tables]
