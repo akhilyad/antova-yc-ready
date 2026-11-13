@@ -441,3 +441,47 @@ def test_v3_upgrade_matches_fresh_schema(tmp_path):
     init_db(migrated)
     for table in ("extracted_parameters", "vendors", "ingest_runs", "stage_artifacts"):
         assert _schema(migrated, table)[0] == _schema(fresh, table)[0], table
+
+
+# --- SQLite pragmas and the foreign-key check -----------------------------------------------------
+
+def _pragma(engine, name):
+    with engine.connect() as conn:
+        return conn.exec_driver_sql(f"PRAGMA {name}").scalar()
+
+
+def test_sqlite_connections_get_wal_foreign_keys_and_busy_timeout(db_engine):
+    init_db(db_engine)
+    assert _pragma(db_engine, "journal_mode") == "wal"
+    assert _pragma(db_engine, "foreign_keys") == 1
+    assert _pragma(db_engine, "busy_timeout") == 5000
+    assert _pragma(db_engine, "synchronous") == 1  # NORMAL
+
+
+def test_the_app_engine_uses_the_same_pragmas():
+    import specclaw_db
+
+    assert _pragma(specclaw_db.engine, "foreign_keys") == 1
+    assert _pragma(specclaw_db.engine, "journal_mode") == "wal"
+
+
+def test_a_row_without_a_parent_is_refused(db_engine):
+    from sqlalchemy.exc import IntegrityError
+
+    init_db(db_engine)
+    with pytest.raises(IntegrityError):
+        with db_engine.begin() as conn:
+            conn.execute(text("INSERT INTO ingest_runs (run_id, tender_id, fingerprint, parts, created_at) "
+                              "VALUES ('r1', 'NO-SUCH-TENDER', 'f', '{}', '2026-01-01')"))
+
+
+def test_init_db_refuses_to_start_on_orphaned_rows(db_engine):
+    from specclaw_db import ForeignKeyViolation
+
+    init_db(db_engine)
+    with db_engine.begin() as conn:
+        conn.exec_driver_sql("PRAGMA foreign_keys=OFF")  # how an old, unenforced database got its orphans
+        conn.execute(text("INSERT INTO ingest_runs (run_id, tender_id, fingerprint, parts, created_at) "
+                          "VALUES ('r1', 'NO-SUCH-TENDER', 'f', '{}', '2026-01-01')"))
+    with pytest.raises(ForeignKeyViolation, match="ingest_runs: 1"):
+        init_db(db_engine)

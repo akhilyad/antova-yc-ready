@@ -16,6 +16,7 @@ SpecClaw Database & Repository Layer (schema v4)
 """
 
 import json
+import logging
 import os
 import secrets
 from dataclasses import dataclass
@@ -25,11 +26,13 @@ from typing import Any, List, Optional
 
 from sqlalchemy import (
     Boolean, Column, Connection, DateTime, Engine, Float, ForeignKey, Index, Integer, String, Text,
-    UniqueConstraint, create_engine, inspect, text,
+    UniqueConstraint, create_engine, event, inspect, text,
 )
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
 import specclaw_engine as engine_models
+
+log = logging.getLogger(__name__)
 
 DATABASE_URL = os.getenv("SPECCLAW_DATABASE_URL", "sqlite:///./specclaw_enterprise.db")
 SCHEMA_VERSION = 4
@@ -39,12 +42,44 @@ TENDER_STATUSES = ("DRAFT", "VERIFIED")
 connect_args = {"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
 engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=True, echo=False)
 
+# Applied to every SQLite connection. SQLite ignores foreign keys unless asked per connection, so
+# without this the ondelete rules in the models never fire. WAL lets a reader and the writer run
+# together; busy_timeout makes a second writer wait up to 5 s instead of failing with "locked".
+SQLITE_PRAGMAS = (
+    "PRAGMA journal_mode=WAL",
+    "PRAGMA synchronous=NORMAL",
+    "PRAGMA foreign_keys=ON",
+    "PRAGMA busy_timeout=5000",
+)
+
+
+def configure_sqlite(bind: Engine) -> Engine:
+    """Run SQLITE_PRAGMAS on every new connection of `bind`. Does nothing for other databases."""
+    if bind.dialect.name == "sqlite":
+        @event.listens_for(bind, "connect")
+        def _pragmas(dbapi_connection, _record):
+            cursor = dbapi_connection.cursor()
+            try:
+                for pragma in SQLITE_PRAGMAS:
+                    cursor.execute(pragma)
+            finally:
+                cursor.close()
+    return bind
+
+
+configure_sqlite(engine)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
 class LegacyDataError(RuntimeError):
     """The baseline-schema tables hold data, so they cannot be rebuilt automatically."""
+
+
+class ForeignKeyViolation(RuntimeError):
+    """Rows point at parents that do not exist. Foreign keys are enforced from now on, so the
+    database has to be repaired (or the orphans deleted) before the service will start."""
 
 
 # --- DATABASE MODELS ---
@@ -334,6 +369,9 @@ class TenderRepository:
             record.ingest_stats = _dump(ingest_stats or {})
             record.stage_log = _dump(stage_log or [])
             self.db.add(record)
+            # No relationship() links these tables, so SQLAlchemy does not order the inserts by foreign
+            # key. Write the tender row first: every row below points at it.
+            self.db.flush()
             for position, v in enumerate(tender.vendors):
                 self.db.add(VendorRecord(
                     tender_id=tid, id=v.id, position=position, name=v.name, country=v.country,
@@ -601,13 +639,43 @@ def _write_version(conn: Connection) -> None:
     conn.execute(text("INSERT INTO schema_version (version) VALUES (:v)"), {"v": SCHEMA_VERSION})
 
 
+# The ledger is a record of what was said in negotiation. Databases from before the v2 schema have
+# ledger rows whose tender was never migrated; those rows are kept (never deleted), so they are
+# reported, not fatal.
+TOLERATED_ORPHANS = ("audit_clawback_ledger",)
+
+
+def check_foreign_keys(bind: Engine) -> None:
+    """Raise ForeignKeyViolation, naming the tables and counts, if a row has no parent (SQLite only).
+
+    Orphans in TOLERATED_ORPHANS are logged as a warning instead.
+    """
+    if bind.dialect.name != "sqlite":
+        return
+    with bind.connect() as conn:
+        rows = conn.exec_driver_sql("PRAGMA foreign_key_check").fetchall()
+    counts: dict[str, int] = {}
+    for table, *_ in rows:
+        counts[table] = counts.get(table, 0) + 1
+    for table in TOLERATED_ORPHANS:
+        if table in counts:
+            log.warning("%s has %d row(s) whose tender no longer exists; kept as history", table, counts.pop(table))
+    if counts:
+        detail = ", ".join(f"{table}: {n}" for table, n in sorted(counts.items()))
+        raise ForeignKeyViolation(f"orphaned rows found ({detail}); fix or delete them before starting")
+
+
 def init_db(bind: Optional[Engine] = None) -> None:
     """Create or upgrade the schema to version 4."""
-    bind = bind or engine
+    if bind is None:
+        bind = engine
+    elif bind is not engine:
+        configure_sqlite(bind)  # an engine built elsewhere (a test, a script) gets the same pragmas
     tables = set(inspect(bind).get_table_names())
     version = _current_version(bind, tables)
     if version is not None and version >= SCHEMA_VERSION:
         Base.metadata.create_all(bind=bind)
+        check_foreign_keys(bind)
         return
     if version in (2, 3):
         with bind.begin() as conn:
@@ -617,6 +685,7 @@ def init_db(bind: Optional[Engine] = None) -> None:
             if version == 2:
                 _upgrade_v2_to_v3(conn)
             _upgrade_v3_to_v4(conn)
+        check_foreign_keys(bind)
         return
     legacy = [t for t in LEGACY_TABLES if t in tables]
     with bind.begin() as conn:
@@ -632,6 +701,7 @@ def init_db(bind: Optional[Engine] = None) -> None:
     Base.metadata.create_all(bind=bind)
     with bind.begin() as conn:
         _write_version(conn)
+    check_foreign_keys(bind)
 
 
 def get_db():
