@@ -855,7 +855,7 @@ describe('Review: re-ingesting a brief (F2)', () => {
       name: copy.review.reingestConfirm.title(OTHER_ID),
     })
     expect(confirm).toHaveTextContent('share link stops working')
-    expect(confirm).toHaveTextContent('2 overrides will be cleared')
+    expect(confirm).toHaveTextContent('2 overrides on this brief')
     expect(started).toEqual([])
   })
 
@@ -908,7 +908,7 @@ describe('Review: re-ingesting a brief (F2)', () => {
       copy.review.reingestConfirm.body({ verified: true, overrides: 1 }),
     )
     expect(confirm).toHaveTextContent('share link stops working')
-    expect(confirm).toHaveTextContent('1 override will be cleared')
+    expect(confirm).toHaveTextContent('1 override on this brief')
     await user.click(
       within(confirm).getByRole('button', { name: copy.review.reingestConfirm.cancel }),
     )
@@ -936,7 +936,7 @@ describe('Review: re-ingesting a brief (F2)', () => {
     const confirm = await screen.findByRole('dialog', {
       name: copy.review.reingestConfirm.title(TENDER_ID),
     })
-    expect(confirm).toHaveTextContent('1 override will be cleared')
+    expect(confirm).toHaveTextContent('1 override on this brief')
     expect(confirm).not.toHaveTextContent('share link')
   })
 

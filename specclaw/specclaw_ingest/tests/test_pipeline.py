@@ -2,10 +2,13 @@
 
 import dataclasses
 import shutil
+import copy
 from decimal import Decimal
 from pathlib import Path
 
 import pytest
+
+from specclaw_review import evidence_hash
 
 import specclaw_engine as engine
 from specclaw_db import SessionLocal, TenderRepository
@@ -230,18 +233,72 @@ def test_persist_stores_meta(result):
     assert [entry["stage"] for entry in meta.stage_log] == [s for s, _ in STAGES]
 
 
-def test_persist_returns_cleared_overrides(result):
+def _override(repo, result, param_id="PARAM-01", vendor_id="vendor-b", note="Quoted retrofit", hashed=True):
+    cell = next(p.vendors[vendor_id] for p in result.tender.parameters if p.id == param_id)
+    repo.put_override(result.tender.id, param_id, vendor_id, Decimal("12000.00"), note,
+                      evidence_hash(cell) if hashed else None)
+
+
+def test_persist_keeps_an_override_whose_cell_is_unchanged(result):
     db = SessionLocal()
     try:
         repo = TenderRepository(db)
         persist(result, db)
-        repo.put_override("TENDER-2026-402", "PARAM-01", "vendor-b", Decimal("12000.00"), "Quoted retrofit")
+        _override(repo, result)
         cleared = persist(result, db)
         remaining = repo.get_overrides("TENDER-2026-402")
     finally:
         db.close()
+    assert cleared == []
+    assert list(remaining) == [("PARAM-01", "vendor-b")]
+    assert remaining[("PARAM-01", "vendor-b")].adder_eur == Decimal("12000.00")
+
+
+def test_persist_clears_an_override_whose_cell_changed(result):
+    db = SessionLocal()
+    try:
+        repo = TenderRepository(db)
+        persist(result, db)
+        _override(repo, result)
+        changed = result.model_copy(deep=True) if hasattr(result, "model_copy") else copy.deepcopy(result)
+        cell = next(p.vendors["vendor-b"] for p in changed.tender.parameters if p.id == "PARAM-01")
+        cell.extracted_text += " (revised)"
+        cleared = persist(changed, db)
+        remaining = repo.get_overrides("TENDER-2026-402")
+        persist(result, db)  # leave the shared test database as it was
+    finally:
+        db.close()
     assert cleared == [{"param_id": "PARAM-01", "vendor_id": "vendor-b", "adder_eur": "12000.00", "note": "Quoted retrofit"}]
     assert remaining == {}
+
+
+def test_persist_clears_an_override_without_a_recorded_hash(result):
+    db = SessionLocal()
+    try:
+        repo = TenderRepository(db)
+        persist(result, db)
+        _override(repo, result, hashed=False)  # entered before the hash existed: it cannot be shown to apply
+        cleared = persist(result, db)
+        remaining = repo.get_overrides("TENDER-2026-402")
+    finally:
+        db.close()
+    assert [(o["param_id"], o["vendor_id"]) for o in cleared] == [("PARAM-01", "vendor-b")]
+    assert remaining == {}
+
+
+def test_persist_clears_an_override_whose_cell_is_gone(result):
+    db = SessionLocal()
+    try:
+        repo = TenderRepository(db)
+        persist(result, db)
+        _override(repo, result)
+        smaller = copy.deepcopy(result)
+        next(p for p in smaller.tender.parameters if p.id == "PARAM-01").vendors.pop("vendor-b")
+        cleared = persist(smaller, db)
+        persist(result, db)
+    finally:
+        db.close()
+    assert [(o["param_id"], o["vendor_id"]) for o in cleared] == [("PARAM-01", "vendor-b")]
 
 
 def test_tender_dir_for():

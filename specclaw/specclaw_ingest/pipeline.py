@@ -785,15 +785,12 @@ def run_ingest(tender_dir: Path, mode: str = "auto", progress: Callable[[str, in
 def persist(result: IngestResult, db: Session, share_id: str | None = None) -> list[dict]:
     """Save the tender; returns the founder overrides the re-ingest cleared, sorted by (param_id, vendor_id).
 
+    An override whose cell is unchanged (same evidence hash) survives the re-ingest; one whose
+    cell changed or vanished is cleared and returned here so the founder can enter it again.
     `share_id` is used only if the tender is new; an existing tender keeps its share ID.
     """
-    repo = TenderRepository(db)
-    cleared = [
-        {"param_id": param_id, "vendor_id": vendor_id, "adder_eur": str(o.adder_eur), "note": o.note}
-        for (param_id, vendor_id), o in sorted(repo.get_overrides(result.tender.id).items())
-    ]
     stats = result.stats
-    repo.save_tender(
+    return TenderRepository(db).save_tender(
         result.tender, result.documents, datetime.now(timezone.utc),
         ingest_mode=stats["ingest_mode"], synthetic=stats["synthetic"],
         ingest_stats={k: v for k, v in stats.items() if k != "stage_log"},
@@ -802,4 +799,3 @@ def persist(result: IngestResult, db: Session, share_id: str | None = None) -> l
         run={"run_id": stats["run_id"], "fingerprint": stats["run_fingerprint"],
              "parts": result.fingerprint.get("parts", {}), "artifacts": result.artifacts} if result.artifacts else None,
     )
-    return cleared
