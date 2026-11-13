@@ -9,8 +9,6 @@ import {
   HERO_COPY,
   INTRO_COPY,
   MANIFESTO_COPY,
-  MATRIX_COPY,
-  IMPACT_COPY,
   PRICING_PLANS,
   PRICING_SECTION_COPY,
   PROBLEM_STACK_SECTION,
@@ -122,9 +120,6 @@ describe('Antova landing data and copy', () => {
     assert.equal(PRICING_PLANS[1].priceAmount, 1500);
     assert.equal(PRICING_PLANS[2].priceAmount, 6000);
     assert.equal(FINAL_CTA_COPY.submitButtonText, 'Audit a tender free');
-    // Impact stats must match the sample audit figures
-    assert.equal(IMPACT_COPY.stats[0].value, formatEuro(vendorAdders('vendor-b')));
-    assert.equal(IMPACT_COPY.stats[2].value, formatEuro(482800 - vendorPrice(vendor('vendor-b'), 'round3')));
     assert.deepEqual(EQUIPMENT_OPTIONS, [
       'MV switchgear',
       'HV switchgear',
@@ -132,7 +127,7 @@ describe('Antova landing data and copy', () => {
       'BESS skids',
     ]);
     assert.equal(TEAM_FOUNDER_DATA.role, 'Founder & CEO');
-    assert.deepEqual(HOW_IT_WORKS.steps.map((x) => x.title), ['Read', 'Check', 'Price', 'Review']);
+    assert.deepEqual(HOW_IT_WORKS.steps.map((x) => x.title), ['Read', 'Check', 'Price', 'Verify']);
 
     const serialized = JSON.stringify({
       HERO_COPY,
@@ -140,8 +135,6 @@ describe('Antova landing data and copy', () => {
       PROBLEM_STACK_SECTION,
       INTRO_COPY,
       HOW_IT_WORKS,
-      MATRIX_COPY,
-      IMPACT_COPY,
       PRICING_SECTION_COPY,
       PRICING_PLANS,
       FAQ_SECTION_COPY,

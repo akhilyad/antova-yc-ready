@@ -18,7 +18,7 @@ const NAV_ITEMS: {
   sectionId?: string;
 }[] = [
   { label: 'Compare', href: '/#compare', view: 'home', sectionId: 'compare' },
-  { label: 'Try it', href: '/#verification', view: 'home', sectionId: 'verification' },
+  { label: 'How it works', href: '/#how', view: 'home', sectionId: 'how' },
   { label: 'Pricing', href: '/#pricing', view: 'home', sectionId: 'pricing' },
   { label: 'FAQ', href: '/#faq', view: 'home', sectionId: 'faq' },
   { label: 'Team', href: '/team', view: 'team' },
