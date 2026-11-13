@@ -124,3 +124,59 @@ def test_no_overrides_unchanged():
         for row in result["itemized_breakdown"]:
             assert row["is_overridden"] is False
             assert row["override_note"] is None
+
+
+# --- exact money -----------------------------------------------------------------------------
+
+def _dec(value):
+    return Decimal(str(value))
+
+
+def test_every_figure_is_the_exact_sum_of_the_ones_it_is_built_from():
+    for rates in ({}, {"copper_multiplier": 1.37, "site_labor_rate": 71.3, "freight_multiplier": 1.13}):
+        for result in _financials(conceded=["PARAM-01", "PARAM-05"], closing_with="vendor-b", **rates).values():
+            items = result["itemized_breakdown"]
+            kept = sum((_dec(i["adder_eur"]) for i in items if not i["is_conceded"]), Decimal("0"))
+            clawed = sum((_dec(i["adder_eur"]) for i in items if i["is_conceded"]), Decimal("0"))
+            assert _dec(result["total_adders"]) == kept
+            assert _dec(result["clawed_back_amount"]) == clawed
+            assert _dec(result["total_tech_penalty"]) + _dec(result["total_commercial_adder"]) == kept
+            if result["true_evaluated_price"] is not None:
+                assert _dec(result["true_evaluated_price"]) == _dec(result["headline_price"]) + kept
+
+
+def test_a_hundred_small_adders_sum_without_drift():
+    tender = sample_tender()
+    cell = tender.parameters[0].vendors["vendor-b"]
+    cell.cost_lines = []
+    cell.cost_adder = 0.1
+    tender.parameters = [tender.parameters[0].model_copy(update={"id": f"PARAM-{i:03d}"}) for i in range(100)]
+    for p in tender.parameters:
+        p.vendors = {"vendor-b": cell}
+    result = _financials(tender)["vendor-b"]
+    assert result["total_adders"] == 10.0  # 100 x 0.10; the float running sum of 0.1 is 9.99999999999998
+    running = 0.0
+    for _ in range(100):
+        running += 0.1
+    assert running != 10.0  # what the old float accumulation did
+
+
+def test_figures_round_half_up_to_the_cent():
+    assert engine.cents(Decimal("2.675")) == Decimal("2.68")  # round(2.675, 2) is 2.67 in float
+    assert engine.cents(Decimal("0.005")) == Decimal("0.01")
+    assert engine.cents(Decimal("-0.005")) == Decimal("-0.01")
+
+
+def test_a_legacy_float_adder_is_read_by_its_printed_value():
+    cell = sample_tender().parameters[0].vendors["vendor-b"].model_copy(
+        update={"cost_lines": [], "cost_adder": 0.1 + 0.2})  # 0.30000000000000004
+    assert engine.adder_decimal(cell, engine.SensitivitySettings()) == Decimal("0.30")
+    assert engine.adder_amount(cell, engine.SensitivitySettings()) == 0.3
+
+
+def test_an_override_is_used_exactly():
+    override = engine.Override(adder_eur=Decimal("1234.56"), note="n")
+    tender = sample_tender()
+    result = {r["vendor_id"]: r for r in engine.evaluate_vendor_financials(
+        tender, engine.SensitivitySettings(), [], overrides={("PARAM-01", "vendor-b"): override})}["vendor-b"]
+    assert _row(result, "PARAM-01")["adder_eur"] == 1234.56
