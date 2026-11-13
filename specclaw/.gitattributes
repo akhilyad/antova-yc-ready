@@ -1,0 +1,3 @@
+# Sample fixtures must stay byte-identical to what the generator writes.
+*.pdf binary
+samples/**/*.json text eol=lf

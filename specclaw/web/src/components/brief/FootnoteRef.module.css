@@ -1,0 +1,38 @@
+.ref {
+  color: var(--ox);
+  text-decoration: none;
+  border-radius: var(--radius-paper);
+}
+
+/*
+ * WCAG 2.2 target size: at least 24 × 24 px. The negative margin cancels the padding, so the
+ * marker keeps its place in the line while the hit area grows around it.
+ */
+.hitArea {
+  display: inline-block;
+  min-width: 24px;
+  min-height: 24px;
+  padding: var(--space-4) var(--space-8);
+  margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-8));
+  line-height: 16px;
+  text-align: center;
+  vertical-align: baseline;
+}
+
+.number {
+  font-weight: 600;
+  font-variant-numeric: var(--figures);
+}
+
+.ref:hover .number {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+}
+
+.ref[aria-current='true'] .number {
+  text-decoration: underline;
+  text-decoration-color: var(--ox);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.15em;
+}

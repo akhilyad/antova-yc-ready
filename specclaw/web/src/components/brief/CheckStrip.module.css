@@ -1,0 +1,26 @@
+.strip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-8);
+  white-space: nowrap;
+}
+
+.marks {
+  display: inline-flex;
+  gap: 2px;
+  font-size: var(--text-12);
+  line-height: 1;
+}
+
+.met {
+  color: var(--ink);
+}
+
+.unmet {
+  color: var(--ox);
+}
+
+.count {
+  font-size: var(--text-14);
+  color: var(--ink-2);
+}

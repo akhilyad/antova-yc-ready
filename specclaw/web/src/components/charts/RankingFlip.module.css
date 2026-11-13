@@ -1,0 +1,174 @@
+.flip {
+  margin: 0;
+}
+
+.heads,
+.plot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(48px, 0.8fr) minmax(0, 1fr);
+  column-gap: var(--space-12);
+}
+
+.heads {
+  padding-bottom: var(--space-8);
+  border-bottom: 1px solid var(--rule);
+  font-size: var(--text-12);
+  font-weight: 500;
+  color: var(--ink-3);
+}
+
+.end {
+  text-align: left;
+}
+
+.heads > :first-child {
+  text-align: right;
+}
+
+.column,
+.slopes {
+  position: relative;
+}
+
+/* A direct label, centred on its line end: name over price. */
+.label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(-50%);
+  line-height: 1.25;
+}
+
+.start {
+  align-items: flex-end;
+  text-align: right;
+}
+
+/* The full name, wrapping to three lines; only a name longer than that is clamped. */
+.name {
+  display: -webkit-box;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: var(--text-12);
+  color: var(--ink-2);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  text-wrap: balance;
+}
+
+/* Wider than a phone, a name has the room for two lines, which keeps the gaps (and so the
+   heights) closer to the price differences (RankingFlip WIDE_MIN_GAP_PX). */
+@media (min-width: 600px) {
+  .name {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+}
+
+/* On a phone the slopes need little width; the names get the room. */
+@media (max-width: 599px) {
+  .heads,
+  .plot {
+    grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr);
+    column-gap: var(--space-8);
+  }
+}
+
+.value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--space-8);
+}
+
+/* The rank change, in words and arrows, beside the oxblood line. */
+.change {
+  font-size: var(--text-12);
+  font-weight: 600;
+  color: var(--ox);
+  white-space: nowrap;
+}
+
+.svg {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  overflow: visible;
+}
+
+.line,
+.worse {
+  fill: none;
+  stroke-width: 2px;
+  stroke-linecap: round;
+}
+
+/* Holding or improving: quiet ink. */
+.line {
+  stroke: var(--ink-3);
+}
+
+/* Ranked lower once its gaps are priced: the one coloured line. */
+.worse {
+  stroke: var(--ox);
+}
+
+.dot,
+.worseDot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--paper);
+}
+
+.dot {
+  background: var(--ink-3);
+}
+
+.worseDot {
+  background: var(--ox);
+}
+
+.dotStart {
+  left: -4px;
+}
+
+.dotEnd {
+  right: -4px;
+}
+
+/*
+ * The flip (RankingFlip `play`, the landing's hero). Until a part has happened it is hidden: a
+ * line before it starts to draw, an evaluated price and its dot before the line lands, the
+ * rank change before the price has counted. Readers who ask for reduced motion never see the
+ * hidden state, even on the prerendered page before script runs. Without script, index.html
+ * shows every part.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .flip [data-flip-part]:not([data-shown]) {
+    opacity: 0;
+  }
+}
+
+/* A line appears at its start point and draws (script); the rest fades in. */
+.flip span[data-flip-part] {
+  transition: opacity var(--duration-hover) var(--ease);
+}
+
+/* Vendor highlight: hovering a vendor dims the other bidders across both columns. */
+.label,
+.line,
+.worse,
+.dot,
+.worseDot {
+  transition: opacity var(--duration-hover) var(--ease);
+}
+
+.plot [data-dimmed='true'] {
+  opacity: 0.35;
+}

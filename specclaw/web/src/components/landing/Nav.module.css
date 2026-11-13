@@ -1,0 +1,66 @@
+/*
+ * Laid over the right-hand side of the shell's sticky bar (z-index 20): the same width,
+ * pulled up by the bar's height and sticky at top: 0, so the wordmark and these links
+ * read as one unified bar. Only the links take pointer events; the wordmark underneath stays
+ * clickable.
+ */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 21;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: min(72rem, calc(100% - var(--space-32)));
+  height: var(--nav-height-total);
+  margin: calc(-1 * var(--nav-height-total)) auto 0;
+  padding: 0 var(--space-8);
+  pointer-events: none;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-24);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: auto;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 var(--space-10);
+  border-radius: var(--radius-control);
+  font-size: var(--text-14);
+  font-weight: 500;
+  color: var(--ink-2);
+  text-decoration: none;
+  transition:
+    color var(--duration-hover) var(--ease),
+    background-color var(--duration-hover) var(--ease);
+}
+
+.link:hover {
+  color: var(--ink);
+  background: rgb(22 19 15 / 6%);
+}
+
+.cta {
+  min-height: 34px;
+  padding: var(--space-4) var(--space-14);
+  font-size: var(--text-14);
+}
+
+/* Narrow screens keep the wordmark and the one call to action. */
+@media (max-width: 40rem) {
+  .optional {
+    display: none;
+  }
+
+  .links {
+    gap: var(--space-16);
+  }
+}
