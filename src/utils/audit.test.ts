@@ -24,6 +24,8 @@ import {
   cellAdder,
   vendorAdders,
   vendorPrice,
+  NEGOTIATING_VENDOR,
+  CLOSURE_VENDOR,
 } from '../data/tender402';
 import { formatEuro, submitAuditRequest, validateWorkEmail } from './audit';
 
@@ -56,6 +58,23 @@ describe('Antova landing data and copy', () => {
     assert.equal(vendorPrice(vendor('vendor-b'), 'round3'), 425400);
     assert.equal(vendorPrice(vendor('vendor-c'), 'round3'), 454000);
     assert.equal(vendorPrice(vendor('vendor-b'), 'headline'), 418000);
+  });
+
+  it('names the lowest true evaluated price to negotiate with, not the lowest headline', () => {
+    // Pipeline amendment A2. Round 3 remains a what-if for the bid that looked cheapest.
+    const byEvaluated = [...VENDORS].sort((x, y) => vendorPrice(x, 'evaluated') - vendorPrice(y, 'evaluated'));
+    const byHeadline = [...VENDORS].sort((x, y) => x.headline - y.headline);
+    assert.equal(NEGOTIATING_VENDOR, byEvaluated[0].id);
+    assert.equal(NEGOTIATING_VENDOR, 'vendor-a');
+    assert.equal(CLOSURE_VENDOR, byHeadline[0].id);
+    assert.equal(CLOSURE_VENDOR, 'vendor-b');
+  });
+
+  it('rule text reads at least for ordered values', () => {
+    // Pipeline amendment A1: a better Incoterm or arc class than required is compliant.
+    const rule = (id: string) => PARAMETERS.find((p) => p.id === id)?.rule;
+    assert.equal(rule('PARAM-03'), 'IP ≥ IP54 AND IAC ≥ AFLR');
+    assert.equal(rule('PARAM-06'), 'incoterm ≥ DDP AND warranty ≥ 36 months');
   });
 
   it('comparison table rows sum to each vendor total', () => {
