@@ -12,6 +12,8 @@ from specclaw_ingest.precedence import merge_requirement, resolve
 from specclaw_ingest.types import Citation, Evidence
 from specclaw_ingest.values import parse_field
 
+SAMPLE_RATE_TABLE = "mv_gis_switchgear_v2"  # what the sample packs' manifests name
+
 QUANTITIES = {
     "tender.bay_count": Decimal(11),
     "estimate.busbar_cu_kg": Decimal(1480),
@@ -51,24 +53,24 @@ def requirement(param_id: str):
     return merge_requirement(PARAMS_BY_ID[param_id], mr)
 
 
-def vendor_resolution(vendor_id: str, param_id: str):
+def vendor_resolution(vendor_id: str, param_id: str, rate_table: str = SAMPLE_RATE_TABLE):
     evs = [evidence(param_id, section_for(e.page), e.page, e.text)
            for e in scenario.VENDOR_EVIDENCE[vendor_id] if e.param_id == param_id]
-    # The sample is evaluated with rate table v1, as its manifest says; the table carries the warranty policy.
-    policy = load_rate_table("mv_gis_switchgear_v1").policies["warranty_basis"]
+    # The sample is evaluated with rate table v2, as its manifest says; the table carries the warranty policy.
+    policy = load_rate_table(rate_table).policies["warranty_basis"]
     return resolve(PARAMS_BY_ID[param_id], requirement(param_id), evs, vendor_id, warranty_policy=policy)
 
 
-def priced(vendor_id: str, param_id: str, quantities=None):
+def priced(vendor_id: str, param_id: str, quantities=None, rate_table: str = SAMPLE_RATE_TABLE):
     param = PARAMS_BY_ID[param_id]
-    resolution = vendor_resolution(vendor_id, param_id)
-    pricing = price(param, requirement(param_id), resolution, load_rate_table("mv_gis_switchgear_v1"),
+    resolution = vendor_resolution(vendor_id, param_id, rate_table)
+    pricing = price(param, requirement(param_id), resolution, load_rate_table(rate_table),
                     QUANTITIES if quantities is None else quantities)
     return resolution, pricing
 
 
-def sample_tender(headlines: dict[str, float] | None = None) -> engine.TenderPackage:
-    """The sample tender with real resolutions and cost lines for every cell."""
+def sample_tender(headlines: dict[str, float] | None = None, rate_table: str = SAMPLE_RATE_TABLE) -> engine.TenderPackage:
+    """The sample tender with real resolutions and cost lines for every cell, priced with `rate_table`."""
     headlines = headlines or {v.id: float(v.headline) for v in scenario.VENDORS}
     vendors = [
         engine.Vendor(id=v.id, name=v.name, country=v.country, headline_price=headlines[v.id],
@@ -79,7 +81,7 @@ def sample_tender(headlines: dict[str, float] | None = None) -> engine.TenderPac
     for param in PARAMETERS:
         cells = {}
         for v in scenario.VENDORS:
-            resolution, pricing = priced(v.id, param.id)
+            resolution, pricing = priced(v.id, param.id, rate_table=rate_table)
             cells[v.id] = engine.ExtractedParameter(
                 extracted_text=resolution.extracted_text, status=resolution.status,
                 confidence=resolution.confidence, bbox="", snippet="",

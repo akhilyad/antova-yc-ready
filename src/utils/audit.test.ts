@@ -39,7 +39,7 @@ describe('Antova landing data and copy', () => {
     assert.equal(cellAdder(b['PARAM-03']), 8900);
     assert.equal(cellAdder(b['PARAM-04']), 7400);
     assert.equal(cellAdder(b['PARAM-05']), 6500);
-    assert.equal(cellAdder(b['PARAM-06']), 9300);
+    assert.equal(cellAdder(b['PARAM-06']), 6150);
     const c = CELLS['vendor-c'];
     assert.equal(cellAdder(c['PARAM-01']), 6200);
     assert.equal(cellAdder(c['PARAM-04']), 4100);
@@ -49,10 +49,10 @@ describe('Antova landing data and copy', () => {
 
   it('reproduces the true evaluated prices and round 3 clawback', () => {
     assert.equal(vendorAdders('vendor-a'), 0);
-    assert.equal(vendorAdders('vendor-b'), 64800);
+    assert.equal(vendorAdders('vendor-b'), 61650);
     assert.equal(vendorAdders('vendor-c'), 15000);
     assert.equal(vendorPrice(vendor('vendor-a'), 'evaluated'), 452000);
-    assert.equal(vendorPrice(vendor('vendor-b'), 'evaluated'), 482800);
+    assert.equal(vendorPrice(vendor('vendor-b'), 'evaluated'), 479650);
     assert.equal(vendorPrice(vendor('vendor-c'), 'evaluated'), 454000);
     assert.equal(vendorPrice(vendor('vendor-b'), 'round3'), 425400);
     assert.equal(vendorPrice(vendor('vendor-c'), 'round3'), 454000);
@@ -82,7 +82,7 @@ describe('Antova landing data and copy', () => {
       assert.equal(rows, vendorAdders(v.id), v.id);
       assert.equal(v.headline + rows, vendorPrice(v, 'evaluated'), v.id);
     }
-    assert.equal(COMPARE_KEYS.reduce((s, k) => s + cellAdder(CELLS['vendor-b'][k]), 0), 64800);
+    assert.equal(COMPARE_KEYS.reduce((s, k) => s + cellAdder(CELLS['vendor-b'][k]), 0), 61650);
     assert.equal(COMPARE_KEYS.reduce((s, k) => s + cellAdder(CELLS['vendor-c'][k]), 0), 15000);
   });
 
@@ -120,14 +120,11 @@ describe('Antova landing data and copy', () => {
     assert.equal(PRICING_PLANS[1].priceAmount, 1500);
     assert.equal(PRICING_PLANS[2].priceAmount, 6000);
     assert.equal(FINAL_CTA_COPY.submitButtonText, 'Audit a tender free');
-    assert.deepEqual(EQUIPMENT_OPTIONS, [
-      'MV switchgear',
-      'HV switchgear',
-      'PLC & control panels',
-      'BESS skids',
-    ]);
+    assert.deepEqual(EQUIPMENT_OPTIONS, ['MV switchgear', 'Other electrical package']);
     assert.equal(TEAM_FOUNDER_DATA.role, 'Founder & CEO');
-    assert.deepEqual(HOW_IT_WORKS.steps.map((x) => x.title), ['Read', 'Check', 'Price', 'Verify']);
+    assert.deepEqual(HOW_IT_WORKS.steps.map((x) => x.title), ['Read', 'Check', 'Price', 'Approve']);
+    assert.ok(/person/i.test(HOW_IT_WORKS.steps[3].body), 'the human approval gate is stated on the page');
+    assert.equal(/spec-verified/i.test(JSON.stringify({ HERO_COPY, PRICING_PLANS, FINAL_CTA_COPY })), false);
 
     const serialized = JSON.stringify({
       HERO_COPY,

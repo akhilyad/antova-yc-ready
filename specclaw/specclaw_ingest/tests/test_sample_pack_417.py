@@ -104,8 +104,12 @@ def test_answer_key_money_adds_up(expected):
     assert float(lindqvist["PARAM-03"]["adder"]) == 7 * 400
     assert float(lindqvist["PARAM-04"]["adder"]) == 65 * 60 + 200
     assert float(lindqvist["PARAM-05"]["adder"]) == (3 - 1) * 1300
-    assert float(lindqvist["PARAM-06"]["adder"]) == 1 * 2600 + 950 + (24 - 12) * 175
-    assert float(vendors["vendor-d"]["true_evaluated_price"]) == 372500 + 15150
+    # Rate table v2: 12 months from dispatch against 24 from commissioning, with no lag stated in the MR, so the
+    # warranty shortfall ((24 - 12) x 175 = 2,100) is flagged and left unpriced; only the freight class is priced.
+    assert float(lindqvist["PARAM-06"]["adder"]) == 1 * 2600 + 950
+    assert lindqvist["PARAM-06"]["pricing_status"] == "UNPRICED" and lindqvist["PARAM-06"]["flags_include"] == ["from dispatch"]
+    assert float(vendors["vendor-d"]["true_evaluated_price"]) == 372500 + 13050
+    assert vendors["vendor-d"]["price_status"] == "UNPRICED_ITEMS"
 
 
 # --- the pipeline on the pack -------------------------------------------------------------------
@@ -147,7 +151,8 @@ def test_bid_without_a_headline_gets_no_true_price(result, expected):
         assert financials[vendor_id]["true_evaluated_price"] == want_true, vendor_id
         assert financials[vendor_id]["total_adders"] == float(want["total_adders"]), vendor_id
     assert financials["vendor-b"]["price_status"] == "NO_HEADLINE"
-    assert financials["vendor-d"]["price_status"] == "PRICED"
+    assert financials["vendor-a"]["price_status"] == "PRICED"
+    assert financials["vendor-d"]["price_status"] == "UNPRICED_ITEMS"  # a lower bound: the dispatch warranty has no price
 
 
 def test_unpriced_deviations_are_listed_never_zeroed_silently(result, expected):
@@ -156,7 +161,10 @@ def test_unpriced_deviations_are_listed_never_zeroed_silently(result, expected):
     for item in expected["unpriced"]:
         cell = cells[(item["vendor_id"], item["param_id"])]
         assert cell.pricing_status == "UNPRICED"
-        assert cell.cost_adder == 0.0 and cell.cost_lines == []
+        # What the table could price is shown as lines, and the rest is named in `classes`; nothing is guessed.
+        priced_part = float(expected["cells"][item["vendor_id"]][item["param_id"]]["adder"])
+        assert cell.cost_adder == priced_part
+        assert (cell.cost_lines == []) == (priced_part == 0.0)
 
 
 def test_unreadable_bid_degrades_to_manual_inspection(result):
@@ -205,8 +213,9 @@ def test_running_headers_do_not_change_the_sections():
 
 def test_clawback_rounds(result, expected):
     for round_num, key in ((2, "round_2"), (3, "round_3")):
+        # The key names the vendor whose deviations are closed; the lowest fully priced bid is Kestrel (vendor-a).
         financials = engine.evaluate_vendor_financials(
-            result.tender, engine.SensitivitySettings(), NEGOTIATION_ROUNDS[round_num])
+            result.tender, engine.SensitivitySettings(), NEGOTIATION_ROUNDS[round_num], expected["clawback"]["vendor_id"])
         lindqvist = next(f for f in financials if f["vendor_id"] == "vendor-d")
         assert lindqvist["clawed_back_amount"] == float(expected["clawback"][key])
 
@@ -214,7 +223,7 @@ def test_clawback_rounds(result, expected):
 def test_cli_summary_never_prints_a_price_for_a_bid_without_one(result):
     lines = {line.split()[0]: line for line in cli._summary(result) if line.startswith("  vendor-")}
     assert "true price not available" in lines["vendor-b"] and "headline not found" in lines["vendor-b"]
-    assert "true price EUR 387,650.00" in lines["vendor-d"]
+    assert "true price EUR 385,550.00 (lower bound: unpriced items)" in lines["vendor-d"]
 
 
 # --- through the database and the API -----------------------------------------------------------
@@ -241,8 +250,13 @@ def test_api_evaluate_and_round_three(ingested, expected):
         for f in evaluation.json()["financials"]:
             want = expected["vendors"][f["vendor_id"]]["true_evaluated_price"]
             assert f["true_evaluated_price"] == (float(want) if want is not None else None), f["vendor_id"]
-        round_3 = client.post("/api/evaluate", json={"tender_id": TENDER_ID, "conceded_params": NEGOTIATION_ROUNDS[3]})
+        closing = expected["clawback"]["vendor_id"]
+        round_3 = client.post("/api/evaluate", json={"tender_id": TENDER_ID, "conceded_params": NEGOTIATION_ROUNDS[3],
+                                                     "vendor_id": closing})
         assert round_3.json()["summary"]["clawback_value_eur"] == float(expected["clawback"]["round_3"])
-        turn = client.post("/api/negotiate/turn", params={"round_num": 2, "tender_id": TENDER_ID})
+        turn = client.post("/api/negotiate/turn", params={"round_num": 2, "tender_id": TENDER_ID, "vendor_id": closing})
         assert turn.json()["vendor_id"] == "vendor-d"
         assert turn.json()["clawed_amount"] == float(expected["clawback"]["round_2"])
+        # With no vendor named, the turn is with the lowest fully priced bid; Lindqvist's price is only a lower bound.
+        default = client.post("/api/negotiate/turn", params={"round_num": 2, "tender_id": TENDER_ID}).json()
+        assert (default["vendor_id"], default["clawed_amount"]) == (expected["negotiating_vendor"], 0.0)

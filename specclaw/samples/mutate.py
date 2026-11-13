@@ -208,28 +208,6 @@ def missing_headline(pack: Pack, rng: random.Random) -> None:
     pack.expected.pop("clawback", None)  # the negotiating vendor may have changed
 
 
-@operator
-def strict_warranty_basis(pack: Pack, rng: random.Random) -> None:
-    """The tender is evaluated with rate table v2, which compares a warranty only on a common start point.
-
-    VoltSwitch offers 18 months from dispatch against 36 from commissioning. The MR states no
-    duration between the two, so the warranty shortfall is flagged and unpriced; the EXW-to-DDP
-    class of the same cell is still priced.
-    """
-    pack.manifest["rate_table"] = "mv_gis_switchgear_v2"
-    cell = pack.cell("vendor-b", "PARAM-06")
-    if cell["status"] != "DEVIATION_DOWNGRADE" or cell["adder"] != "9300.00":
-        raise MutationError("vendor-b PARAM-06 is no longer the dispatch-warranty deviation")
-    cell.update({"adder": "6150.00", "pricing_status": "UNPRICED"})
-    pack.expect_flag("vendor-b", "PARAM-06", "from dispatch")
-    vendor = pack.expected["vendors"]["vendor-b"]
-    vendor["total_adders"] = "61650.00"
-    if vendor["headline_price"] is not None:
-        vendor["true_evaluated_price"] = "479650.00"
-        vendor["price_status"] = "UNPRICED_ITEMS"
-    pack.expected.pop("clawback", None)
-
-
 def _price_sentence(pack: Pack, vendor_id: str) -> tuple[str, str]:
     filename = pack.file_of(vendor_id)
     ideal = pack.locate(filename)

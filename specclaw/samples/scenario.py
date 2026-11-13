@@ -8,6 +8,7 @@ All names are fictional.
 
 from __future__ import annotations
 
+import copy
 from dataclasses import dataclass, field
 
 TENDER_ID = "TENDER-2026-402"
@@ -155,7 +156,9 @@ CELLS = {
         "PARAM-03": ("DEVIATION_DOWNGRADE", "b.p03", {"ip": "IP42", "iac_class": "AFL"}, None, "8900.00"),
         "PARAM-04": ("CONFLICT_DOWNGRADE", "b.p04", {"protocol": "not IEC 61850", "marshalling": "not pre-wired"}, 3, "7400.00"),
         "PARAM-05": ("OMITTED", "b.p05", {"witnessed_fat_days_included": "0"}, None, "6500.00"),
-        "PARAM-06": ("DEVIATION_DOWNGRADE", "b.p06", {"incoterm": "EXW", "warranty_months": "18"}, None, "9300.00"),
+        # EXW to DDP is priced (6150). The warranty shortfall is not: the bid measures 18 months from
+        # dispatch, the MR 36 from commissioning and states no lag between them (rate table v2, strict).
+        "PARAM-06": ("DEVIATION_DOWNGRADE", "b.p06", {"incoterm": "EXW", "warranty_months": "18"}, None, "6150.00"),
         "PARAM-07": ("COMPLIANT", "b.p07", {"rated_voltage": "36000 V"}, None, "0.00"),
         "PARAM-08": ("COMPLIANT", "b.p08", {"max_ambient": "40 °C"}, None, "0.00"),
     },
@@ -173,7 +176,7 @@ CELLS = {
 
 VENDOR_TOTALS = {
     "vendor-a": ("0.00", "452000.00"),
-    "vendor-b": ("64800.00", "482800.00"),
+    "vendor-b": ("61650.00", "479650.00"),
     "vendor-c": ("15000.00", "454000.00"),
 }
 # Amendment A2: the negotiating vendor is the lowest true evaluated price, Nordwerk (452,000),
@@ -181,8 +184,14 @@ VENDOR_TOTALS = {
 # deviation to close. The clawback figures are what closing VoltSwitch's deviations would
 # recover, so they name that vendor.
 NEGOTIATING_VENDOR = "vendor-a"
-CLAWBACK = {"vendor_id": "vendor-b", "round_2": "33900.00", "round_3": "57400.00"}
+CLAWBACK = {"vendor_id": "vendor-b", "round_2": "33900.00", "round_3": "54250.00"}
 BAY_COUNT = 11
+# Optional per-cell expectations beyond the tuple above: pricing_status and flag fragments.
+CELL_EXTRAS = {
+    ("vendor-b", "PARAM-06"): {"pricing_status": "UNPRICED", "flags_include": ["from dispatch"]},
+}
+# Optional per-vendor expectation: a total with an unpriced item is a lower bound.
+VENDOR_PRICE_STATUS = {"vendor-b": "UNPRICED_ITEMS"}
 ENGINEERING_ESTIMATES = {"busbar_cu_kg": 1480, "heavy_haul_loads": 2}
 
 # --- Filler -------------------------------------------------------------------
@@ -457,7 +466,7 @@ def manifest() -> dict:
         "title": TITLE,
         "client": CLIENT,
         "equipment_class": "mv_gis_switchgear",
-        "rate_table": "mv_gis_switchgear_v1",
+        "rate_table": "mv_gis_switchgear_v2",
         "documents": [{"file": MR_FILE, "role": "mr_spec"}] + [
             {"file": v.file, "role": "vendor_bid", "vendor_id": v.id,
              "vendor_name": v.name, "country": v.country}
@@ -491,11 +500,14 @@ def expected() -> dict:
                 "status": status, "page": e.page, "quote": e.text, "values": values,
                 "secondary_page": secondary, "adder": adder,
             }
+            cells[vendor_id][param_id].update(copy.deepcopy(CELL_EXTRAS.get((vendor_id, param_id), {})))
     vendors = {
         v.id: {"name": v.name, "headline_price": v.headline,
                "total_adders": VENDOR_TOTALS[v.id][0], "true_evaluated_price": VENDOR_TOTALS[v.id][1]}
         for v in VENDORS
     }
+    for vendor_id, status in VENDOR_PRICE_STATUS.items():
+        vendors[vendor_id]["price_status"] = status
     ideal = {
         MR_FILE: {
             "page_sections": [],

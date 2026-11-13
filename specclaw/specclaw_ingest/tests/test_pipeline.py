@@ -72,7 +72,7 @@ def test_tender_fields(result):
     tender = result.tender
     assert tender.id == "TENDER-2026-402"
     assert tender.mr_doc == "MR-33kV-GIS-Rev4.pdf (26 pages)"
-    assert tender.rate_table_version == "mv_gis_switchgear_v1"
+    assert tender.rate_table_version == "mv_gis_switchgear_v2"
     p01 = next(p for p in tender.parameters if p.id == "PARAM-01")
     assert p01.pint_rule == "Ik ≥ 50 kA AND t ≥ 3 s"
     badges = {v.id: v.badge for v in tender.vendors}
@@ -95,12 +95,13 @@ def test_stats(result):
     assert stats["pages_parsed"] == 116
     assert stats["sld_sheets"] == 12
     assert stats["deviations_found"] == 10
-    assert stats["exposed_risk_eur"] == 64800.0
-    assert stats["unpriced_items"] == []
+    assert stats["exposed_risk_eur"] == 61650.0  # a lower bound: the dispatch warranty of PARAM-06 is unpriced
+    assert stats["unpriced_items"] == [
+        {"vendor_id": "vendor-b", "param_id": "PARAM-06", "classes": ["PARAM-06.warranty_basis_unresolved"]}]
     assert stats["api_cost_usd"] == 0.0
     assert stats["candidates_rejected"] == 0
     assert stats["candidates_accepted"] > 0
-    assert stats["rate_table_effective_date"] == "2026-11-03"  # R26: the brief says "as of"
+    assert stats["rate_table_effective_date"] == "2026-11-13"  # R26: the brief says "as of"
     assert result.warnings == []
 
 
@@ -121,7 +122,7 @@ def test_fragment_candidate_keeps_conflict(expected):
     assert cell.status == engine.ComplianceStatus.CONFLICT_DOWNGRADE
     assert cell.cost_adder == 18500.0
     financials = {f["vendor_id"]: f for f in engine.evaluate_vendor_financials(run.tender, engine.SensitivitySettings(), [])}
-    assert financials["vendor-b"]["true_evaluated_price"] == 482800.0
+    assert financials["vendor-b"]["true_evaluated_price"] == 479650.0  # a lower bound under v2 (warranty unpriced)
 
 
 def test_manifest_id_must_match_requested_tender(tmp_path, expected):

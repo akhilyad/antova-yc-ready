@@ -27,8 +27,10 @@ def _by_vendor(results):
 def test_default_sliders_equal_base():
     results = _financials()
     assert results["vendor-a"]["total_adders"] == 0.0
-    assert results["vendor-b"]["total_adders"] == 64800.0
-    assert results["vendor-b"]["true_evaluated_price"] == 482800.0
+    # Rate table v2: vendor-b's dispatch warranty is unpriced, so its total is a lower bound (not 64,800 / 482,800).
+    assert results["vendor-b"]["total_adders"] == 61650.0
+    assert results["vendor-b"]["true_evaluated_price"] == 479650.0
+    assert results["vendor-b"]["price_status"] == "UNPRICED_ITEMS"
     assert results["vendor-c"]["total_adders"] == 15000.0
     assert results["vendor-c"]["true_evaluated_price"] == 454000.0
 
@@ -45,8 +47,9 @@ def test_labour_slider():
 
 def test_freight_slider_spares_warranty():
     results = _financials(freight_multiplier=1.5)
-    assert _adder(results["vendor-b"], "PARAM-06") == 11900.0
-    assert _adder(results["vendor-c"], "PARAM-06") == 2100.0
+    # vendor-b: EXW-to-DDP freight scales (7,800 + 950 insurance); its warranty shortfall is unpriced, so no line.
+    assert _adder(results["vendor-b"], "PARAM-06") == 8750.0
+    assert _adder(results["vendor-c"], "PARAM-06") == 2100.0  # all warranty months: unchanged
 
 
 def test_negotiating_vendor_is_lowest_true_evaluated_price():
@@ -63,8 +66,9 @@ def test_negotiating_vendor_ignores_unknown_price():
 
 def test_concessions_only_for_negotiating_vendor():
     results = _financials(conceded=["PARAM-06"], closing_with="vendor-b")
-    assert results["vendor-b"]["clawed_back_amount"] == 9300.0
+    assert results["vendor-b"]["clawed_back_amount"] == 6150.0  # the priced incoterm class; the warranty has no price
     assert results["vendor-b"]["total_adders"] == 55500.0
+    assert results["vendor-b"]["price_status"] == "PRICED"  # the unpriced cell was conceded, so nothing is left unpriced
     assert results["vendor-c"]["clawed_back_amount"] == 0.0
     assert results["vendor-c"]["total_adders"] == 15000.0
 

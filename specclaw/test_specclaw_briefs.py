@@ -1,6 +1,10 @@
 """Public briefs by share ID (verified only) and the founder's review routes.
 
 Each test starts from a fresh save of the sample tender: DRAFT, no overrides.
+
+The sample is evaluated with rate table v2, which flags VoltSwitch's warranty measured from dispatch and leaves
+it unpriced. That cell (PARAM-06, vendor-b) is an open item until the founder approves the flag and prices the
+gap, so every test that verifies the sample first calls `_resolve_warranty`.
 """
 
 from datetime import datetime, timezone
@@ -35,6 +39,9 @@ def share_id(ingested):
     db = SessionLocal()
     try:
         persist(ingested, db)
+        # Reviews outlive a re-ingest by design; clear them so no test inherits another's approvals.
+        db.execute(text("DELETE FROM cell_reviews WHERE tender_id = :id"), {"id": TENDER_ID})
+        db.commit()
         return TenderRepository(db).get_meta(TENDER_ID).share_id
     finally:
         db.close()
@@ -59,6 +66,24 @@ def _seed_unpriced(ingested, param_id="PARAM-03", vendor_id="vendor-c"):
         TenderRepository(db).save_tender(tender, ingested.documents, datetime.now(timezone.utc))
     finally:
         db.close()
+
+
+WARRANTY_OVERRIDE = {"param_id": "PARAM-06", "vendor_id": "vendor-b", "adder_eur": "9300.00",
+                     "note": "priced by the founder: freight 6,150 plus 18 months x EUR 175"}
+WARRANTY_OPEN_ITEMS = [  # what the unreviewed sample blocks verification with, before any other cell is touched
+    {"kind": "review_flag", "vendor_id": "vendor-b", "param_id": "PARAM-06", "message": "Review flag not approved yet"},
+    {"kind": "unpriced", "vendor_id": "vendor-b", "param_id": "PARAM-06", "message": "Gap found but not priced"},
+]
+
+
+def _resolve_warranty(review):
+    """Approve the WARRANTY_BASIS flag on VoltSwitch's PARAM-06 and price the cell, as the founder does."""
+    approved = review.put(f"{REVIEW}/reviews/PARAM-06/vendor-b", json={
+        "action": "approve", "reviewer": "a.yadav", "note": "warranty start date checked against the bid"})
+    assert approved.status_code == 200
+    priced = review.put(f"{REVIEW}/overrides/PARAM-06/vendor-b",
+                        json={"adder_eur": WARRANTY_OVERRIDE["adder_eur"], "note": WARRANTY_OVERRIDE["note"]})
+    assert priced.status_code == 204
 
 
 def _vendor(financials, vendor_id):
@@ -98,6 +123,7 @@ def test_unknown_brief_is_404_with_same_body(public, share_id):
 
 
 def test_verified_brief_payload(public, review, share_id):
+    _resolve_warranty(review)
     verified = review.post(f"{REVIEW}/verify")
     assert verified.status_code == 200
     assert verified.json()["share_id"] == share_id
@@ -108,12 +134,14 @@ def test_verified_brief_payload(public, review, share_id):
     assert brief["share_id"] == share_id
     assert brief["verified_at"] == verified.json()["verified_at"]
     assert datetime.fromisoformat(brief["verified_at"]).utcoffset().total_seconds() == 0
-    assert brief["overrides"] == []
+    assert brief["overrides"] == [WARRANTY_OVERRIDE]
+    assert brief["review"] == {"open_flags": 0, "stale": 0, "rejected": 0, "reviewed": 1, "final": True}
     assert {"synthetic", "ingest_mode", "ingest_stats", "stage_log", "tender", "financials"} <= set(brief)
     assert _vendor(brief["financials"], "vendor-b")["true_evaluated_price"] == 482800.0
 
 
 def test_public_evaluate_reprices(public, review, share_id):
+    _resolve_warranty(review)
     review.post(f"{REVIEW}/verify")
     response = public.post(f"/api/briefs/{share_id}/evaluate", json={"copper_multiplier": 2.0})
     assert response.status_code == 200
@@ -126,6 +154,7 @@ def test_public_evaluate_reprices(public, review, share_id):
 
 
 def test_public_evidence_png(public, review, share_id):
+    _resolve_warranty(review)
     review.post(f"{REVIEW}/verify")
     for path in (EVIDENCE, "evidence/PARAM-01/vendor-b/secondary.png", "evidence/PARAM-01/mr/primary.png"):
         response = public.get(f"/api/briefs/{share_id}/{path}")
@@ -149,7 +178,7 @@ def test_review_list_counts_open_items(review, ingested, share_id):
     assert response.status_code == 200
     row = next(r for r in response.json() if r["tender_id"] == TENDER_ID)
     assert set(row) == {"tender_id", "title", "status", "share_id", "ingested_at", "verified_at", "open_items"}
-    assert (row["status"], row["share_id"], row["verified_at"], row["open_items"]) == ("DRAFT", share_id, None, 1)
+    assert (row["status"], row["share_id"], row["verified_at"], row["open_items"]) == ("DRAFT", share_id, None, 3)  # the warranty flag and gap, and the cell seeded unpriced
     assert datetime.fromisoformat(row["ingested_at"]).utcoffset().total_seconds() == 0
 
 
@@ -160,7 +189,7 @@ def test_review_detail_evaluate_and_evidence_for_draft(review, ingested, share_i
     assert detail.json()["status"] == "DRAFT"
     assert detail.json()["share_id"] == share_id
     assert [(i["kind"], i["param_id"], i["vendor_id"]) for i in detail.json()["open_items"]] == [
-        ("unpriced", "PARAM-03", "vendor-c")]
+        ("review_flag", "PARAM-06", "vendor-b"), ("unpriced", "PARAM-06", "vendor-b"), ("unpriced", "PARAM-03", "vendor-c")]
     priced = review.post(f"{REVIEW}/evaluate", json={"copper_multiplier": 2.0})
     assert priced.status_code == 200
     assert _vendor(priced.json()["financials"], "vendor-b")["true_evaluated_price"] > 482800.0
@@ -186,6 +215,7 @@ def test_tender_migrated_from_v2_is_served(public, review, share_id):
     assert detail.status_code == 200
     assert (detail.json()["ingest_stats"], detail.json()["stage_log"]) == ({}, [])
     assert len(detail.json()["tender"]["vendors"]) == 3
+    _resolve_warranty(review)
     assert review.post(f"{REVIEW}/verify").status_code == 200
     served = public.get(f"/api/briefs/{share_id}")
     assert served.status_code == 200
@@ -226,11 +256,12 @@ def test_delete_override(review, share_id):
 
 
 def test_override_flows_into_public_brief(public, review, share_id):
+    _resolve_warranty(review)
     assert _override(review, "PARAM-01", "vendor-b", "0", "  waived after clarification  ").status_code == 204
     assert review.post(f"{REVIEW}/verify").status_code == 200
     brief = public.get(f"/api/briefs/{share_id}").json()
     assert brief["overrides"] == [{"param_id": "PARAM-01", "vendor_id": "vendor-b", "adder_eur": "0.00",
-                                   "note": "waived after clarification"}]
+                                   "note": "waived after clarification"}, WARRANTY_OVERRIDE]
     voltswitch = _vendor(brief["financials"], "vendor-b")
     assert voltswitch["true_evaluated_price"] == 482800.0 - 18500.0
     row = next(r for r in voltswitch["itemized_breakdown"] if r["param_id"] == "PARAM-01")
@@ -245,14 +276,19 @@ def test_verify_blocked_by_open_items(public, review, ingested, share_id):
     blocked = review.post(f"{REVIEW}/verify")
     assert blocked.status_code == 409
     assert blocked.json() == {"detail": "Open items remain", "open_items": [
+        *WARRANTY_OPEN_ITEMS,
         {"kind": "unpriced", "vendor_id": "vendor-c", "param_id": "PARAM-03", "message": "Gap found but not priced"}]}
     assert public.get(f"/api/briefs/{share_id}").status_code == 404
     assert _override(review, "PARAM-03", "vendor-c", "3000", "engineer's estimate").status_code == 204
+    still = review.post(f"{REVIEW}/verify")  # priced, but the warranty flag is not approved and its gap is not priced
+    assert (still.status_code, still.json()["open_items"]) == (409, WARRANTY_OPEN_ITEMS)
+    _resolve_warranty(review)
     assert review.post(f"{REVIEW}/verify").status_code == 200
     assert public.get(f"/api/briefs/{share_id}").status_code == 200
 
 
 def test_withdraw_hides_brief(public, review, share_id):
+    _resolve_warranty(review)
     review.post(f"{REVIEW}/verify")
     assert public.get(f"/api/briefs/{share_id}").status_code == 200
     response = review.post(f"{REVIEW}/withdraw")
@@ -266,6 +302,7 @@ def test_withdraw_hides_brief(public, review, share_id):
 
 def test_override_change_on_verified_brief_is_409(public, review, share_id, monkeypatch):
     locked = {"detail": "Withdraw the brief before changing overrides"}
+    _resolve_warranty(review)
     path = f"{REVIEW}/overrides/PARAM-01/vendor-b"
     assert _override(review, "PARAM-01", "vendor-b", "0", "waived").status_code == 204
     assert review.post(f"{REVIEW}/verify").status_code == 200
@@ -296,6 +333,7 @@ def test_override_change_on_verified_brief_is_409(public, review, share_id, monk
 
 
 def test_review_changes_invalidate_leveling_cache(review, share_id, monkeypatch):
+    _resolve_warranty(review)
     calls = []
     monkeypatch.setattr(specclaw_cache.leveling_cache, "invalidate_tender", lambda tender_id=None: calls.append(tender_id))
     _override(review, "PARAM-01", "vendor-b", "0")
@@ -333,6 +371,7 @@ def test_review_routes_need_token(public, share_id):
 
 def test_public_brief_omits_antova_run_cost(public, review, share_id):
     """Final review F3: what the run cost Antova is the founder's, not the brief reader's."""
+    _resolve_warranty(review)
     review.post(f"{REVIEW}/verify")
     served = public.get(f"/api/briefs/{share_id}").json()
     assert "api_cost_usd" not in served["ingest_stats"]
