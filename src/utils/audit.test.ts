@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   EQUIPMENT_OPTIONS,
   FAQ_ITEMS,
+  HOW_IT_WORKS,
   FAQ_SECTION_COPY,
   FINAL_CTA_COPY,
   HERO_COPY,
@@ -131,12 +132,14 @@ describe('Antova landing data and copy', () => {
       'BESS skids',
     ]);
     assert.equal(TEAM_FOUNDER_DATA.role, 'Founder & CEO');
+    assert.deepEqual(HOW_IT_WORKS.steps.map((x) => x.title), ['Read', 'Check', 'Price', 'Review']);
 
     const serialized = JSON.stringify({
       HERO_COPY,
       MANIFESTO_COPY,
       PROBLEM_STACK_SECTION,
       INTRO_COPY,
+      HOW_IT_WORKS,
       MATRIX_COPY,
       IMPACT_COPY,
       PRICING_SECTION_COPY,
