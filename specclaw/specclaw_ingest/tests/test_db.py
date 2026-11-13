@@ -5,7 +5,7 @@ from decimal import Decimal
 
 import pytest
 from sqlalchemy import create_engine, inspect, text
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 
 import specclaw_db
 import specclaw_engine as engine
@@ -146,7 +146,7 @@ def test_v3_fresh_init_has_new_columns(db_engine):
     init_db(db_engine)
     assert V3_TABLES <= set(inspect(db_engine).get_table_names())
     assert V3_TENDER_COLUMNS <= _tender_columns(db_engine)
-    assert _version(db_engine) == SCHEMA_VERSION == 4
+    assert _version(db_engine) == SCHEMA_VERSION == 5
 
 
 def test_upgrade_keeps_audit_rows(db_engine):
@@ -157,7 +157,7 @@ def test_upgrade_keeps_audit_rows(db_engine):
     columns = {c["name"] for c in inspect(db_engine).get_columns("vendors")}
     assert "headline_citation" in columns
     assert V3_TENDER_COLUMNS <= _tender_columns(db_engine)
-    assert _version(db_engine) == 4
+    assert _version(db_engine) == 5
 
 
 def test_upgrade_refuses_nonempty_legacy(db_engine):
@@ -189,7 +189,7 @@ def test_v2_upgrade_adds_columns_and_backfills_share_id(db_engine):
     assert [tuple(row) for row in ledger] == [("TENDER-2026-402", 1, 1.0, 2.0, 3.0, "x"),
                                               ("TENDER-2026-402", 2, 1.0, 2.0, 3.0, "x")]
     assert "adder_overrides" in inspect(db_engine).get_table_names()
-    assert _version(db_engine) == 4
+    assert _version(db_engine) == 5
     with Session(db_engine) as session:
         repo = TenderRepository(session)
         assert repo.tender_id_for_share(share_ids[0]) == "TENDER-2026-402"
@@ -221,7 +221,7 @@ def test_v2_upgrade_is_all_or_nothing(db_engine, monkeypatch):
     assert _version(db_engine) == 2
     monkeypatch.undo()
     init_db(db_engine)
-    assert _version(db_engine) == 4
+    assert _version(db_engine) == 5
 
 
 def test_init_is_idempotent(db_engine):
@@ -230,7 +230,7 @@ def test_init_is_idempotent(db_engine):
         TenderRepository(session).save_tender(_tender(), DOCS, datetime.now(timezone.utc))
     init_db(db_engine)
     assert _counts(db_engine)["vendors"] == 2
-    assert _version(db_engine) == 4
+    assert _version(db_engine) == 5
 
 
 def test_round_trip(db_engine):
@@ -425,7 +425,7 @@ def test_v3_upgrade_keeps_the_tender_and_adds_v4(db_engine):
     _v3(db_engine)
     before = _counts(db_engine)
     init_db(db_engine)
-    assert _version(db_engine) == 4
+    assert _version(db_engine) == 5
     assert _counts(db_engine) == before
     assert V4_TABLES <= set(inspect(db_engine).get_table_names())
     with Session(db_engine) as session:
@@ -485,3 +485,34 @@ def test_init_db_refuses_to_start_on_orphaned_rows(db_engine):
                           "VALUES ('r1', 'NO-SUCH-TENDER', 'f', '{}', '2026-01-01')"))
     with pytest.raises(ForeignKeyViolation, match="ingest_runs: 1"):
         init_db(db_engine)
+
+
+# --- schema v5: durable ingest jobs --------------------------------------------------------------
+
+def test_v4_upgrade_adds_ingest_jobs_and_keeps_the_tender(db_engine):
+    init_db(db_engine)
+    TenderRepository(sessionmaker(bind=db_engine)()).save_tender(_tender(), [], datetime.now(timezone.utc))
+    with db_engine.begin() as conn:
+        conn.execute(text("DROP TABLE ingest_jobs"))
+        conn.execute(text("DELETE FROM schema_version"))
+        conn.execute(text("INSERT INTO schema_version (version) VALUES (4)"))
+    assert "ingest_jobs" not in inspect(db_engine).get_table_names()
+    init_db(db_engine)
+    assert _version(db_engine) == 5
+    assert "ingest_jobs" in inspect(db_engine).get_table_names()
+    assert TenderRepository(sessionmaker(bind=db_engine)()).get_meta("TENDER-T1") is not None
+
+
+def test_job_round_trip_and_unfinished_sweep(db_engine):
+    init_db(db_engine)
+    repo = TenderRepository(sessionmaker(bind=db_engine)())
+    job = repo.create_job("job-a", "TENDER-X", "replay")  # no such tender yet: allowed
+    assert (job["status"], job["progress_pct"]) == ("PENDING", 0)
+    repo.update_job("job-a", status="PROCESSING", progress_pct=60, stage="Price")
+    repo.update_job("job-a", status="COMPLETED", progress_pct=100, finished=True, result={"n": 1})
+    done = repo.get_job("job-a")
+    assert done["result"] == {"n": 1} and done["completed_at"] is not None
+    repo.create_job("job-b", "TENDER-X", "live")
+    assert repo.fail_unfinished_jobs("gone") == 1
+    assert repo.get_job("job-b")["error"] == "gone"
+    assert repo.get_job("job-a")["status"] == "COMPLETED"
