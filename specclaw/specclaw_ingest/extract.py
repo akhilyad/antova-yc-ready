@@ -3,6 +3,9 @@
 Every number, unit, coordinate and pass/fail decision is made later by
 deterministic code. Responses are saved per document hash so tests and
 re-runs replay them without network calls.
+
+A document over the input limit for one call is sent in page windows that overlap by one
+page; their answers are merged into one response and saved under the document's own key.
 """
 
 from __future__ import annotations
@@ -26,6 +29,12 @@ from specclaw_ingest.types import ParsedDocument
 MODEL = "claude-opus-5-5"
 PROMPT_VERSION = "locate-v1"
 MAX_INPUT_TOKENS = 150_000
+# A window is planned to use at most this share of MAX_INPUT_TOKENS (page sizes are estimated
+# from their text length), then counted exactly before it is sent.
+WINDOW_BUDGET_SHARE = 0.85
+# Consecutive windows share this many pages, so a passage that runs over a window's last page
+# is seen whole by the next window.
+WINDOW_OVERLAP_PAGES = 1
 # Claude Opus 5.5 list price per million tokens, as of 2026-11-03.
 PRICE_INPUT_PER_MTOK = Decimal("4")
 PRICE_OUTPUT_PER_MTOK = Decimal("20")
@@ -84,6 +93,8 @@ class LocateOutcome:
     from_store: bool
     # The model that answered. It differs from MODEL when the server-side fallback took over.
     model: str | None = None
+    # (first page, last page) of each window, when the document was sent in windows.
+    windows: list[tuple[int, int]] | None = None
 
 
 class Locator(Protocol):
@@ -171,14 +182,58 @@ Rules:
 Do not compute, convert or judge values. Only locate and quote them."""
 
 
-def build_document_content(doc: ParsedDocument) -> str:
+def build_document_content(doc: ParsedDocument, pages: list | None = None) -> str:
     """The user message. Page text and attributes are escaped, so a page cannot close its own
-    element or forge another page."""
+    element or forge another page.
+
+    `pages` sends only those pages (a window); the element then says which part of how many
+    pages it holds. The whole document's message is unchanged, so saved responses still replay.
+    """
     entry = doc.entry
     vendor = f" vendor={_attr(entry.vendor_id)}" if entry.vendor_id else ""
-    pages = "\n".join(
-        f'<page n="{p.number}" section="{p.section}">{escape(p.text)}</page>' for p in doc.pages)
-    return f"<document file={_attr(entry.file)} role={_attr(entry.role)}{vendor}>\n{pages}\n</document>"
+    window = ""
+    if pages is not None:
+        span = f"{pages[0].number}-{pages[-1].number}" if pages else ""
+        window = f' pages="{span}" of="{len(doc.pages)}"'
+    body = "\n".join(
+        f'<page n="{p.number}" section="{p.section}">{escape(p.text)}</page>'
+        for p in (doc.pages if pages is None else pages))
+    return f"<document file={_attr(entry.file)} role={_attr(entry.role)}{vendor}{window}>\n{body}\n</document>"
+
+
+def merge_responses(responses: list[LocateResponse]) -> LocateResponse:
+    """One response from the responses for a document's windows, in page order.
+
+    Duplicates from the shared pages are dropped. A page's section label, the headline price and
+    the cover claim come from the first window that gives one. A parameter is not stated only if
+    no window found a candidate for it; its searched pages are then those of every window.
+    """
+    sections: dict[int, PageSectionOut] = {}
+    candidates: dict[tuple[str, int, str], CandidateOut] = {}
+    facts: dict[tuple[str, int, str], TenderFactOut] = {}
+    not_stated: dict[str, set[int]] = {}
+    headline = cover = None
+    for r in responses:
+        for s in r.page_sections:
+            sections.setdefault(s.page, s)
+        for c in r.candidates:
+            candidates.setdefault((c.param_id, c.page, c.quote), c)
+        for f in r.tender_facts:
+            facts.setdefault((f.fact, f.page, f.quote), f)
+        headline = headline or r.headline_price
+        cover = cover or r.cover_claim
+        for n in r.not_stated:
+            not_stated.setdefault(n.param_id, set()).update(n.pages_searched)
+    found = {c.param_id for c in candidates.values()}
+    return LocateResponse(
+        page_sections=[sections[page] for page in sorted(sections)],
+        candidates=list(candidates.values()),
+        tender_facts=list(facts.values()),
+        headline_price=headline,
+        cover_claim=cover,
+        not_stated=[NotStatedOut(param_id=pid, pages_searched=sorted(pages))
+                    for pid, pages in not_stated.items() if pid not in found],
+    )
 
 
 def _attr(value: str) -> str:
@@ -212,6 +267,7 @@ class ResponseStore:
                 int(data["usage"]["output_tokens"]),
                 from_store=True,
                 model=data.get("served_model") or data.get("model"),
+                windows=[(int(w[0]), int(w[1])) for w in data["windows"]] if data.get("windows") else None,
             )
         except (ValueError, KeyError, TypeError, AttributeError) as exc:
             # ValueError covers bad JSON, bad UTF-8 and pydantic's ValidationError.
@@ -232,8 +288,17 @@ class ResponseStore:
             "usage": {"input_tokens": outcome.input_tokens, "output_tokens": outcome.output_tokens},
             "response": outcome.response.model_dump(mode="json"),
         }
+        if outcome.windows:
+            record["windows"] = [list(w) for w in outcome.windows]
         path = self._path(key)
-        path.write_bytes((json.dumps(record, indent=2, ensure_ascii=False) + "\n").encode("utf-8"))
+        # Written beside the target and renamed into place: a crash mid-write leaves the old file
+        # (or none), never a truncated one that fails the next replay.
+        tmp = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+        try:
+            tmp.write_bytes((json.dumps(record, indent=2, ensure_ascii=False) + "\n").encode("utf-8"))
+            os.replace(tmp, path)
+        finally:
+            tmp.unlink(missing_ok=True)
         return path
 
 
@@ -260,12 +325,64 @@ class ClaudeLocator:
         return outcome
 
     def _call(self, client: Any, doc: ParsedDocument) -> LocateOutcome:
-        filename = doc.entry.file
         system = build_system_prompt()
-        messages = [{"role": "user", "content": build_document_content(doc)}]
-        count = client.messages.count_tokens(model=MODEL, system=system, messages=messages)
-        if count.input_tokens > MAX_INPUT_TOKENS:
-            raise DocumentTooLarge(filename, count.input_tokens)
+        total = self._count(client, system, build_document_content(doc))
+        if total <= MAX_INPUT_TOKENS:
+            return self._send(client, doc, system, None)
+        windows = self._windows(client, doc, system, total)
+        outcomes = [self._send(client, doc, system, pages) for pages in windows]
+        served = next((o.model for o in outcomes if o.model and o.model != MODEL), MODEL)
+        return LocateOutcome(
+            merge_responses([o.response for o in outcomes]),
+            sum(o.input_tokens for o in outcomes), sum(o.output_tokens for o in outcomes),
+            from_store=False, model=served,
+            windows=[(pages[0].number, pages[-1].number) for pages in windows],
+        )
+
+    @staticmethod
+    def _count(client: Any, system: str, content: str) -> int:
+        messages = [{"role": "user", "content": content}]
+        return client.messages.count_tokens(model=MODEL, system=system, messages=messages).input_tokens
+
+    def _windows(self, client: Any, doc: ParsedDocument, system: str, total: int) -> list[list]:
+        """Contiguous page windows, overlapping by WINDOW_OVERLAP_PAGES, each counted under the limit.
+
+        Each page's share of the tokens is estimated from its share of the text; a window that
+        counts over the limit anyway is split in two. A single page over the limit cannot be sent.
+        """
+        overhead = self._count(client, system, build_document_content(doc, []))
+        sizes = [len(escape(p.text)) + 40 for p in doc.pages]
+        per_char = max(total - overhead, 1) / max(sum(sizes), 1)
+        budget = MAX_INPUT_TOKENS * WINDOW_BUDGET_SHARE - overhead
+        planned: list[list] = []
+        start = 0
+        while start < len(doc.pages):
+            end, used = start, sizes[start] * per_char
+            while end + 1 < len(doc.pages) and used + sizes[end + 1] * per_char <= budget:
+                end += 1
+                used += sizes[end] * per_char
+            planned.append(doc.pages[start:end + 1])
+            if end == len(doc.pages) - 1:
+                break
+            start = max(end + 1 - WINDOW_OVERLAP_PAGES, start + 1)
+        checked: list[list] = []
+        while planned:
+            pages = planned.pop(0)
+            count = self._count(client, system, build_document_content(doc, pages))
+            if count <= MAX_INPUT_TOKENS:
+                checked.append(pages)
+            elif len(pages) == 1:
+                raise DocumentTooLarge(f"{doc.entry.file} p.{pages[0].number}", count)
+            else:
+                half = len(pages) // 2
+                planned[:0] = [pages[:half + WINDOW_OVERLAP_PAGES] if half + WINDOW_OVERLAP_PAGES < len(pages)
+                               else pages[:half], pages[half:]]
+        return checked
+
+    def _send(self, client: Any, doc: ParsedDocument, system: str, pages: list | None) -> LocateOutcome:
+        filename = doc.entry.file
+        label = filename if pages is None else f"{filename} p.{pages[0].number}-{pages[-1].number}"
+        messages = [{"role": "user", "content": build_document_content(doc, pages)}]
         with client.beta.messages.stream(
             model=MODEL,
             max_tokens=64000,
@@ -281,14 +398,14 @@ class ClaudeLocator:
             message = stream.get_final_message()
         if message.stop_reason == "refusal":
             details = getattr(message, "stop_details", None)
-            raise LocateRefused(filename, getattr(details, "category", None))
+            raise LocateRefused(label, getattr(details, "category", None))
         if message.stop_reason == "max_tokens":
-            raise LocateInvalid(filename, f"Claude's response for {filename} was cut off at max_tokens")
+            raise LocateInvalid(label, f"Claude's response for {label} was cut off at max_tokens")
         text = "".join(block.text for block in message.content if getattr(block, "type", None) == "text")
         try:
             response = LocateResponse.model_validate_json(text)
         except ValidationError as exc:
-            raise LocateInvalid(filename, f"Claude's response for {filename} did not match the schema: {exc}") from exc
+            raise LocateInvalid(label, f"Claude's response for {label} did not match the schema: {exc}") from exc
         return LocateOutcome(response, message.usage.input_tokens, message.usage.output_tokens, from_store=False,
                              model=getattr(message, "model", None))
 

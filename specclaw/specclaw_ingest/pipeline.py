@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+from concurrent.futures import ThreadPoolExecutor
 import re
 import time
 from datetime import datetime, timezone
@@ -52,6 +53,20 @@ STAGES = [
 ]
 SAMPLES_DIR = Path(__file__).resolve().parents[1] / "samples"
 _DEGRADES_BID = (DocumentTooLarge, LocateRefused, LocateInvalid)
+# Documents located at once. Each is its own Claude call (or calls), so this bounds both the
+# wall-clock time of an ingest and how hard it presses on the API rate limits.
+LOCATE_CONCURRENCY = 3
+
+
+def locate_concurrency() -> int:
+    """SPECCLAW_LOCATE_CONCURRENCY, 1 to 8 (1 locates one document at a time); default LOCATE_CONCURRENCY."""
+    try:
+        value = int(os.environ.get("SPECCLAW_LOCATE_CONCURRENCY") or LOCATE_CONCURRENCY)
+    except ValueError:
+        value = LOCATE_CONCURRENCY
+    return min(max(value, 1), 8)
+
+
 # A headline that deviates from the median of the other bids by more than this share gets a warning.
 HEADLINE_PLAUSIBILITY_SHARE = 0.5
 
@@ -218,32 +233,50 @@ def stage_parsed(tender_dir: Path, manifest: TenderManifest) -> dict:
 
 
 def stage_located(bodies: dict, locator: Locator) -> dict:
+    """Locate every readable document, up to locate_concurrency() at a time.
+
+    Results are taken in manifest order, so the artifact does not depend on which call finished
+    first. A failure that fails the ingest cancels the calls not yet started; the ones already
+    running finish, and their answers are saved for the next run.
+    """
     manifest = _manifest(bodies)
     docs = _documents(bodies, manifest)
+    jobs = [(entry, docs[entry.file]) for entry in manifest.documents if entry.file in docs]
     outcomes: dict[str, dict] = {}
     failed: list[str] = []
     warnings: list[str] = []
-    for entry in manifest.documents:
-        doc = docs.get(entry.file)
-        if doc is None:
-            continue
+    with ThreadPoolExecutor(max_workers=max(1, min(locate_concurrency(), len(jobs)))) as pool:
+        futures = [pool.submit(locator.locate, doc) for _, doc in jobs]
         try:
-            outcome = locator.locate(doc)
-        except _DEGRADES_BID as exc:
-            if entry.role == "mr_spec":
-                raise _failed(exc) from exc
-            failed.append(entry.vendor_id)
-            warnings.append(f"{entry.vendor_id}: {exc}")
-            continue
-        except (ExtractError, anthropic.APIError) as exc:
-            raise _failed(exc) from exc
-        if outcome.model and outcome.model != extract.MODEL:
-            warnings.append(f"{entry.file}: answered by fallback model {outcome.model}, not {extract.MODEL}")
-        outcomes[entry.file] = {
-            "response": outcome.response.model_dump(mode="json"),
-            "input_tokens": outcome.input_tokens, "output_tokens": outcome.output_tokens,
-            "from_store": outcome.from_store, "model": outcome.model,
-        }
+            for (entry, _doc), future in zip(jobs, futures):
+                try:
+                    outcome = future.result()
+                except _DEGRADES_BID as exc:
+                    if entry.role == "mr_spec":
+                        raise _failed(exc) from exc
+                    failed.append(entry.vendor_id)
+                    warnings.append(f"{entry.vendor_id}: {exc}")
+                    continue
+                except (ExtractError, anthropic.APIError) as exc:
+                    raise _failed(exc) from exc
+                if outcome.model and outcome.model != extract.MODEL:
+                    warnings.append(f"{entry.file}: answered by fallback model {outcome.model}, not {extract.MODEL}")
+                record = {
+                    "response": outcome.response.model_dump(mode="json"),
+                    "input_tokens": outcome.input_tokens, "output_tokens": outcome.output_tokens,
+                    "from_store": outcome.from_store, "model": outcome.model,
+                }
+                windows = getattr(outcome, "windows", None)
+                if windows:
+                    record["windows"] = [list(w) for w in windows]
+                    spans = ", ".join(f"p.{a}-{b}" for a, b in windows)
+                    warnings.append(f"{entry.file}: too long for one call; located in {len(windows)} "
+                                    f"overlapping page windows ({spans})")
+                outcomes[entry.file] = record
+        except BaseException:
+            for future in futures:
+                future.cancel()
+            raise
     ingest_mode = getattr(locator, "ingest_mode_label", None) or (
         "replay" if outcomes and all(o["from_store"] for o in outcomes.values()) else "live")
     return {"outcomes": outcomes, "failed_vendors": failed, "warnings": warnings, "ingest_mode": ingest_mode}
