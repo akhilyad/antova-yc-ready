@@ -1,8 +1,7 @@
 """
 Founder review: inspect any tender, override adders, verify and withdraw briefs.
 
-Every route needs the review token (the router-level dependency). Override changes
-and status changes clear the leveling cache for the tender. Overrides are frozen
+Every route needs the review token (the router-level dependency). Overrides are frozen
 while a brief is VERIFIED: withdraw it first.
 """
 
@@ -22,7 +21,6 @@ from specclaw_auth import require_review_token
 from specclaw_briefs_api import (
     LoadedTender, RatesBody, brief, evaluate, evidence_png, load_tender, not_found,
 )
-from specclaw_cache import leveling_cache
 from specclaw_db import TenderRepository, get_db
 from specclaw_ingest import clarify
 from specclaw_review import evidence_hash, open_items, review_state
@@ -115,7 +113,6 @@ def put_override(tender_id: str, param_id: str, vendor_id: str, body: OverrideBo
     if not _cell_exists(loaded, param_id, vendor_id):
         raise not_found()
     TenderRepository(db).put_override(tender_id, param_id, vendor_id, body.adder_eur, body.note)
-    leveling_cache.invalidate_tender(tender_id)
     return Response(status_code=204)
 
 
@@ -124,7 +121,6 @@ def put_override(tender_id: str, param_id: str, vendor_id: str, body: OverrideBo
 def delete_override(tender_id: str, param_id: str, vendor_id: str, db: Session = Depends(get_db)):
     if not TenderRepository(db).delete_override(tender_id, param_id, vendor_id):
         raise not_found()
-    leveling_cache.invalidate_tender(tender_id)
     return Response(status_code=204)
 
 
@@ -148,7 +144,6 @@ def put_review(tender_id: str, param_id: str, vendor_id: str, body: ReviewBody,
         raise not_found()
     row = TenderRepository(db).add_review(tender_id, param_id, vendor_id, action=body.action,
                                           reviewer=body.reviewer, note=body.note, evidence_hash=evidence_hash(cell))
-    leveling_cache.invalidate_tender(tender_id)
     return {**row, "created_at": row["created_at"].isoformat(), "state": review_state(cell, row)}
 
 
@@ -171,7 +166,6 @@ def verify(tender_id: str, db: Session = Depends(get_db)):
         })
     at = datetime.now(timezone.utc)  # SQLite drops the offset; UTC is what the repository assumes
     TenderRepository(db).set_status(tender_id, "VERIFIED", at)
-    leveling_cache.invalidate_tender(tender_id)
     return {"share_id": loaded.meta.share_id, "verified_at": at.isoformat()}
 
 
@@ -181,5 +175,4 @@ def withdraw(tender_id: str, db: Session = Depends(get_db)):
         TenderRepository(db).set_status(tender_id, "DRAFT", datetime.now(timezone.utc))
     except LookupError:
         raise not_found() from None
-    leveling_cache.invalidate_tender(tender_id)
     return {"status": "DRAFT"}

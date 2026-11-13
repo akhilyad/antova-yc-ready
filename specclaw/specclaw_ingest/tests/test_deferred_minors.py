@@ -9,14 +9,12 @@ import shutil
 from decimal import Decimal
 from pathlib import Path
 
-import fitz
 import pytest
 from fastapi.testclient import TestClient
 
 import specclaw_api
 import specclaw_engine as engine
 from specclaw_auth import REVIEW_HEADER
-from specclaw_cache import LevelingCache, leveling_cache
 from specclaw_db import SessionLocal
 from specclaw_ingest import extract
 from specclaw_ingest.costs import ConfigError, classes_for_field, load_rate_table, price
@@ -188,8 +186,8 @@ def client():
     return TestClient(specclaw_api.app, headers=REVIEW_HEADERS)
 
 
-def test_m4_evaluate_api_never_shows_a_true_price_without_a_headline(client, other_tender):
-    response = client.post("/api/evaluate", json={"tender_id": OTHER_TENDER})
+def test_m4_review_evaluate_never_shows_a_true_price_without_a_headline(client, other_tender):
+    response = client.post(f"/api/review/tenders/{OTHER_TENDER}/evaluate", json={})
     assert response.status_code == 200
     financials = _by_vendor(response.json()["financials"])
     assert financials["vendor-b"]["price_status"] == "NO_HEADLINE"
@@ -197,75 +195,6 @@ def test_m4_evaluate_api_never_shows_a_true_price_without_a_headline(client, oth
     assert financials["vendor-b"]["total_adders"] == 61650.0
     assert financials["vendor-c"]["true_evaluated_price"] == 454000.0
     assert all("pricing_status" in item for item in financials["vendor-b"]["itemized_breakdown"])
-
-
-# --- M5: export-pdf figures come from the computed negotiating vendor ------------------------
-
-@pytest.fixture
-def pdf_calls(monkeypatch):
-    calls = []
-    real = specclaw_api.pdf_engine.generate_deviation_closure_pdf
-
-    def recorder(**kwargs):
-        calls.append(kwargs)
-        return real(**kwargs)
-
-    monkeypatch.setattr(specclaw_api.pdf_engine, "generate_deviation_closure_pdf", recorder)
-    return calls
-
-
-def _pdf_text(content: bytes) -> str:
-    with fitz.open(stream=content, filetype="pdf") as doc:
-        return " ".join(" ".join(page.get_text().split()) for page in doc)
-
-
-def test_m5_export_pdf_clawback_follows_the_conceded_items(client, other_tender, pdf_calls):
-    # In TENDER-2026-499 VoltSwitch has no headline. Under amendment A2 Nordwerk (lowest true
-    # price) would be named by default; the export is asked for Deltaport (vendor-c), whose
-    # deviations are the ones being closed here.
-    response = client.post("/api/export-pdf", params={"tender_id": OTHER_TENDER, "vendor_id": "vendor-c"},
-                           json={"negotiation_round": 2, "conceded_params": ["PARAM-01", "PARAM-05"]})
-    assert response.status_code == 200
-    call = pdf_calls[0]
-    assert call["total_clawed_back"] == 8800.0  # 6,200 + 2,600: Deltaport's own adders
-    assert call["vendor_id"] == "vendor-c"
-    assert call["headline_price"] == 439000.0
-    assert call["total_adders"] == 15000.0
-    text = _pdf_text(response.content)
-    assert "€439,000" in text and "€15,000" in text and "€8,800" in text
-    assert "€418,000" not in text and "€64,800" not in text and "€57,400" not in text
-    assert "VoltSwitch" not in text
-    assert "50 kA (1 s)" in text  # the register shows Deltaport's own extraction for PARAM-01
-
-
-def test_m5_export_pdf_round_three_default_is_computed(client, other_tender, pdf_calls):
-    response = client.post("/api/export-pdf", params={"tender_id": OTHER_TENDER, "vendor_id": "vendor-c"},
-                           json={"negotiation_round": 3})
-    assert response.status_code == 200
-    assert pdf_calls[0]["total_clawed_back"] == 10900.0  # PARAM-01, -05 and -06 of Deltaport
-
-
-# --- M6: tender revision in the leveling cache key --------------------------------------------
-
-def test_m6_cache_key_includes_revision():
-    cache = LevelingCache()
-    settings = {"copper_multiplier": 1.0, "site_labor_rate": 60.0, "freight_multiplier": 1.0}
-    cache.set("T-1", settings, [], {"n": 1}, revision="2026-11-12T10:00:00")
-    assert cache.get("T-1", settings, [], revision="2026-11-12T10:00:00") == {"n": 1}
-    assert cache.get("T-1", settings, [], revision="2026-11-12T10:05:00") is None
-
-
-def test_m6_reingest_misses_cache_even_if_invalidation_lost_the_race(client, other_tender, monkeypatch):
-    body = {"tender_id": OTHER_TENDER, "copper_multiplier": 1.3}
-    assert client.post("/api/evaluate", json=body).json()["cached"] is False
-    assert client.post("/api/evaluate", json=body).json()["cached"] is True
-    monkeypatch.setattr(leveling_cache, "invalidate_tender", lambda *args, **kwargs: 0)
-    db = SessionLocal()
-    try:
-        persist(other_tender, db)
-    finally:
-        db.close()
-    assert client.post("/api/evaluate", json=body).json()["cached"] is False
 
 
 # --- M9: the replay key covers the system prompt ----------------------------------------------

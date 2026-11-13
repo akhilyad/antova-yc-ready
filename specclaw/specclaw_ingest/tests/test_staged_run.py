@@ -8,7 +8,6 @@ from pathlib import Path
 
 import pytest
 
-from specclaw_cache import leveling_cache
 from specclaw_db import SessionLocal, TenderRepository
 from specclaw_ingest import artifacts, extract, ontology
 from specclaw_ingest.extract import ClaudeLocator, ReplayMiss, ResponseStore
@@ -108,18 +107,6 @@ def test_changed_bid_changes_the_fingerprint(tmp_path, expected, result):
     assert changed.stats["run_id"] != result.stats["run_id"]
 
 
-def test_reingesting_a_changed_bid_invalidates_the_cached_evaluation(tmp_path, expected, result):
-    settings = {"copper_multiplier": 1.0, "site_labor_rate": 60.0, "freight_multiplier": 1.0}
-    leveling_cache.invalidate_tender()
-    leveling_cache.set(result.tender.id, settings, [], {"stale": True}, result.stats["run_id"])
-    assert leveling_cache.get(result.tender.id, settings, [], result.stats["run_id"]) == {"stale": True}
-    pack = _copy_pack(tmp_path)
-    with (pack / VOLTSWITCH).open("ab") as f:
-        f.write(b"\n% re-issued\n")
-    changed = run_ingest(pack, locator=AnswerKeyLocator(expected))
-    # Written back after the re-ingest (the M6 race): the old run's entry is never served for the new run.
-    leveling_cache.set(result.tender.id, settings, [], {"stale": True}, result.stats["run_id"])
-    assert leveling_cache.get(result.tender.id, settings, [], changed.stats["run_id"]) is None
 
 
 def test_editing_a_locate_hint_changes_the_prompt_hash_and_misses_the_replay_store(tmp_path, monkeypatch, result):

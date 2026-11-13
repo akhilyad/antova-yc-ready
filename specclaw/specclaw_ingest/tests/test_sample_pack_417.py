@@ -14,7 +14,7 @@ from fastapi.testclient import TestClient
 import specclaw_engine as engine
 from samples import scenario, scenario_417
 from samples.generate_sample_pack import PACKS, generate, pack_files
-from specclaw_api import NEGOTIATION_ROUNDS, app
+from specclaw_api import app
 from specclaw_auth import REVIEW_HEADER
 from specclaw_db import SessionLocal, TenderRepository
 from specclaw_ingest import run as cli
@@ -24,6 +24,12 @@ from specclaw_ingest.tests.fakes import AnswerKeyLocator
 from specclaw_ingest.verify import compare_to_answer_key
 
 SAMPLES = Path(__file__).resolve().parents[2] / "samples"
+# The concessions the answer key's clawback figures were computed with.
+NEGOTIATION_ROUNDS = {
+    1: [],
+    2: ["PARAM-01", "PARAM-03", "PARAM-05"],
+    3: ["PARAM-01", "PARAM-02", "PARAM-03", "PARAM-05", "PARAM-06"],
+}
 TENDER_ID = "TENDER-2026-417"
 PACK = SAMPLES / TENDER_ID
 MANUAL = engine.ComplianceStatus.MANUAL_INSPECTION_REQUIRED
@@ -243,20 +249,10 @@ def test_persist_round_trip(ingested, result):
     assert ingested.model_dump() == result.tender.model_dump()
 
 
-def test_api_evaluate_and_round_three(ingested, expected):
+def test_review_evaluate_prices_match_the_answer_key(ingested, expected):
     with TestClient(app, headers=REVIEW_HEADERS) as client:
-        evaluation = client.post("/api/evaluate", json={"tender_id": TENDER_ID})
+        evaluation = client.post(f"/api/review/tenders/{TENDER_ID}/evaluate", json={})
         assert evaluation.status_code == 200
         for f in evaluation.json()["financials"]:
             want = expected["vendors"][f["vendor_id"]]["true_evaluated_price"]
             assert f["true_evaluated_price"] == (float(want) if want is not None else None), f["vendor_id"]
-        closing = expected["clawback"]["vendor_id"]
-        round_3 = client.post("/api/evaluate", json={"tender_id": TENDER_ID, "conceded_params": NEGOTIATION_ROUNDS[3],
-                                                     "vendor_id": closing})
-        assert round_3.json()["summary"]["clawback_value_eur"] == float(expected["clawback"]["round_3"])
-        turn = client.post("/api/negotiate/turn", params={"round_num": 2, "tender_id": TENDER_ID, "vendor_id": closing})
-        assert turn.json()["vendor_id"] == "vendor-d"
-        assert turn.json()["clawed_amount"] == float(expected["clawback"]["round_2"])
-        # With no vendor named, the turn is with the lowest fully priced bid; Lindqvist's price is only a lower bound.
-        default = client.post("/api/negotiate/turn", params={"round_num": 2, "tender_id": TENDER_ID}).json()
-        assert (default["vendor_id"], default["clawed_amount"]) == (expected["negotiating_vendor"], 0.0)

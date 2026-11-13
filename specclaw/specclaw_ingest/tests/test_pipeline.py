@@ -8,7 +8,6 @@ from pathlib import Path
 import pytest
 
 import specclaw_engine as engine
-from specclaw_cache import leveling_cache
 from specclaw_db import SessionLocal, TenderRepository
 from specclaw_ingest.extract import ClaudeLocator, ResponseStore
 from specclaw_ingest.pipeline import (
@@ -176,8 +175,7 @@ def test_replay_miss_fails(tmp_path):
         run_ingest(PACK, locator=locator)
 
 
-def test_persist_round_trip_clears_cache(result):
-    leveling_cache.set("TENDER-2026-402", {"copper_multiplier": 1.0}, [], {"stale": True})
+def test_persist_round_trip(result):
     db = SessionLocal()
     try:
         persist(result, db)
@@ -185,7 +183,6 @@ def test_persist_round_trip_clears_cache(result):
     finally:
         db.close()
     assert loaded.model_dump() == result.tender.model_dump()
-    assert leveling_cache.get_stats()["size"] == 0
 
 
 class _StoredLocator:

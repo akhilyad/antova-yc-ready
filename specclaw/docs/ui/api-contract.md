@@ -88,8 +88,8 @@ Everything else settles at once. Mutations never retry (a retried ingest would s
 - Verify, withdraw, override changes and a finished ingest invalidate the review brief, the list
   and any public brief (`invalidateAfterIngest`).
 - Jobs poll every 750 ms until `COMPLETED` or `FAILED`. Polling also stops on a 401 or 404.
-- The WebSocket (`/ws/telemetry`) is not used by the new frontend. It no longer carries tender IDs,
-  prices or override notes (R8).
+- There is no WebSocket. The legacy `/ws/telemetry` socket, `/api/evaluate`, `/api/negotiate/turn`,
+  `/api/export-pdf` and the other pre-brief routes were removed; progress is read by polling the job.
 
 ## Job states the modal must handle
 

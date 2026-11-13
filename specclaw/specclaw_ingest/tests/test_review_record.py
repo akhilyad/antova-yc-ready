@@ -6,7 +6,6 @@ import json
 import shutil
 from decimal import Decimal
 
-import fitz
 import pytest
 from fastapi.testclient import TestClient
 
@@ -205,19 +204,9 @@ def test_review_route_validates_its_input(client, stored):
     assert listed.status_code == 200 and isinstance(listed.json(), list)
 
 
-def test_evaluate_says_whether_the_result_is_final(client, stored):
-    data = client.post("/api/evaluate", json={"tender_id": stored.id}).json()
-    assert (data["open_flags"], data["final"]) == (2, False)
-
-
-def test_pdf_is_marked_draft_while_flags_are_open(client, stored):
-    response = client.post("/api/export-pdf", params={"tender_id": stored.id, "vendor_id": "vendor-b"},
-                           json={"negotiation_round": 3})
-    assert response.status_code == 200
-    with fitz.open(stream=response.content, filetype="pdf") as doc:
-        text = " ".join(" ".join(page.get_text().split()) for page in doc)
-    assert "DRAFT" in text and "2 review flags open" in text
-    assert "Signed Closure" not in text
+def test_brief_says_whether_the_result_is_final(client, stored):
+    review = client.get(f"/api/review/tenders/{stored.id}").json()["review"]
+    assert (review["open_flags"], review["final"]) == (2, False)
 
 
 # --- the clarification register -------------------------------------------------------------
