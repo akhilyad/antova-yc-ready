@@ -17,7 +17,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, StringConstraints, field_validator
 from sqlalchemy.orm import Session
 
-from specclaw_auth import require_review_token
+from specclaw_auth import ReviewerPrincipal, require_review_token
 from specclaw_briefs_api import (
     LoadedTender, RatesBody, brief, evaluate, evidence_png, load_tender, not_found,
 )
@@ -46,9 +46,11 @@ class OverrideBody(BaseModel):
 
 
 class ReviewBody(BaseModel):
-    """A reviewer's decision on one cell: who, what and why."""
+    """A reviewer's decision on one cell: what and why. Who is the server's call, from the token."""
     action: Literal["approve", "override", "reject"]
-    reviewer: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=128)]
+    # Older clients send a name here. It is accepted and ignored: the reviewer recorded is the one
+    # the token belongs to, so a client cannot sign a decision as someone else.
+    reviewer: Annotated[str, StringConstraints(strip_whitespace=True, max_length=128)] | None = None
     note: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=1000)]
 
 
@@ -105,14 +107,15 @@ def get_evidence(tender_id: str, param_id: str, source: str, which: str, db: Ses
 
 @router.put("/tenders/{tender_id}/overrides/{param_id}/{vendor_id}", status_code=204)
 def put_override(tender_id: str, param_id: str, vendor_id: str, body: OverrideBody,
-                 loaded: LoadedTender = Depends(_editable), db: Session = Depends(get_db)):
+                 loaded: LoadedTender = Depends(_editable), db: Session = Depends(get_db),
+                 principal: ReviewerPrincipal = Depends(require_review_token)):
     cell = next((p.vendors[vendor_id] for p in loaded.tender.parameters
                  if p.id == param_id and vendor_id in p.vendors), None)
     if cell is None:
         raise not_found()
     # Stamped with the cell as the founder sees it now: a re-ingest keeps the override only while it is unchanged.
     TenderRepository(db).put_override(tender_id, param_id, vendor_id, body.adder_eur, body.note,
-                                      evidence_hash(cell))
+                                      evidence_hash(cell), set_by=principal.id)
     return Response(status_code=204)
 
 
@@ -133,7 +136,8 @@ def list_reviews(tender_id: str, db: Session = Depends(get_db)):
 
 @router.put("/tenders/{tender_id}/reviews/{param_id}/{vendor_id}")
 def put_review(tender_id: str, param_id: str, vendor_id: str, body: ReviewBody,
-               loaded: LoadedTender = Depends(_editable), db: Session = Depends(get_db)):
+               loaded: LoadedTender = Depends(_editable), db: Session = Depends(get_db),
+               principal: ReviewerPrincipal = Depends(require_review_token)):
     """Record a decision on a cell, stamped with the hash of the evidence as it stands now.
 
     The extracted data is never changed. To change a cell's adder, use the overrides route.
@@ -143,7 +147,7 @@ def put_review(tender_id: str, param_id: str, vendor_id: str, body: ReviewBody,
     if cell is None:
         raise not_found()
     row = TenderRepository(db).add_review(tender_id, param_id, vendor_id, action=body.action,
-                                          reviewer=body.reviewer, note=body.note, evidence_hash=evidence_hash(cell))
+                                          reviewer=principal.id, note=body.note, evidence_hash=evidence_hash(cell))
     return {**row, "created_at": row["created_at"].isoformat(), "state": review_state(cell, row)}
 
 
@@ -157,7 +161,8 @@ def clarifications_csv(tender_id: str, db: Session = Depends(get_db)):
 
 
 @router.post("/tenders/{tender_id}/verify")
-def verify(tender_id: str, db: Session = Depends(get_db)):
+def verify(tender_id: str, db: Session = Depends(get_db),
+           principal: ReviewerPrincipal = Depends(require_review_token)):
     loaded = _loaded(db, tender_id)
     remaining = open_items(loaded.tender, loaded.overrides, loaded.reviews)
     if remaining:
@@ -165,7 +170,7 @@ def verify(tender_id: str, db: Session = Depends(get_db)):
             "detail": "Open items remain", "open_items": [asdict(item) for item in remaining],
         })
     at = datetime.now(timezone.utc)  # SQLite drops the offset; UTC is what the repository assumes
-    TenderRepository(db).set_status(tender_id, "VERIFIED", at)
+    TenderRepository(db).set_status(tender_id, "VERIFIED", at, by=principal.id)
     return {"share_id": loaded.meta.share_id, "verified_at": at.isoformat()}
 
 

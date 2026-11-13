@@ -18,7 +18,8 @@ Nothing here is done until the hosting choice is made.
 - [ ] Python 3.12+ with `pip install -r specclaw_requirements.txt`. (`requirements.txt` is the old carbon product's and is git-ignored; don't use it.)
 - [ ] Environment:
   - `SPECCLAW_DATABASE_URL`: a persistent database. The SQLite default (`./specclaw_enterprise.db`) is lost on most container hosts.
-  - `ANTOVA_REVIEW_TOKEN`: a long random secret. Review mode answers 503 without it.
+  - `ANTOVA_REVIEW_TOKEN`: a long random secret. Review mode answers 503 without it (or without `ANTOVA_REVIEWERS`).
+  - `ANTOVA_REVIEWERS` (optional): one token per reviewer, as JSON, so reviews, overrides and verification are attributed to a person. Prefer this over the shared token once more than one person reviews.
   - `ANTOVA_ALLOWED_ORIGINS`: the site's origin, comma-separated if several. Leave empty when the API is served on the same origin.
   - `ANTHROPIC_API_KEY`: needed for live ingests only.
   - `SPECCLAW_TENDERS_DIR`: where tender folders live, if not the default.

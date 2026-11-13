@@ -81,8 +81,8 @@ def seed(share_id: str | None = None, draft: bool = False, bind: Engine | None =
             cells = {(p.id, vid): cell for p in result.tender.parameters for vid, cell in p.vendors.items()}
             for (param_id, vendor_id), override in overrides.items():
                 repo.put_override(tender_id, param_id, vendor_id, override.adder_eur, override.note,
-                                  evidence_hash(cells[(param_id, vendor_id)]))
-            repo.set_status(tender_id, "VERIFIED", datetime.now(timezone.utc))
+                                  evidence_hash(cells[(param_id, vendor_id)]), set_by=SEED_REVIEWER)
+            repo.set_status(tender_id, "VERIFIED", datetime.now(timezone.utc), by=SEED_REVIEWER)
         return repo.get_meta(tender_id).share_id
 
 
