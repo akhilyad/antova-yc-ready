@@ -71,13 +71,13 @@ describe('levelTender', () => {
     expect(mismatches).toEqual([])
   })
 
-  it('VoltSwitch at default rates is €482,800', () => {
+  it('VoltSwitch at default rates is €479,650', () => {
     const volt = levelOf(DEFAULT_RATES, 'vendor-b')
     expect(volt.name).toBe('VoltSwitch Industrial')
     expect(volt.headlineCents).toBe(41_800_000)
     expect(volt.techCents).toBe(4_900_000)
-    expect(volt.commercialCents).toBe(1_580_000)
-    expect(formatEur(volt.evaluatedCents)).toBe('€482,800')
+    expect(volt.commercialCents).toBe(1_265_000)
+    expect(formatEur(volt.evaluatedCents)).toBe('€479,650')
   })
 
   it('override ignores copper multiplier', () => {
@@ -132,7 +132,7 @@ describe('levelTender', () => {
   it('ignores an override for another vendor', () => {
     const override = { param_id: 'PARAM-02', vendor_id: 'vendor-c', adder_eur: '5.00', note: 'n' }
     const volt = levelOf(DEFAULT_RATES, 'vendor-b', [override])
-    expect(volt.evaluatedCents).toBe(48_280_000)
+    expect(volt.evaluatedCents).toBe(47_965_000)
     expect(volt.cells.every((c) => !c.overridden)).toBe(true)
   })
 })

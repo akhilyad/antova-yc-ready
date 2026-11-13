@@ -15,6 +15,7 @@ import { createQueryClient } from '../api/queryClient'
 import { copy } from '../content/copy'
 import { AppShell } from '../router'
 import draftJson from '../test/fixtures/draft-brief.json'
+import { draftWithoutOverrides } from '../test/fixtures/draftWithoutOverrides'
 import jobsJson from '../test/fixtures/jobs.json'
 import reviewList from '../test/fixtures/review-list.json'
 import { SHARE_ID, TENDER_ID, TEST_REVIEW_TOKEN } from '../test/msw/handlers'
@@ -122,7 +123,7 @@ function statefulReview(initial: { override?: number | null; status?: 'DRAFT' | 
   }
 
   const brief = (): BriefJson => {
-    const b = structuredClone(draftJson)
+    const b = draftWithoutOverrides()
     b.status = state.status
     ;(b as { verified_at: string | null }).verified_at =
       state.status === 'VERIFIED' ? '2026-11-06T00:00:00+00:00' : null
@@ -650,14 +651,14 @@ describe('Review: brief', () => {
 
   it('a tender migrated from v2 (no recorded run) still opens in review (R27)', async () => {
     // The v2 → v3 migration fills ingest_stats with {} and stage_log with [].
-    const migrated = structuredClone(draftJson) as Record<string, unknown>
+    const migrated = draftWithoutOverrides() as Record<string, unknown>
     migrated.ingest_stats = {}
     migrated.stage_log = []
     server.use(http.get(`/api/review/tenders/${TENDER_ID}`, () => HttpResponse.json(migrated)))
     renderAt(BRIEF_PATH, { token: TEST_REVIEW_TOKEN })
     await briefLoaded()
     expect(
-      screen.getByText('Gaps are priced from rate table mv_gis_switchgear_v1.'),
+      screen.getByText('Gaps are priced from rate table mv_gis_switchgear_v2.'),
     ).toBeInTheDocument()
   })
 
@@ -769,7 +770,7 @@ describe('Review: re-ingesting a brief (F2)', () => {
   /** A second tender, VERIFIED with two overrides, that only the lookup's GET knows. */
   const OTHER_ID = 'TENDER-2026-417'
   function serveVerifiedOther() {
-    const other = structuredClone(draftJson)
+    const other = draftWithoutOverrides()
     other.tender.id = OTHER_ID
     other.status = 'VERIFIED'
     ;(other as { verified_at: string | null }).verified_at = '2026-11-06T00:00:00+00:00'
@@ -878,7 +879,7 @@ describe('Review: re-ingesting a brief (F2)', () => {
     renderAt(BRIEF_PATH, { token: TEST_REVIEW_TOKEN })
     await briefLoaded()
     // Another tab verifies the brief: this tab's cache still holds the draft.
-    const verified = structuredClone(draftJson)
+    const verified = draftWithoutOverrides()
     verified.status = 'VERIFIED'
     ;(verified as { verified_at: string | null }).verified_at = '2026-11-06T00:00:00+00:00'
     verified.open_items = []
