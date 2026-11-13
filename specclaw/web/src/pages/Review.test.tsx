@@ -529,6 +529,52 @@ describe('Review: brief', () => {
     expect(screen.queryByTestId('verified-stamp')).toBeNull()
   })
 
+  it('verify names the ingest run on screen, so the server can refuse a different one', async () => {
+    const user = userEvent.setup()
+    statefulReview({ override: 2600 })
+    let body: unknown
+    server.use(
+      http.post(`/api/review/tenders/${TENDER_ID}/verify`, async ({ request }) => {
+        body = await request.json()
+        return HttpResponse.json({
+          share_id: draftJson.share_id,
+          verified_at: '2026-11-06T00:00:00+00:00',
+        })
+      }),
+    )
+    renderAt(BRIEF_PATH, { token: TEST_REVIEW_TOKEN })
+    await briefLoaded()
+    await user.click(verifyButton())
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Mark verified' }),
+    )
+    await screen.findByText('Verified. Share link copied.')
+    expect(body).toEqual({ run_id: draftJson.ingest_stats.run_id })
+  })
+
+  it('explains a verify refused because the tender was ingested again after the page loaded', async () => {
+    const user = userEvent.setup()
+    statefulReview({ override: 2600 })
+    server.use(
+      http.post(`/api/review/tenders/${TENDER_ID}/verify`, () =>
+        HttpResponse.json(
+          { detail: 'This tender was ingested again.', code: 'run_changed' },
+          { status: 409 },
+        ),
+      ),
+    )
+    renderAt(BRIEF_PATH, { token: TEST_REVIEW_TOKEN })
+    await briefLoaded()
+    await user.click(verifyButton())
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Mark verified' }),
+    )
+    expect(
+      await within(screen.getByRole('dialog')).findByText(copy.review.verify.runChanged),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Verified · shared')).toBeNull()
+  })
+
   it('shows the verified stamp once when motion is allowed', async () => {
     reducedMotion = false
     const user = userEvent.setup()

@@ -1,5 +1,5 @@
 """
-SpecClaw Database & Repository Layer (schema v7)
+SpecClaw Database & Repository Layer (schema v8)
 
 - Tender-scoped keys: vendor and parameter IDs repeat across tenders, so they
   are keyed by (tender_id, id).
@@ -21,6 +21,7 @@ SpecClaw Database & Repository Layer (schema v7)
   cannot be shown to apply, so the next re-ingest clears it.
 - v7 adds `adder_overrides.set_by` and `tenders.verified_by`: the reviewer ID the server took from
   the request's token. Both are NULL for rows that predate v7.
+- v8 adds `tenders.verified_run_id`: the ingest run that was verified (NULL before v8).
 """
 
 import json
@@ -43,7 +44,7 @@ import specclaw_engine as engine_models
 log = logging.getLogger(__name__)
 
 DATABASE_URL = os.getenv("SPECCLAW_DATABASE_URL", "sqlite:///./specclaw_enterprise.db")
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 LEGACY_TABLES = ("extracted_parameters", "parameters", "vendors", "tenders")
 TENDER_STATUSES = ("DRAFT", "VERIFIED")
 
@@ -114,6 +115,7 @@ class TenderRecord(Base):
     status = Column(String(16), nullable=False, default="DRAFT")
     verified_at = Column(DateTime, nullable=True)
     verified_by = Column(String(64), nullable=True)  # reviewer ID, from the request's token
+    verified_run_id = Column(String(64), nullable=True)  # the ingest run that was verified
     ingest_mode = Column(String(16), nullable=False, default="live")
     synthetic = Column(Boolean, nullable=False, default=False)
     ingest_stats = Column(Text, nullable=False, default="{}")
@@ -322,6 +324,7 @@ class TenderMeta:
     ingest_stats: dict
     stage_log: list[dict]
     verified_by: Optional[str] = None
+    verified_run_id: Optional[str] = None
 
 
 def _utc(value: Optional[datetime]) -> Optional[datetime]:
@@ -344,6 +347,7 @@ def _meta(record: TenderRecord) -> TenderMeta:
         verified_at=_utc(record.verified_at), ingested_at=_utc(record.ingested_at), ingest_mode=record.ingest_mode,
         synthetic=record.synthetic, ingest_stats=_load(record.ingest_stats, {}), stage_log=_load(record.stage_log, []),
         verified_by=record.verified_by,
+        verified_run_id=record.verified_run_id,
     )
 
 
@@ -396,6 +400,7 @@ class TenderRepository:
             record.status = "DRAFT"
             record.verified_at = None
             record.verified_by = None
+            record.verified_run_id = None
             record.ingest_mode = ingest_mode
             record.synthetic = synthetic
             record.ingest_stats = _dump(ingest_stats or {})
@@ -550,7 +555,25 @@ class TenderRepository:
         record.status = status
         record.verified_at = at if status == "VERIFIED" else None
         record.verified_by = by if status == "VERIFIED" else None
+        if status != "VERIFIED":
+            record.verified_run_id = None
         self.db.commit()
+
+    def claim_verification(self, tender_id: str, expected_ingested_at: datetime, at: datetime, by: str,
+                           run_id: Optional[str]) -> bool:
+        """Mark the tender VERIFIED if it has not been ingested again since `expected_ingested_at`.
+
+        One conditional UPDATE, not committed: the caller re-checks what blocks verification while
+        this transaction holds the write lock, then commits or rolls back. False means the tender
+        was replaced (or is gone) after the caller read it.
+        """
+        changed = (
+            self.db.query(TenderRecord)
+            .filter(TenderRecord.id == tender_id, TenderRecord.ingested_at == expected_ingested_at.replace(tzinfo=None))
+            .update({"status": "VERIFIED", "verified_at": at, "verified_by": by, "verified_run_id": run_id},
+                    synchronize_session=False)
+        )
+        return changed == 1
 
     def list_documents(self, tender_id: str) -> List[dict]:
         """The tender's source documents in ingest order."""
@@ -755,6 +778,11 @@ def _upgrade_v5_to_v6(conn: Connection) -> None:
     _add_missing_columns(conn, "adder_overrides", {"evidence_hash": "VARCHAR(64)"})
 
 
+def _upgrade_v7_to_v8(conn: Connection) -> None:
+    """Add tenders.verified_run_id (NULL for rows that exist). The caller records the version."""
+    _add_missing_columns(conn, "tenders", {"verified_run_id": "VARCHAR(64)"})
+
+
 def _upgrade_v6_to_v7(conn: Connection) -> None:
     """Add the reviewer columns (NULL for rows that exist). The caller records the version."""
     _add_missing_columns(conn, "adder_overrides", {"set_by": "VARCHAR(64)"})
@@ -814,9 +842,10 @@ def init_db(bind: Optional[Engine] = None) -> None:
             _upgrade_v3_to_v4(conn)
             _upgrade_v5_to_v6(conn)  # a v3 database already has adder_overrides, without the columns
             _upgrade_v6_to_v7(conn)
+            _upgrade_v7_to_v8(conn)
         check_foreign_keys(bind)
         return
-    if version in (4, 5, 6):
+    if version in (4, 5, 6, 7):
         with bind.begin() as conn:
             if conn.dialect.name == "sqlite":
                 conn.exec_driver_sql("BEGIN")  # see the v2/v3 branch: the ALTER must roll back too
@@ -824,7 +853,9 @@ def init_db(bind: Optional[Engine] = None) -> None:
                 _upgrade_v4_to_v5(conn)
             if version < 6:
                 _upgrade_v5_to_v6(conn)
-            _upgrade_v6_to_v7(conn)
+            if version < 7:
+                _upgrade_v6_to_v7(conn)
+            _upgrade_v7_to_v8(conn)
             _write_version(conn)
         check_foreign_keys(bind)
         return

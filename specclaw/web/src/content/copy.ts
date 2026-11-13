@@ -714,6 +714,9 @@ export const copy = {
       /** When the browser refuses the clipboard. */
       successNotCopied: 'Verified. Copy the share link below.',
       failed: "Couldn't mark the brief verified. Try again.",
+      /** The tender was ingested again after this page loaded; the page reloads the new run. */
+      runChanged:
+        'This tender was ingested again after you opened it. The page now shows the new run. Check it, then mark it verified.',
       banner: 'Verified · shared',
       copyLink: 'Copy share link',
       linkCopied: 'Share link copied.',
