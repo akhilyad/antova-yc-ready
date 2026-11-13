@@ -5,8 +5,9 @@
 Generates one pack per mutation operator and seed (samples/mutate.py) in a temporary
 folder, ingests each with the answer-key locator, and prints one row per operator:
 what each stage did and how the result compares with the pack's derived answer key.
-Free and offline: no Claude API call is made. The same table, run with a live
-locator, is the number to watch once live runs exist.
+Free and offline: no Claude API call is made, so this says nothing about Claude itself.
+To score the locator on saved (or freshly recorded) Claude answers, use
+python -m specclaw_ingest.locator_eval.
 """
 
 from __future__ import annotations
