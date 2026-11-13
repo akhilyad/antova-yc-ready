@@ -2,8 +2,8 @@
 SpecClaw Asynchronous Queue Worker System
 - Background job processing decoupling CPU/IO from HTTP requests.
 - Job lifecycle state machine (PENDING -> PROCESSING -> COMPLETED/FAILED).
-- Runs the real ingest pipeline on a worker thread and broadcasts each stage
-  over the Telemetry Hub.
+- Runs the real ingest pipeline on a worker thread; progress is read by polling
+  GET /api/jobs/{id}.
 """
 
 import asyncio
@@ -15,7 +15,6 @@ from typing import Any, Callable, Dict, Optional
 from specclaw_db import SessionLocal
 from specclaw_ingest import extract, pipeline
 from specclaw_models import JobStatus, JobStatusResponse
-from specclaw_telemetry import telemetry_manager
 
 
 class BackgroundJob:
@@ -107,14 +106,9 @@ class JobQueueManager:
 
     async def _process_job(self, job: BackgroundJob):
         job.status = JobStatus.PROCESSING
-        loop = asyncio.get_running_loop()
 
         def progress(stage: str, pct: int) -> None:
             job.stage, job.progress_pct = stage, pct
-            asyncio.run_coroutine_threadsafe(
-                telemetry_manager.broadcast("JOB_PROGRESS", {"job_id": job.job_id, "progress_pct": pct, "stage": stage}),
-                loop,
-            )
 
         try:
             tender_dir = Path(job.payload["tender_dir"])
@@ -125,18 +119,13 @@ class JobQueueManager:
             )
             cleared = await asyncio.to_thread(self._persist, result)
             job.stage, job.progress_pct = "Persist", 100
-            await telemetry_manager.broadcast("JOB_PROGRESS", {"job_id": job.job_id, "progress_pct": 100, "stage": "Persist"})
             job.result = {**result.stats, "overrides_cleared": cleared}
             job.status = JobStatus.COMPLETED
             job.completed_at = datetime.now(timezone.utc).isoformat()
-            # The socket is public; the result (stats, cleared overrides) is read via GET /api/jobs/{id}.
-            await telemetry_manager.broadcast("JOB_COMPLETED", {"job_id": job.job_id, "status": "COMPLETED"})
         except Exception as e:
             job.status = JobStatus.FAILED
             job.error = f"{type(e).__name__}: {e}"
             job.completed_at = datetime.now(timezone.utc).isoformat()
-            # Like JOB_COMPLETED: the error text (folder IDs, filenames, paths) is read via GET /api/jobs/{id}.
-            await telemetry_manager.broadcast("JOB_FAILED", {"job_id": job.job_id, "status": "FAILED"})
 
 
 # Global singleton worker queue

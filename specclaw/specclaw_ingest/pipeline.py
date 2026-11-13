@@ -1,7 +1,7 @@
 """The ingest pipeline: manifest -> parse -> locate -> verify -> values -> precedence -> price.
 
 run_ingest() is pure with respect to the database; persist() writes the result
-in one transaction and clears the leveling cache for that tender.
+in one transaction.
 """
 
 from __future__ import annotations
@@ -20,7 +20,6 @@ import anthropic
 from sqlalchemy.orm import Session
 
 import specclaw_engine as engine
-from specclaw_cache import leveling_cache
 from specclaw_db import TenderRepository
 from specclaw_ingest import artifacts, codec, config, costs, extract, sweep
 from specclaw_ingest.artifacts import STAGE_NAMES, StageArtifact
@@ -803,5 +802,4 @@ def persist(result: IngestResult, db: Session, share_id: str | None = None) -> l
         run={"run_id": stats["run_id"], "fingerprint": stats["run_fingerprint"],
              "parts": result.fingerprint.get("parts", {}), "artifacts": result.artifacts} if result.artifacts else None,
     )
-    leveling_cache.invalidate_tender(result.tender.id)
     return cleared

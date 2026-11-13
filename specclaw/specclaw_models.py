@@ -169,14 +169,3 @@ class JobStatusResponse(BaseModel):
     result: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
 
-class TelemetryMessage(BaseModel):
-    event_type: str
-    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
-    payload: Dict[str, Any]
-
-class DownloadPdfRequest(BaseModel):
-    negotiation_round: int = Field(default=3, ge=1, le=3)
-    conceded_params: List[str] = Field(
-        default_factory=lambda: ["PARAM-01", "PARAM-02", "PARAM-03", "PARAM-05", "PARAM-06"]
-    )
-

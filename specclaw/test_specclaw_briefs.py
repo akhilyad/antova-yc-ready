@@ -14,7 +14,6 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import text
 
-import specclaw_cache
 from specclaw_api import app
 from specclaw_auth import REVIEW_HEADER
 from specclaw_db import SessionLocal, TenderRepository
@@ -307,9 +306,6 @@ def test_override_change_on_verified_brief_is_409(public, review, share_id, monk
     assert _override(review, "PARAM-01", "vendor-b", "0", "waived").status_code == 204
     assert review.post(f"{REVIEW}/verify").status_code == 200
     before_overrides, before_brief = _stored_overrides(), public.get(f"/api/briefs/{share_id}").json()
-    calls = []
-    monkeypatch.setattr(specclaw_cache.leveling_cache, "invalidate_tender", lambda tender_id=None: calls.append(tender_id))
-
     for response in (
         _override(review, "PARAM-01", "vendor-b", "5000"),
         _override(review, "PARAM-02", "vendor-b", "5000"),
@@ -322,7 +318,6 @@ def test_override_change_on_verified_brief_is_409(public, review, share_id, monk
         assert response.json() == locked
     assert review.put("/api/review/tenders/TENDER-NOPE/overrides/PARAM-01/vendor-b",
                       json={"adder_eur": "-1"}).status_code == 404  # unknown tender: 404 first
-    assert calls == []
     assert _stored_overrides() == before_overrides
     assert public.get(f"/api/briefs/{share_id}").json() == before_brief
 
@@ -332,17 +327,6 @@ def test_override_change_on_verified_brief_is_409(public, review, share_id, monk
     assert review.delete(path).status_code == 204
 
 
-def test_review_changes_invalidate_leveling_cache(review, share_id, monkeypatch):
-    _resolve_warranty(review)
-    calls = []
-    monkeypatch.setattr(specclaw_cache.leveling_cache, "invalidate_tender", lambda tender_id=None: calls.append(tender_id))
-    _override(review, "PARAM-01", "vendor-b", "0")
-    review.delete(f"{REVIEW}/overrides/PARAM-01/vendor-b")
-    review.post(f"{REVIEW}/verify")
-    review.post(f"{REVIEW}/withdraw")
-    assert calls == [TENDER_ID] * 4
-    _override(review, "PARAM-99", "vendor-b", "0")  # a rejected change leaves the cache alone
-    assert calls == [TENDER_ID] * 4
 
 
 def test_review_routes_need_token(public, share_id):

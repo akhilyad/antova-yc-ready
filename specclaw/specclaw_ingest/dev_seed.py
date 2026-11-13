@@ -23,7 +23,6 @@ from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 
 import specclaw_db
-from specclaw_cache import leveling_cache
 from specclaw_db import TenderRepository, init_db
 from specclaw_engine import Override, TenderPackage
 from specclaw_ingest.pipeline import persist, run_ingest
@@ -82,7 +81,6 @@ def seed(share_id: str | None = None, draft: bool = False, bind: Engine | None =
             for (param_id, vendor_id), override in overrides.items():
                 repo.put_override(tender_id, param_id, vendor_id, override.adder_eur, override.note)
             repo.set_status(tender_id, "VERIFIED", datetime.now(timezone.utc))
-            leveling_cache.invalidate_tender(tender_id)
         return repo.get_meta(tender_id).share_id
 
 
