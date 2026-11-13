@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
-import { IMPACT_COPY, INTRO_COPY, MANIFESTO_COPY, SAMPLE_DATA_LABEL, STATUS_PLAIN } from '../constants';
+import { HOW_IT_WORKS, IMPACT_COPY, INTRO_COPY, MANIFESTO_COPY, SAMPLE_DATA_LABEL, STATUS_PLAIN } from '../constants';
 import { CELLS, COMPARE_KEYS, VENDORS, cellAdder, vendorPrice } from '../data/tender402';
 import { formatEuro } from '../utils/audit';
 
@@ -145,6 +145,49 @@ export function IntroSection() {
       <Reveal className="mx-auto mt-20 max-w-6xl">
         <BeforeAfter />
       </Reveal>
+    </section>
+  );
+}
+
+/** The pipeline in four plain steps, what comes back, and who it is for. */
+export function HowItWorksSection() {
+  return (
+    <section id="how" className="scroll-mt-12 px-4 py-32 text-ink sm:py-44 md:px-6">
+      <div className="mx-auto max-w-6xl">
+        <Reveal className="mx-auto max-w-3xl text-center">
+          <p className="font-mono text-xs text-brand-soft">{HOW_IT_WORKS.eyebrow}</p>
+          <h2 className="mt-4 font-serif text-4xl tracking-tight sm:text-5xl md:text-6xl">
+            {HOW_IT_WORKS.heading}{' '}
+            <em className="italic text-ink/85">{HOW_IT_WORKS.headingItalic}</em>
+          </h2>
+        </Reveal>
+
+        <div className="mt-20 grid gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+          {HOW_IT_WORKS.steps.map((step, i) => (
+            <Reveal key={step.id}>
+              <div>
+                <p className="font-mono text-xs text-brand-soft">{String(i + 1).padStart(2, '0')}</p>
+                <h3 className="mt-3 font-serif text-2xl tracking-tight">{step.title}</h3>
+                <p className="mt-3 font-sans text-sm leading-relaxed text-ink/70">{step.body}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+
+        <Reveal className="surface mx-auto mt-20 max-w-3xl p-6 sm:p-8">
+          <h3 className="font-serif text-2xl tracking-tight">{HOW_IT_WORKS.deliverablesHeading}</h3>
+          <ul className="mt-5 grid gap-x-8 gap-y-3 font-sans text-sm text-ink/80 sm:grid-cols-2">
+            {HOW_IT_WORKS.deliverables.map((item) => (
+              <li key={item} className="flex gap-3">
+                <span aria-hidden="true" className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-strong" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </Reveal>
+
+        <p className="mx-auto mt-10 max-w-2xl text-center font-sans text-sm text-ink/60">{HOW_IT_WORKS.audience}</p>
+      </div>
     </section>
   );
 }
