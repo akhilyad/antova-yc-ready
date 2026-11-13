@@ -125,6 +125,46 @@ export const INTRO_COPY = {
   after: 'With Antova',
 };
 
+export const HOW_IT_WORKS = {
+  eyebrow: 'How it works',
+  heading: 'The model finds quotes.',
+  headingItalic: 'Code does the maths.',
+  steps: [
+    {
+      id: 'read',
+      title: 'Read',
+      body: 'AI finds the sentence in each bid that answers each requirement. It returns the page and the exact words, nothing more.',
+    },
+    {
+      id: 'check',
+      title: 'Check',
+      body: 'A quote that is not on its page word for word is thrown out. Code reads the values, converts the units and tests them against your spec.',
+    },
+    {
+      id: 'price',
+      title: 'Price',
+      body: 'Each gap is priced from a rate table you can read. If a quantity is unknown, the gap is marked unpriced, never counted as zero.',
+    },
+    {
+      id: 'review',
+      title: 'Review',
+      body: 'An engineer approves every flag before you see the result. Drawings outrank cover letters, and a contradiction shows both pages.',
+    },
+  ],
+  deliverablesHeading: 'What you get back',
+  deliverables: [
+    'An evaluated price for every vendor, with a low to high range',
+    'The page and exact quote behind every flagged cell',
+    'Contradictions shown with both pages side by side',
+    'Passes that only a cover letter claims, marked as claimed',
+    'Questions to send each vendor, as a CSV',
+    'A negotiation view: what each concession is worth',
+    'A PDF report',
+  ],
+  audience:
+    'Built for procurement and estimating engineers comparing 3 to 8 bids on one electrical package. 33 kV switchgear today.',
+};
+
 export const MATRIX_COPY = {
   eyebrow: 'Try it',
   headlineLead: 'Three bids. Eight checks.',
@@ -214,7 +254,13 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: 'faq-1',
     question: 'Does AI decide if a bid is compliant?',
     answer:
-      'No. AI finds the passage. Fixed rules check it against your spec and do every sum.',
+      'No. AI finds the passage and its page. A quote that is not on that page word for word is thrown out. Fixed rules check the rest against your spec and do every sum.',
+  },
+  {
+    id: 'faq-tested',
+    question: 'Has it been tested on real tenders?',
+    answer:
+      'The engine is tested on synthetic tenders. Your first audit is free so you can run it next to your own evaluation, and an engineer checks every flag.',
   },
   {
     id: 'faq-2',
