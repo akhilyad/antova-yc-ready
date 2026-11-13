@@ -1,5 +1,5 @@
 """
-SpecClaw Database & Repository Layer (schema v6)
+SpecClaw Database & Repository Layer (schema v7)
 
 - Tender-scoped keys: vendor and parameter IDs repeat across tenders, so they
   are keyed by (tender_id, id).
@@ -19,6 +19,8 @@ SpecClaw Database & Repository Layer (schema v6)
 - v6 adds `adder_overrides.evidence_hash`: the hash of the cell as the founder saw it, so a
   re-ingest can tell whether an override still applies. A row without one (entered before v6)
   cannot be shown to apply, so the next re-ingest clears it.
+- v7 adds `adder_overrides.set_by` and `tenders.verified_by`: the reviewer ID the server took from
+  the request's token. Both are NULL for rows that predate v7.
 """
 
 import json
@@ -41,7 +43,7 @@ import specclaw_engine as engine_models
 log = logging.getLogger(__name__)
 
 DATABASE_URL = os.getenv("SPECCLAW_DATABASE_URL", "sqlite:///./specclaw_enterprise.db")
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 LEGACY_TABLES = ("extracted_parameters", "parameters", "vendors", "tenders")
 TENDER_STATUSES = ("DRAFT", "VERIFIED")
 
@@ -111,6 +113,7 @@ class TenderRecord(Base):
     share_id = Column(String(32), nullable=False, unique=True, index=True)
     status = Column(String(16), nullable=False, default="DRAFT")
     verified_at = Column(DateTime, nullable=True)
+    verified_by = Column(String(64), nullable=True)  # reviewer ID, from the request's token
     ingest_mode = Column(String(16), nullable=False, default="live")
     synthetic = Column(Boolean, nullable=False, default=False)
     ingest_stats = Column(Text, nullable=False, default="{}")
@@ -128,6 +131,7 @@ class AdderOverrideRecord(Base):
     note = Column(Text, nullable=False)
     created_at = Column(DateTime, nullable=False)
     evidence_hash = Column(String(64), nullable=True)  # specclaw_review.evidence_hash of the cell when it was set
+    set_by = Column(String(64), nullable=True)  # reviewer ID, from the request's token
 
 
 class SourceDocumentRecord(Base):
@@ -317,6 +321,7 @@ class TenderMeta:
     synthetic: bool
     ingest_stats: dict
     stage_log: list[dict]
+    verified_by: Optional[str] = None
 
 
 def _utc(value: Optional[datetime]) -> Optional[datetime]:
@@ -338,6 +343,7 @@ def _meta(record: TenderRecord) -> TenderMeta:
         tender_id=record.id, title=record.title, share_id=record.share_id, status=record.status,
         verified_at=_utc(record.verified_at), ingested_at=_utc(record.ingested_at), ingest_mode=record.ingest_mode,
         synthetic=record.synthetic, ingest_stats=_load(record.ingest_stats, {}), stage_log=_load(record.stage_log, []),
+        verified_by=record.verified_by,
     )
 
 
@@ -389,6 +395,7 @@ class TenderRepository:
             record.ingested_at = ingested_at
             record.status = "DRAFT"
             record.verified_at = None
+            record.verified_by = None
             record.ingest_mode = ingest_mode
             record.synthetic = synthetic
             record.ingest_stats = _dump(ingest_stats or {})
@@ -533,8 +540,8 @@ class TenderRepository:
     def tender_id_for_share(self, share_id: str) -> Optional[str]:
         return self.db.query(TenderRecord.id).filter(TenderRecord.share_id == share_id).scalar()
 
-    def set_status(self, tender_id: str, status: str, at: datetime) -> None:
-        """Verify (stamping `at`) or withdraw back to DRAFT (clearing the stamp)."""
+    def set_status(self, tender_id: str, status: str, at: datetime, by: Optional[str] = None) -> None:
+        """Verify (stamping `at` and the reviewer `by`) or withdraw back to DRAFT (clearing both)."""
         if status not in TENDER_STATUSES:
             raise ValueError(f"Unknown tender status {status!r}")
         record = self.db.get(TenderRecord, tender_id)
@@ -542,6 +549,7 @@ class TenderRepository:
             raise LookupError(f"Unknown tender {tender_id!r}")
         record.status = status
         record.verified_at = at if status == "VERIFIED" else None
+        record.verified_by = by if status == "VERIFIED" else None
         self.db.commit()
 
     def list_documents(self, tender_id: str) -> List[dict]:
@@ -558,7 +566,7 @@ class TenderRepository:
                 for o in rows}
 
     def put_override(self, tender_id: str, param_id: str, vendor_id: str, adder_eur: Decimal, note: str,
-                     evidence_hash: Optional[str] = None) -> None:
+                     evidence_hash: Optional[str] = None, set_by: Optional[str] = None) -> None:
         """Create or replace the override for one cell; `created_at` records when it was last set.
 
         `evidence_hash` is the hash of the cell as the founder saw it (specclaw_review.evidence_hash).
@@ -568,6 +576,7 @@ class TenderRepository:
         record.adder_eur = str(adder_eur)
         record.note = note
         record.evidence_hash = evidence_hash
+        record.set_by = set_by
         record.created_at = datetime.now(timezone.utc)
         self.db.add(record)
         self.db.commit()
@@ -734,10 +743,22 @@ def _upgrade_v4_to_v5(conn: Connection) -> None:
     Base.metadata.create_all(bind=conn)
 
 
+def _add_missing_columns(conn: Connection, table: str, columns: dict[str, str]) -> None:
+    present = {c["name"] for c in inspect(conn).get_columns(table)}
+    for name, ddl in columns.items():
+        if name not in present:
+            conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {name} {ddl}"))
+
+
 def _upgrade_v5_to_v6(conn: Connection) -> None:
     """Add adder_overrides.evidence_hash (NULL for rows that exist). The caller records the version."""
-    if "evidence_hash" not in {c["name"] for c in inspect(conn).get_columns("adder_overrides")}:
-        conn.execute(text("ALTER TABLE adder_overrides ADD COLUMN evidence_hash VARCHAR(64)"))
+    _add_missing_columns(conn, "adder_overrides", {"evidence_hash": "VARCHAR(64)"})
+
+
+def _upgrade_v6_to_v7(conn: Connection) -> None:
+    """Add the reviewer columns (NULL for rows that exist). The caller records the version."""
+    _add_missing_columns(conn, "adder_overrides", {"set_by": "VARCHAR(64)"})
+    _add_missing_columns(conn, "tenders", {"verified_by": "VARCHAR(64)"})
 
 
 def _write_version(conn: Connection) -> None:
@@ -791,16 +812,19 @@ def init_db(bind: Optional[Engine] = None) -> None:
             if version == 2:
                 _upgrade_v2_to_v3(conn)
             _upgrade_v3_to_v4(conn)
-            _upgrade_v5_to_v6(conn)  # a v3 database already has adder_overrides, without the column
+            _upgrade_v5_to_v6(conn)  # a v3 database already has adder_overrides, without the columns
+            _upgrade_v6_to_v7(conn)
         check_foreign_keys(bind)
         return
-    if version in (4, 5):
+    if version in (4, 5, 6):
         with bind.begin() as conn:
             if conn.dialect.name == "sqlite":
                 conn.exec_driver_sql("BEGIN")  # see the v2/v3 branch: the ALTER must roll back too
             if version == 4:
                 _upgrade_v4_to_v5(conn)
-            _upgrade_v5_to_v6(conn)
+            if version < 6:
+                _upgrade_v5_to_v6(conn)
+            _upgrade_v6_to_v7(conn)
             _write_version(conn)
         check_foreign_keys(bind)
         return

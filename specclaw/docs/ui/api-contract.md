@@ -139,7 +139,8 @@ specclaw_ingest.export_fixtures`). They are LF files (`web/.gitattributes`, R11)
 | `VITE_SAMPLE_SHARE_ID` | frontend | the live sample's share ID (the landing links to it) |
 | `VITE_CONTACT_EMAIL` | frontend | the offer's mailto and copyable address |
 | `VITE_SITE_URL` | frontend build | canonical link, structured data, `robots.txt`, `sitemap.xml` |
-| `ANTOVA_REVIEW_TOKEN` | backend | founder token. Unset means founder routes return 503. |
+| `ANTOVA_REVIEW_TOKEN` | backend | shared review token; its holder is the reviewer `founder`. With no token configured at all, review routes return 503. |
+| `ANTOVA_REVIEWERS` | backend | JSON `{"<id>": {"name": "...", "token": "..."}}`. Each token is one reviewer; the server records that ID on reviews, overrides and verification, and ignores any reviewer name a request sends. A malformed value, or two reviewers with one token, closes review (503). |
 | `ANTOVA_ALLOWED_ORIGINS` | backend | CORS origins (comma separated) |
 | `ANTHROPIC_API_KEY` | backend | live ingests. Not set anywhere today. |
 

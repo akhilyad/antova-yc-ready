@@ -146,7 +146,7 @@ def test_v3_fresh_init_has_new_columns(db_engine):
     init_db(db_engine)
     assert V3_TABLES <= set(inspect(db_engine).get_table_names())
     assert V3_TENDER_COLUMNS <= _tender_columns(db_engine)
-    assert _version(db_engine) == SCHEMA_VERSION == 6
+    assert _version(db_engine) == SCHEMA_VERSION == 7
 
 
 def test_upgrade_keeps_audit_rows(db_engine):
@@ -157,7 +157,7 @@ def test_upgrade_keeps_audit_rows(db_engine):
     columns = {c["name"] for c in inspect(db_engine).get_columns("vendors")}
     assert "headline_citation" in columns
     assert V3_TENDER_COLUMNS <= _tender_columns(db_engine)
-    assert _version(db_engine) == 6
+    assert _version(db_engine) == 7
 
 
 def test_upgrade_refuses_nonempty_legacy(db_engine):
@@ -189,7 +189,7 @@ def test_v2_upgrade_adds_columns_and_backfills_share_id(db_engine):
     assert [tuple(row) for row in ledger] == [("TENDER-2026-402", 1, 1.0, 2.0, 3.0, "x"),
                                               ("TENDER-2026-402", 2, 1.0, 2.0, 3.0, "x")]
     assert "adder_overrides" in inspect(db_engine).get_table_names()
-    assert _version(db_engine) == 6
+    assert _version(db_engine) == 7
     with Session(db_engine) as session:
         repo = TenderRepository(session)
         assert repo.tender_id_for_share(share_ids[0]) == "TENDER-2026-402"
@@ -221,7 +221,7 @@ def test_v2_upgrade_is_all_or_nothing(db_engine, monkeypatch):
     assert _version(db_engine) == 2
     monkeypatch.undo()
     init_db(db_engine)
-    assert _version(db_engine) == 6
+    assert _version(db_engine) == 7
 
 
 def test_init_is_idempotent(db_engine):
@@ -230,7 +230,7 @@ def test_init_is_idempotent(db_engine):
         TenderRepository(session).save_tender(_tender(), DOCS, datetime.now(timezone.utc))
     init_db(db_engine)
     assert _counts(db_engine)["vendors"] == 2
-    assert _version(db_engine) == 6
+    assert _version(db_engine) == 7
 
 
 def test_round_trip(db_engine):
@@ -427,7 +427,7 @@ def test_v3_upgrade_keeps_the_tender_and_adds_v4(db_engine):
     _v3(db_engine)
     before = _counts(db_engine)
     init_db(db_engine)
-    assert _version(db_engine) == 6
+    assert _version(db_engine) == 7
     assert _counts(db_engine) == before
     assert V4_TABLES <= set(inspect(db_engine).get_table_names())
     with Session(db_engine) as session:
@@ -500,7 +500,7 @@ def test_v4_upgrade_adds_ingest_jobs_and_keeps_the_tender(db_engine):
         conn.execute(text("INSERT INTO schema_version (version) VALUES (4)"))
     assert "ingest_jobs" not in inspect(db_engine).get_table_names()
     init_db(db_engine)
-    assert _version(db_engine) == 6
+    assert _version(db_engine) == 7
     assert "ingest_jobs" in inspect(db_engine).get_table_names()
     assert TenderRepository(sessionmaker(bind=db_engine)()).get_meta("TENDER-T1") is not None
 
@@ -526,7 +526,7 @@ def test_v3_upgrade_adds_the_override_hash_column(db_engine):
     _v3(db_engine)
     init_db(db_engine)
     assert "evidence_hash" in {c["name"] for c in inspect(db_engine).get_columns("adder_overrides")}
-    assert _version(db_engine) == 6
+    assert _version(db_engine) == 7
 
 
 def test_v5_upgrade_adds_the_override_hash_column_and_keeps_overrides(db_engine):
@@ -539,7 +539,7 @@ def test_v5_upgrade_adds_the_override_hash_column_and_keeps_overrides(db_engine)
         conn.execute(text("ALTER TABLE adder_overrides DROP COLUMN evidence_hash"))
         conn.execute(text("UPDATE schema_version SET version = 5"))
     init_db(db_engine)
-    assert _version(db_engine) == 6
+    assert _version(db_engine) == 7
     with Session(db_engine) as session:
         overrides = TenderRepository(session).get_overrides("TENDER-T1")
     assert overrides[("PARAM-01", "vendor-b")].adder_eur == Decimal("12000.00")
@@ -557,3 +557,36 @@ def test_overrides_without_a_hash_are_cleared_by_the_next_save(db_engine):
         assert cleared == [{"param_id": "PARAM-01", "vendor_id": "vendor-b",
                             "adder_eur": "12000.00", "note": "engineer estimate"}]
         assert repo.get_overrides("TENDER-T1") == {}
+
+
+# --- schema v7: who set an override, who verified ------------------------------------------------
+
+def test_v6_upgrade_adds_the_reviewer_columns_and_keeps_data(db_engine):
+    init_db(db_engine)
+    with Session(db_engine) as session:
+        repo = TenderRepository(session)
+        repo.save_tender(_tender(), DOCS, datetime.now(timezone.utc))
+        repo.put_override("TENDER-T1", "PARAM-01", "vendor-b", Decimal("12000.00"), "engineer estimate", "abc")
+    with db_engine.begin() as conn:
+        conn.execute(text("ALTER TABLE adder_overrides DROP COLUMN set_by"))
+        conn.execute(text("ALTER TABLE tenders DROP COLUMN verified_by"))
+        conn.execute(text("UPDATE schema_version SET version = 6"))
+    init_db(db_engine)
+    assert _version(db_engine) == 7
+    assert "set_by" in {c["name"] for c in inspect(db_engine).get_columns("adder_overrides")}
+    with Session(db_engine) as session:
+        repo = TenderRepository(session)
+        assert repo.get_meta("TENDER-T1").verified_by is None
+        assert repo.get_overrides("TENDER-T1")[("PARAM-01", "vendor-b")].adder_eur == Decimal("12000.00")
+
+
+def test_verified_by_is_stamped_on_verify_and_cleared_on_withdraw(db_engine):
+    init_db(db_engine)
+    now = datetime.now(timezone.utc)
+    with Session(db_engine) as session:
+        repo = TenderRepository(session)
+        repo.save_tender(_tender(), DOCS, now)
+        repo.set_status("TENDER-T1", "VERIFIED", now, by="ada")
+        assert repo.get_meta("TENDER-T1").verified_by == "ada"
+        repo.set_status("TENDER-T1", "DRAFT", now)
+        assert repo.get_meta("TENDER-T1").verified_by is None

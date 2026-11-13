@@ -198,7 +198,7 @@ def test_verify_is_refused_while_a_flag_is_open_and_allowed_after_approval(clien
 def test_review_route_validates_its_input(client, stored):
     base = f"/api/review/tenders/{stored.id}/reviews"
     assert client.put(f"{base}/PARAM-01/vendor-b", json={"action": "bless", "reviewer": "a", "note": "n"}).status_code == 422
-    assert client.put(f"{base}/PARAM-01/vendor-b", json={"action": "approve", "reviewer": "", "note": "n"}).status_code == 422
+    assert client.put(f"{base}/PARAM-01/vendor-b", json={"action": "approve", "reviewer": "x" * 129, "note": "n"}).status_code == 422
     assert client.put(f"{base}/PARAM-99/vendor-b", json={"action": "approve", "reviewer": "a", "note": "n"}).status_code == 404
     listed = client.get(base)
     assert listed.status_code == 200 and isinstance(listed.json(), list)
