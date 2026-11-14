@@ -21,7 +21,7 @@ Nothing here is done until the hosting choice is made.
   - `ANTOVA_REVIEW_TOKEN`: a long random secret. Review mode answers 503 without it (or without `ANTOVA_REVIEWERS`).
   - `ANTOVA_REVIEWERS` (optional): one token per reviewer, as JSON, so reviews, overrides and verification are attributed to a person. Prefer this over the shared token once more than one person reviews.
   - `ANTOVA_ALLOWED_ORIGINS`: the site's origin, comma-separated if several. Leave empty when the API is served on the same origin.
-  - `ANTHROPIC_API_KEY`: needed for live ingests only.
+  - `ANTHROPIC_API_KEY` or `EXPLABS_API_KEY`: needed for live ingests only. With only `EXPLABS_API_KEY` set, the locate step uses Experiential Labs (`gpt-6-luna`); see `.env.example`.
   - `SPECCLAW_TENDERS_DIR`: where tender folders live, if not the default.
 - [ ] Run with `uvicorn specclaw_api:app --host 0.0.0.0 --port $PORT` on a **single worker**: the job queue is in-process, so jobs started on one worker are invisible to another.
 - [ ] `GET /api/health` answers 200.

@@ -5,7 +5,8 @@
 
 The mutation eval (specclaw_ingest.eval) runs the deterministic stages with the answer-key
 locator, so it says nothing about Claude. This scores the locate stage itself, from the
-answers saved in each tender's claude_responses/ folder (free, offline). With --live --spend it
+answers saved in each tender's claude_responses/ folder (free, offline), from whichever model
+is configured (Claude, or Experiential Labs; see specclaw_ingest.chat_locator). With --live --spend it
 first records an answer for every document that has none, which calls the paid API.
 
 Per document: candidates returned, how many verify (the quote is on its page word for word),
@@ -58,7 +59,7 @@ def _where(doc, page: int, quote: str):
     return None if citation is None else (citation.page, citation.quote)
 
 
-def score_document(doc, ideal: dict, outcome: LocateOutcome) -> dict:
+def score_document(doc, ideal: dict, outcome: LocateOutcome, prices: tuple | None = None) -> dict:
     response = outcome.response
     wanted = {(c["param_id"], where) for c in ideal["candidates"]
               if (where := _where(doc, c["page"], c["quote"])) is not None}
@@ -91,7 +92,7 @@ def score_document(doc, ideal: dict, outcome: LocateOutcome) -> dict:
         # The locator must give every parameter a candidate or a not_stated entry.
         "silent_params": sorted(p.id for p in PARAMETERS if p.id not in answered),
         "windows": len(outcome.windows) if outcome.windows else 1,
-        "cost_usd": str(extract.api_cost_usd(outcome.input_tokens, outcome.output_tokens)),
+        "cost_usd": str(extract.api_cost_usd(outcome.input_tokens, outcome.output_tokens, *(prices or ()))),
         "per_param": {pid: (len({m for m in matched if m[0] == pid}), len({w for w in wanted if w[0] == pid}))
                       for pid in sorted({w[0] for w in wanted})},
     }
@@ -130,7 +131,7 @@ def score_pack(tender_dir: Path, locator: Locator) -> dict:
             missing.append({"file": entry.file, "reason": f"{type(exc).__name__}: {exc}"})
             continue
         if ideal is not None:
-            documents.append(score_document(doc, ideal, outcome))
+            documents.append(score_document(doc, ideal, outcome, getattr(locator, "prices", None)))
     run: dict = {"ran": False}
     if not missing:
         try:

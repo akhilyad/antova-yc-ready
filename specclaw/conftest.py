@@ -15,6 +15,9 @@ os.environ["SPECCLAW_DATABASE_URL"] = f"sqlite:///{(_TEST_DB_DIR / 'test.db').as
 # unless a test sets a fake key itself (and then uses a fake client).
 os.environ["ANTHROPIC_API_KEY"] = ""
 os.environ["ANTHROPIC_AUTH_TOKEN"] = ""
+os.environ["EXPLABS_API_KEY"] = ""
+# Settings in specclaw/.env must not reach a test run.
+os.environ["SPECCLAW_ENV_FILE"] = str(_TEST_DB_DIR / "no-such.env")
 
 # Founder review token for the gated routes, and the one origin CORS allows.
 # CORS origins are read when specclaw_api is imported, so set them first.
