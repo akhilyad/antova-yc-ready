@@ -18,6 +18,7 @@ from specclaw_api import app
 from specclaw_auth import REVIEW_HEADER
 from specclaw_db import SessionLocal, TenderRepository
 from specclaw_ingest import run as cli
+from samples.pdf_compare import content_form
 from specclaw_ingest.parse import load_manifest, parse_document
 from specclaw_ingest.pipeline import run_ingest
 from specclaw_service import persist
@@ -60,8 +61,11 @@ def test_every_pack_is_byte_identical_and_committed(tmp_path, tender_id):
     generate(first, pack)
     generate(second, pack)
     for name in pack_files(pack):
-        assert (first / name).read_bytes() == (second / name).read_bytes(), name
-        assert (first / name).read_bytes() == (SAMPLES / tender_id / name).read_bytes(), f"{name}: regenerate the pack"
+        assert (first / name).read_bytes() == (second / name).read_bytes(), name  # same machine: identical bytes
+        made, committed = (first / name).read_bytes(), (SAMPLES / tender_id / name).read_bytes()
+        if name.endswith(".pdf"):  # compressed streams differ between zlib builds; the content must not
+            made, committed = content_form(made), content_form(committed)
+        assert made == committed, f"{name}: regenerate the pack"
 
 
 def test_pack_registry():
