@@ -32,7 +32,7 @@ sequenceDiagram
     autonumber
     participant E as Engineer / Frontend
     participant G as API Gateway
-    participant P as SPECCLAW Parser
+    participant P as ANTOVA Parser
     participant L as Locate Model
     participant R as Rule & Spec Engine
     participant A as Audit Ledger
@@ -54,11 +54,11 @@ sequenceDiagram
 
 | Step | What happens | Code |
 | :--- | :--- | :--- |
-| 1 to 2 | PDFs are checked before they are kept: header, size, page count, encryption. | `specclaw/specclaw_upload_api.py` |
-| 3 to 7 | Pages become words with coordinates. The model proposes quotes. A quote that is not on its page word for word is dropped. A recall sweep catches value-shaped sentences the model missed. Scanned pages are flagged for manual review. | `specclaw/specclaw_ingest/parse.py`, `extract.py`, `verify.py`, `sweep.py` |
+| 1 to 2 | PDFs are checked before they are kept: header, size, page count, encryption. | `antova_backend/antova_upload_api.py` |
+| 3 to 7 | Pages become words with coordinates. The model proposes quotes. A quote that is not on its page word for word is dropped. A recall sweep catches value-shaped sentences the model missed. Scanned pages are flagged for manual review. | `antova_backend/antova_ingest/parse.py`, `extract.py`, `verify.py`, `sweep.py` |
 | 8 | Values are read and compared with the spec. Drawings and bills of materials outrank cover letters. A contradiction keeps both pages. A missing item is marked omitted. | `values.py`, `precedence.py`, `ontology.py` |
 | 9 | Each gap is priced from a versioned rate table. The strict warranty rule flags a warranty counted from a different start point and leaves it unpriced unless the spec states the gap. | `costs.py`, `rates/mv_gis_switchgear_v2.json` |
-| 10 to 13 | A draft stays a draft while any flag is open. Approvals are recorded per cell with the reviewer's identity, and a changed re-ingest makes an old approval stale. | `specclaw_review.py`, `specclaw_review_api.py`, `specclaw_db.py` |
+| 10 to 13 | A draft stays a draft while any flag is open. Approvals are recorded per cell with the reviewer's identity, and a changed re-ingest makes an old approval stale. | `antova_review.py`, `antova_review_api.py`, `antova_db.py` |
 
 ## Repository blueprint
 
@@ -70,17 +70,17 @@ sequenceDiagram
 │   ├── data/tender402.ts         Benchmark 33 kV package as the page renders it
 │   └── utils/audit.test.ts       Copy and figure checks
 ├── public/                       Logo, banner, founder photo
-├── specclaw/                     Audit engine (Python, FastAPI, SQLAlchemy)
-│   ├── specclaw_api.py           App entry, job routes, health
-│   ├── specclaw_upload_api.py    Tender PDF and manifest intake with checks
-│   ├── specclaw_review_api.py    Flags, approvals, overrides, verify, exports
-│   ├── specclaw_briefs_api.py    Shareable read-only audit briefs
-│   ├── specclaw_auth.py          Named reviewer tokens
-│   ├── specclaw_workers.py       Background ingest queue (single worker)
-│   ├── specclaw_engine.py        Evaluated prices, ranking, negotiation what-ifs
-│   ├── specclaw_db.py            Tenders, cells, reviews, overrides, ledger
-│   ├── specclaw_export.py        Vendor clarification logs, verified workbook
-│   ├── specclaw_ingest/          The ingestion pipeline
+├── antova_backend/           Audit engine (Python, FastAPI, SQLAlchemy)
+│   ├── antova_api.py         App entry, job routes, health
+│   ├── antova_upload_api.py  Tender PDF and manifest intake with checks
+│   ├── antova_review_api.py  Flags, approvals, overrides, verify, exports
+│   ├── antova_briefs_api.py  Shareable read-only audit briefs
+│   ├── antova_auth.py        Named reviewer tokens
+│   ├── antova_workers.py     Background ingest queue (single worker)
+│   ├── antova_engine.py      Evaluated prices, ranking, negotiation what-ifs
+│   ├── antova_db.py          Tenders, cells, reviews, overrides, ledger
+│   ├── antova_export.py      Vendor clarification logs, verified workbook
+│   ├── antova_ingest/        The ingestion pipeline
 │   │   ├── parse.py extract.py   PDF to words, model quote lookup
 │   │   ├── verify.py sweep.py    Quote verification, recall sweep
 │   │   ├── values.py             Number, unit and clause parsing (pint)
@@ -109,29 +109,29 @@ npm test
 **Audit engine**
 
 ```bash
-cd specclaw
-pip install -r specclaw_requirements.txt
+cd antova_backend
+pip install -r antova_requirements.txt
 python -m pytest -q
 ```
 
 Run the full pipeline on the benchmark 33 kV switchgear package, offline, using recorded model answers, and compare it with the answer key:
 
 ```bash
-python -m specclaw_ingest.run samples/TENDER-2026-402 --mode replay --verify
+python -m antova_ingest.run samples/TENDER-2026-402 --mode replay --verify
 ```
 
 Serve the API. Use a single worker: the job queue is in-process.
 
 ```bash
-ANTOVA_REVIEW_TOKEN=change-me uvicorn specclaw_api:app --port 8000
+ANTOVA_REVIEW_TOKEN=change-me uvicorn antova_api:app --port 8000
 ```
 
-Live runs need a locate-model key (`ANTHROPIC_API_KEY` or `EXPLABS_API_KEY`). Copy `specclaw/.env.example` to `specclaw/.env`.
+Live runs need a locate-model key (`ANTHROPIC_API_KEY` or `EXPLABS_API_KEY`). Copy `antova_backend/.env.example` to `antova_backend/.env`.
 
 **Review app**
 
 ```bash
-cd specclaw/web
+cd antova_backend/web
 npm ci
 npm run dev
 ```
@@ -141,7 +141,7 @@ npm run dev
 - The pipeline passes 800+ backend tests and a web suite that pins the TypeScript pricing math to the Python engine. CI never calls a paid API.
 - The reference tender datasets are synthetic: generated documents and fictional vendors, with a known answer key. The parser has not yet been run on customer tenders, and scanned pages are flagged, not read.
 - Rate tables carry one rate per item. Rate ranges and currency conversion are not built.
-- See [`specclaw/docs/yc-demo-roadmap.md`](specclaw/docs/yc-demo-roadmap.md) for what is next.
+- See [`antova_backend/docs/yc-demo-roadmap.md`](antova_backend/docs/yc-demo-roadmap.md) for what is next.
 
 ## License
 

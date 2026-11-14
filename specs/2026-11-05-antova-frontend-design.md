@@ -1,18 +1,18 @@
 # Antova frontend: design spec
 
 Date: 2026-11-05
-Branch: `worktree-web-frontend` (worktree of the specclaw repo, base `8697b26`)
+Branch: `worktree-web-frontend` (worktree of the antova_backend repo, base `8697b26`)
 Status: awaiting founder review
 
 ## 1. Summary
 
-Build the Antova web frontend: a public landing page, a replayed "audit" modal, and a shareable evidence brief for a bid evaluation, plus a founder-only review mode that moves a brief from draft to verified. It is a Vite + React + TypeScript app in `web/` that talks to the existing SpecClaw FastAPI backend. Two backend changes ship with it: share links that can't be guessed (closing a data leak) and a draft → verified state with adder overrides.
+Build the Antova web frontend: a public landing page, a replayed "audit" modal, and a shareable evidence brief for a bid evaluation, plus a founder-only review mode that moves a brief from draft to verified. It is a Vite + React + TypeScript app in `web/` that talks to the existing Antova FastAPI backend. Two backend changes ship with it: share links that can't be guessed (closing a data leak) and a draft → verified state with adder overrides.
 
 The YC demo moment is the audit modal landing on the verified brief, opened at the footnote where VoltSwitch's cover letter claims 50 kA / 3 s and its own drawing says 31.5 kA / 1 s.
 
 ## 2. Ground truth this design is built on
 
-- **Product.** Antova (codename SpecClaw) evaluates heavy electrical equipment bids. Input: a spec (material requisition, "MR") plus 3–5 vendor bid PDFs. The ingest pipeline (`specclaw_ingest`) parses pages, asks Claude to locate the quote that answers each requirement, verifies each quote appears verbatim on its page, reads values, checks them with Pint, resolves document precedence (drawing over cover letter), and prices each gap from a rate table. `specclaw_engine.evaluate_vendor_financials` computes evaluated price = bid price + technical adders + commercial adders.
+- **Product.** Antova (codename Antova) evaluates heavy electrical equipment bids. Input: a spec (material requisition, "MR") plus 3–5 vendor bid PDFs. The ingest pipeline (`antova_ingest`) parses pages, asks the model to locate the quote that answers each requirement, verifies each quote appears verbatim on its page, reads values, checks them with Pint, resolves document precedence (drawing over cover letter), and prices each gap from a rate table. `antova_engine.evaluate_vendor_financials` computes evaluated price = bid price + technical adders + commercial adders.
 - **Sample tender `TENDER-2026-402`** (33 kV GIS switchgear) is synthetic: `samples/generate_sample_pack.py` generates the PDFs; vendors Nordwerk, VoltSwitch and Deltaport are fictional. Running the real pipeline on it (offline, with the test answer-key locator) gives:
 
   | Bidder | Bid price | Tech adders | Commercial adders | Evaluated |
@@ -57,7 +57,7 @@ Done means: the three flows below work end to end against the real backend, pass
 ### 5.1 Repository layout
 
 ```
-specclaw/                      (repo root; .gitignore gains `!/web/`)
+antova_backend/                      (repo root; .gitignore gains `!/web/`)
   web/
     package.json, vite.config.ts, tsconfig*.json, playwright.config.ts, index.html
     PRODUCT.md, DESIGN.md      (Antova bid-evaluation truth; replaces nothing in antova/)
@@ -74,7 +74,7 @@ specclaw/                      (repo root; .gitignore gains `!/web/`)
       generated/  sample-brief.json (committed snapshot, carries `snapshot_at`)
       test/       fixtures/ (generated from the pipeline), msw/, parity/
     e2e/          Playwright specs
-  specclaw_api.py, specclaw_db.py, specclaw_engine.py, ...   (backend changes, §6)
+  antova_api.py, antova_db.py, antova_engine.py, ...   (backend changes, §6)
 ```
 
 ### 5.2 Stack
@@ -102,7 +102,7 @@ The audit modal is an overlay on `/` (and on `/review/:tenderId` for live runs),
 ### 5.4 Configuration
 
 - Frontend: `VITE_API_BASE` (empty in dev; Vite proxies `/api` to `http://127.0.0.1:8000`), `VITE_SAMPLE_SHARE_ID`, `VITE_CONTACT_EMAIL`.
-- Backend: `ANTOVA_REVIEW_TOKEN` (required; founder endpoints return 503 if unset), `ANTOVA_ALLOWED_ORIGINS` (comma-separated; replaces `*`), existing `SPECCLAW_TENDERS_DIR`.
+- Backend: `ANTOVA_REVIEW_TOKEN` (required; founder endpoints return 503 if unset), `ANTOVA_ALLOWED_ORIGINS` (comma-separated; replaces `*`), existing `ANTOVA_TENDERS_DIR`.
 
 ## 6. Backend changes
 
@@ -138,7 +138,7 @@ Re-ingesting a tender resets it to `DRAFT`, clears its overrides (logged in the 
 | POST | `/api/briefs/{share_id}/evaluate` | Body: `{copper_multiplier, site_labor_rate, freight_multiplier}` (same bounds as today). Returns `{financials}` with overrides applied |
 | GET | `/api/briefs/{share_id}/evidence/{param_id}/{source}/{which}.png` | Page crop for one stored citation. `source` is a vendor ID or `mr`; `which` is `primary` or `secondary` |
 
-Evidence crop hardening: the server looks up the citation itself (no client-supplied filename, page or bbox); the file must be a `source_documents` row of that tender inside `SPECCLAW_TENDERS_DIR/<tender_id>/`; the crop is the cited bbox padded by 24 pt, clamped to the page, rendered with PyMuPDF at 2× zoom, max 1600 px wide, with a 1.5 pt oxblood rectangle around the cited box. Results are cached in-process (LRU, 128 entries). Missing file → 404, and the client falls back to text.
+Evidence crop hardening: the server looks up the citation itself (no client-supplied filename, page or bbox); the file must be a `source_documents` row of that tender inside `ANTOVA_TENDERS_DIR/<tender_id>/`; the crop is the cited bbox padded by 24 pt, clamped to the page, rendered with PyMuPDF at 2× zoom, max 1600 px wide, with a 1.5 pt oxblood rectangle around the cited box. Results are cached in-process (LRU, 128 entries). Missing file → 404, and the client falls back to text.
 
 ### 6.4 Founder endpoints (header `X-Antova-Review-Token`)
 
@@ -159,13 +159,13 @@ Token compared with `hmac.compare_digest`; never logged; 401 on mismatch, 503 if
 
 ### 6.5 Existing endpoints
 
-`/api/tender`, `/api/evaluate`, `/api/jobs/ingest`, `/api/jobs/{id}`, `/api/negotiate/turn`, `/api/audit-trail`, `/api/export-pdf`, `/api/cache/*` now require the review token, and `tender_id` becomes mandatory (no fallback to the latest tender). `/api/health` stays public but drops `active_tender`. The WebSocket stays as is and is not used by the new frontend (job progress is polled). The legacy `specclaw_interactive_mvp.html` UI stops working on this branch; `main` is untouched.
+`/api/tender`, `/api/evaluate`, `/api/jobs/ingest`, `/api/jobs/{id}`, `/api/negotiate/turn`, `/api/audit-trail`, `/api/export-pdf`, `/api/cache/*` now require the review token, and `tender_id` becomes mandatory (no fallback to the latest tender). `/api/health` stays public but drops `active_tender`. The WebSocket stays as is and is not used by the new frontend (job progress is polled). The legacy `antova_interactive_mvp.html` UI stops working on this branch; `main` is untouched.
 
 CORS: `allow_origins` from `ANTOVA_ALLOWED_ORIGINS`; `allow_credentials=False` (the token travels in a header, not a cookie).
 
 ### 6.6 Dev seed
 
-`python -m specclaw_ingest.dev_seed` ingests `samples/TENDER-2026-402` with the test answer-key locator, records `ingest_mode = answer_key`, marks it verified and prints its share ID. It exists for development and tests only. The public sample shown on the live site must come from a live Claude ingest (`--mode live`), reviewed and verified by the founder.
+`python -m antova_ingest.dev_seed` ingests `samples/TENDER-2026-402` with the test answer-key locator, records `ingest_mode = answer_key`, marks it verified and prints its share ID. It exists for development and tests only. The public sample shown on the live site must come from a live the model ingest (`--mode live`), reviewed and verified by the founder.
 
 ## 7. Frontend behaviour
 
@@ -291,7 +291,7 @@ Each defines default, hover, focus-visible, active, disabled, loading and error 
 
 ## 9. Domain logic (`web/src/domain`, test-first)
 
-- `leveling.ts`: TypeScript port of the engine. Adder = sum of cost lines (`fixed`: qty × rate; `copper`: qty × rate × copper; `labour`: hours × labour rate; `freight`: qty × rate × freight), rounded half-up to cents with decimal arithmetic (integer cents, no float sums); legacy cells without lines use `cost_adder`; overrides replace the adder and ignore sliders; commercial vs technical by criticality. **Parity:** a Python script exports golden cases (the sample tender × a grid of slider values × with/without overrides) computed by `specclaw_engine`; the TS tests must match to the cent. The script runs in CI so drift fails the build.
+- `leveling.ts`: TypeScript port of the engine. Adder = sum of cost lines (`fixed`: qty × rate; `copper`: qty × rate × copper; `labour`: hours × labour rate; `freight`: qty × rate × freight), rounded half-up to cents with decimal arithmetic (integer cents, no float sums); legacy cells without lines use `cost_adder`; overrides replace the adder and ignore sliders; commercial vs technical by criticality. **Parity:** a Python script exports golden cases (the sample tender × a grid of slider values × with/without overrides) computed by `antova_engine`; the TS tests must match to the cent. The script runs in CI so drift fails the build.
 - `verdict.ts`: picks the variant and fills it (§10); handles reversal, no reversal, no gaps at all, ties, missing bid prices, open items.
 - `ranking.ts`: bid order vs evaluated order, rank changes, ties.
 - `footnotes.ts`: stable anchors, derived numbers, default selection.
@@ -315,7 +315,7 @@ Terms used everywhere: **bid**, **spec** (first mention: "spec (material requisi
 - FAQ:
   - "Which equipment does Antova cover?" — "Medium-voltage gas-insulated switchgear today. Each equipment type needs its own requirement list and rate table. Ask if yours isn't covered."
   - "What if Antova gets something wrong?" — "Every number links to the page it came from, and a person checks each brief before it's sent. Tell us what you'd dispute and we'll correct the brief."
-  - "Who sees my documents?" — **needs founder sign-off** (see §13): must state factually that page text is sent to Anthropic's Claude API to locate quotes, and the retention policy.
+  - "Who sees my documents?" — **needs founder sign-off** (see §13): must state factually that page text is sent to Anthropic's LLM API to locate quotes, and the retention policy.
 
 **Modal**: title "Replay: checking {tender_id}"; chip "Recorded run" / "Live run"; stage labels as §7.2; "Skip to result"; "Open the brief"; "Watch again"; timing footer per §7.2; failure "Stopped at {stage}: {error}. Nothing was saved." with "Try again".
 
@@ -343,7 +343,7 @@ Terms used everywhere: **bid**, **spec** (first mention: "spec (material requisi
 - Override: "Override adder (€)" · "Why" (placeholder "e.g. engineer's estimate after vendor clarification") · "Save override" · "Remove override" · badge "Overridden: {note}"
 - Verify: "Mark verified" · disabled "Resolve {n} open items first" · dialog "Share this brief?" / "Anyone with the link will see vendor names and prices." / "Mark verified" · "Keep as draft" · success "Verified. Share link copied."
 - Withdraw: "Withdraw brief" · dialog "Withdraw this brief?" / "The share link will stop working until you verify it again." / "Withdraw" · "Keep shared"
-- Review index empty: "No tenders yet. Ingest one with `python -m specclaw_ingest.run <folder>` or *Run ingest*."
+- Review index empty: "No tenders yet. Ingest one with `python -m antova_ingest.run <folder>` or *Run ingest*."
 
 All user-facing copy goes through `unslop` before merge.
 
@@ -375,8 +375,8 @@ All user-facing copy goes through `unslop` before merge.
 
 1. Contact address for `VITE_CONTACT_EMAIL` (not inferred).
 2. Impressum and privacy page content (required for a German-facing business site).
-3. Sign-off on the "Who sees my documents?" answer (Claude API processing, retention).
-4. One live Claude ingest of the sample tender (`ANTHROPIC_API_KEY` set), reviewed and verified, so the public sample is not answer-key output.
+3. Sign-off on the "Who sees my documents?" answer (LLM API processing, retention).
+4. One live the model ingest of the sample tender (`ANTHROPIC_API_KEY` set), reviewed and verified, so the public sample is not answer-key output.
 5. Hosting choice for the static build and the API (Phase 5).
 
 ## 14. Testing strategy (detailed in the plan)
