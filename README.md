@@ -1,127 +1,134 @@
 <p align="center">
-  <img src="public/antova-logo.svg" alt="Antova logo" width="64" />
-</p>
-
-<p align="center">
   <img src="public/antova-banner.svg" alt="Antova: technical bid evaluation for electrical tenders" width="100%" />
 </p>
 
 # Antova
 
-**Find what the lowest bid left out.**
+**The cheapest bid isn't the cheapest.** Antova reads every vendor bid against your technical specification, prices what each bid leaves out, and ties every flag to the page and exact words behind it.
 
-Antova evaluates vendor bids for heavy electrical equipment tenders. It reads each bid against your spec, prices every gap from a rate table you can read, and cites the page behind every euro. A bid that quotes lowest can rank last once its gaps are priced.
+Built for procurement and estimating teams comparing bids on heavy electrical equipment. Supported today: 33 kV gas-insulated switchgear.
 
-This repository holds the whole stack: the ingest pipeline and API (`specclaw/`, Python) and two web frontends (TypeScript, React).
+## Overview and problem
 
-> **Status.** The pipeline has 690 backend tests passing on synthetic sample tenders, offline, with a fake locator standing in for Claude. It has not been run live against a real tender. The landing page at the repo root is a demo: every figure on it is static sample data.
+An industrial equipment tender runs to hundreds of pages per bid. The lowest quote often wins because the missing items sit in one footnote: a lower short-circuit rating, aluminium busbars where copper was specified, factory testing "charged extra", freight left out. After award they come back as change orders.
 
----
+Today a buyer's engineer finds these by hand, in a spreadsheet, under deadline. Antova automates the repetitive part and keeps the judgment with a person:
 
-## Contents
+- **Reads** each bid for the sentence that answers each requirement, with its page and position.
+- **Checks** the values in code. Units are converted (104 °F becomes 40 °C) before they meet the spec limit.
+- **Prices** each gap from a versioned rate table. An unknown quantity is marked unpriced, never counted as zero.
+- **Halts for approval.** A manager, engineer or analyst on the buyer's procurement team approves every flag before an audit is final. The award decision stays with the buyer.
 
-- [How the pipeline works](#how-the-pipeline-works)
-- [The sample tender](#the-sample-tender)
-- [Repository layout](#repository-layout)
-- [Run it locally](#run-it-locally)
-- [Environment variables](#environment-variables)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Limitations](#limitations)
-- [License](#license)
+On the benchmark 33 kV switchgear package, the lowest headline bid (€418,000) is ranked last once its gaps are priced (from €479,650, a lower bound because one gap cannot be priced from the documents).
 
----
+## Tender Audit Architecture
 
-## How the pipeline works
+Bid evaluations execute through deterministic rule engines and schema-validated parsing. No unverified model output is committed to a commercial table without deterministic cross-checks and a named reviewer's sign-off.
 
-Input is a tender folder: a `manifest.json`, one spec PDF (the material requisition, "MR") and one PDF per vendor bid. The pipeline is `specclaw/specclaw_ingest/`.
+The model only finds quotes. It returns a page number and the verbatim words, nothing else. Every number, unit, pass/fail decision and euro amount is produced by code.
 
-| Stage | What happens | Module |
-| :--- | :--- | :--- |
-| **Intake** | Validates the manifest: exactly one spec, at least one bid, every path inside the tender folder, a known rate table. | `parse.py` |
-| **Parse** | PyMuPDF reads every page and keeps each word with its position. Pages are tagged by heading (drawing, BOM, datasheet, cover letter and so on). A page with no text layer is flagged; there is no OCR. | `parse.py` |
-| **Locate** | Claude returns page numbers and verbatim quotes, nothing else: where each of eight parameters is stated, the headline price, the cover-letter claim, the bay count. | `extract.py` |
-| **Verify** | A quote that is not on its cited page word for word is discarded. A regex recall sweep then finds sentences the model missed; it can only make a cell worse or flagged, never compliant. | `parse.py`, `sweep.py` |
-| **Read values** | Code detects the document's number locale, normalises numbers and converts units with Pint (104 °F meets a 40 °C limit only after conversion). Values outside a plausible range, or not stated in the cited span, are dropped with a flag. Prices are read with their currency; a foreign price converts only with a dated FX rate. | `values.py` |
-| **Resolve precedence** | Where documents disagree, the stronger evidence governs: drawings, BOMs, datasheets and test plans over compliance tables over cover letters. A contradiction becomes `CONFLICT_DOWNGRADE`; a pass backed only by a cover letter is marked "claimed, not shown". | `precedence.py`, `ontology.py` |
-| **Price** | Each deviation class maps to cost lines in a versioned JSON rate table (quantity × rate, with low and high bounds). If a quantity is unknown the class is `UNPRICED`; a price is never silently zero. | `costs.py`, `rates/` |
-| **Level** | True evaluated price = headline price + technical adders + commercial adders. The negotiating vendor is the lowest true price among fully priced bids, not the lowest headline. | `specclaw_engine.py` |
+```mermaid
+sequenceDiagram
+    autonumber
+    participant E as Engineer / Frontend
+    participant G as API Gateway
+    participant P as SPECCLAW Parser
+    participant L as Locate Model
+    participant R as Rule & Spec Engine
+    participant A as Audit Ledger
 
-The model finds quotes. Code does the maths. A person approves every flag before a result is final.
-
-Each stage's output is stored as a hashed JSON artifact, so a run can be replayed from any stage without re-reading PDFs or calling Claude again.
-
-The eight checked parameters are short-time withstand current, busbar material and rating, enclosure IP and internal arc class, protection IED protocol and marshalling, witnessed factory acceptance test days, Incoterm and warranty, rated voltage, and maximum ambient temperature. The rate tables cover MV GIS switchgear only.
-
-### What comes out
-
-The FastAPI service (`specclaw_api.py` and its routers) serves, per tender:
-
-- an evaluated price for every vendor, with a low to high range, and a warning when the ranking is not stable inside those ranges;
-- a citation (page, section, quote) for every cell, with the conflicting passage shown when a bid contradicts itself;
-- sensitivity sliders for copper price, site labour rate and freight;
-- a what-if negotiation that moves conceded items out of the evaluated price;
-- founder overrides, a human review record, and a vendor clarification list as CSV;
-- a PDF export, and shareable read-only briefs.
-
----
-
-## The sample tender
-
-`specclaw/samples/` holds two synthetic tenders with answer keys: `TENDER-2026-402` (three bidders, 33 kV GIS switchgear) and `TENDER-2026-417` (four bidders). The documents are generated by `specclaw/samples/generate_sample_pack.py`; every page is stamped as a synthetic sample, and the vendors are fictional.
-
-In `TENDER-2026-402`, VoltSwitch Industrial bids €418,000, the lowest of three. With its gaps priced its evaluated price is €482,800, which ranks it last. Nordwerk Schaltanlagen wins at €452,000.
-
----
-
-## Repository layout
-
-| Path | What it is |
-| :--- | :--- |
-| `src/`, `index.html` | The landing page (React 19, Vite, Tailwind CSS 4, GSAP). Static: its numbers live in `src/data/tender402.ts` and `src/constants.ts`, copied from the sample's answer key. |
-| `specclaw/specclaw_ingest/` | The ingest pipeline described above, with its tests in `specclaw_ingest/tests/`. |
-| `specclaw/specclaw_*.py` | FastAPI app, rule engine, database layer, review and brief routers, PDF export. |
-| `specclaw/web/` | A second frontend: the review app (token-gated review, shareable briefs at `/b/<id>`) and its own prerendered landing. Separate from the root landing page. |
-| `specclaw/samples/` | Synthetic tenders, answer keys and the generator. |
-| `specclaw/docs/` | Design specs, implementation plans, UI docs and the deploy checklist. |
-| `specs/`, `plans/` | Earlier copies of the design specs and plans. |
-
----
-
-## Run it locally
-
-### Landing page
-
-Needs Node.js 20+ or Bun.
-
-```bash
-bun install            # or: npm install
-bun run dev            # http://localhost:3000
-bun run build          # static bundle into dist/
+    E->>G: Upload spec and vendor bid PDFs, plus manifest
+    G->>P: Validate files, queue ingest job
+    P->>P: Parse pages into words with bounding boxes
+    P->>L: Find page and verbatim quote for each requirement
+    L-->>P: Candidate quotes only, no numbers or verdicts
+    P->>P: Reject quotes not on the page word for word, sweep for unquoted items
+    P->>R: Verified evidence per vendor and requirement
+    R->>R: Convert units, check values, resolve precedence, flag omissions
+    R->>R: Price each gap from the rate table, leave unknowns unpriced
+    R->>A: Persist draft audit with open flags
+    E->>G: Approve, override or reject each flag, then verify
+    G->>A: Record reviewer, action and evidence hash, refuse while flags are open
+    G-->>E: Final audit, PDF report and workbook
 ```
 
-### Backend
+| Step | What happens | Code |
+| :--- | :--- | :--- |
+| 1 to 2 | PDFs are checked before they are kept: header, size, page count, encryption. | `specclaw/specclaw_upload_api.py` |
+| 3 to 7 | Pages become words with coordinates. The model proposes quotes. A quote that is not on its page word for word is dropped. A recall sweep catches value-shaped sentences the model missed. Scanned pages are flagged for manual review. | `specclaw/specclaw_ingest/parse.py`, `extract.py`, `verify.py`, `sweep.py` |
+| 8 | Values are read and compared with the spec. Drawings and bills of materials outrank cover letters. A contradiction keeps both pages. A missing item is marked omitted. | `values.py`, `precedence.py`, `ontology.py` |
+| 9 | Each gap is priced from a versioned rate table. The strict warranty rule flags a warranty counted from a different start point and leaves it unpriced unless the spec states the gap. | `costs.py`, `rates/mv_gis_switchgear_v2.json` |
+| 10 to 13 | A draft stays a draft while any flag is open. Approvals are recorded per cell with the reviewer's identity, and a changed re-ingest makes an old approval stale. | `specclaw_review.py`, `specclaw_review_api.py`, `specclaw_db.py` |
 
-Needs Python 3.12+. Use `specclaw_requirements.txt`, not any other requirements file.
+## Repository blueprint
+
+```text
+.
+├── src/                          Marketing landing page (React 19, Vite, Tailwind 4)
+│   ├── components/               Hero, narrative, pricing, FAQ, intake form
+│   ├── constants.ts              All page copy; every figure comes from the benchmark package
+│   ├── data/tender402.ts         Benchmark 33 kV package as the page renders it
+│   └── utils/audit.test.ts       Copy and figure checks
+├── public/                       Logo, banner, founder photo
+├── specclaw/                     Audit engine (Python, FastAPI, SQLAlchemy)
+│   ├── specclaw_api.py           App entry, job routes, health
+│   ├── specclaw_upload_api.py    Tender PDF and manifest intake with checks
+│   ├── specclaw_review_api.py    Flags, approvals, overrides, verify, exports
+│   ├── specclaw_briefs_api.py    Shareable read-only audit briefs
+│   ├── specclaw_auth.py          Named reviewer tokens
+│   ├── specclaw_workers.py       Background ingest queue (single worker)
+│   ├── specclaw_engine.py        Evaluated prices, ranking, negotiation what-ifs
+│   ├── specclaw_db.py            Tenders, cells, reviews, overrides, ledger
+│   ├── specclaw_export.py        Vendor clarification logs, verified workbook
+│   ├── specclaw_ingest/          The ingestion pipeline
+│   │   ├── parse.py extract.py   PDF to words, model quote lookup
+│   │   ├── verify.py sweep.py    Quote verification, recall sweep
+│   │   ├── values.py             Number, unit and clause parsing (pint)
+│   │   ├── ontology.py           The eight evaluated parameters and their rules
+│   │   ├── precedence.py         Evidence ranking, conflicts, warranty basis
+│   │   ├── costs.py rates/       Rate-table versions and pricing
+│   │   └── eval.py               Accuracy across generated edge-case packs
+│   ├── samples/                  Reference tender datasets and their generator
+│   ├── web/                      Review and brief app (React, TypeScript, Vitest, Playwright)
+│   └── docs/                     Design notes, deploy checklist, roadmap
+└── .github/workflows/ci.yml      Backend and web tests on every pull request
+```
+
+## Local setup
+
+Requires Python 3.12+ and Node 20+.
+
+**Landing page**
+
+```bash
+npm install
+npm run dev          # http://localhost:3000
+npm test
+```
+
+**Audit engine**
 
 ```bash
 cd specclaw
 pip install -r specclaw_requirements.txt
-uvicorn specclaw_api:app --port 8000
+python -m pytest -q
 ```
 
-Run it on a single worker: the job queue is in-process. `GET /api/health` should answer 200.
-
-To ingest a tender from the command line:
+Run the full pipeline on the benchmark 33 kV switchgear package, offline, using recorded model answers, and compare it with the answer key:
 
 ```bash
-cd specclaw
-python -m specclaw_ingest.run samples/TENDER-2026-402 --mode live --verify
+python -m specclaw_ingest.run samples/TENDER-2026-402 --mode replay --verify
 ```
 
-The locate step calls Claude, so a live run needs `ANTHROPIC_API_KEY` and costs API credits. No recorded Claude responses are committed, so `--mode replay` has nothing to replay on a fresh checkout.
+Serve the API. Use a single worker: the job queue is in-process.
 
-### Review app
+```bash
+ANTOVA_REVIEW_TOKEN=change-me uvicorn specclaw_api:app --port 8000
+```
+
+Live runs need a locate-model key (`ANTHROPIC_API_KEY` or `EXPLABS_API_KEY`). Copy `specclaw/.env.example` to `specclaw/.env`.
+
+**Review app**
 
 ```bash
 cd specclaw/web
@@ -129,48 +136,13 @@ npm ci
 npm run dev
 ```
 
----
+## Status
 
-## Environment variables
-
-| Variable | Used by | Notes |
-| :--- | :--- | :--- |
-| `VITE_INTAKE_ENDPOINT` | Root landing page | Formspree-compatible form URL for the intake form. Public by design. Without it the form shows an error instead of dropping the request. See `.env.example`. |
-| `ANTHROPIC_API_KEY` | Backend | Needed for live ingests only. |
-| `ANTOVA_REVIEW_TOKEN` | Backend | Long random secret for review mode. Review routes answer 503 without it. |
-| `SPECCLAW_DATABASE_URL` | Backend | Defaults to a local SQLite file. Use a persistent database in production. |
-| `ANTOVA_ALLOWED_ORIGINS` | Backend | Comma-separated frontend origins for CORS. Empty when the API is same-origin. |
-| `SPECCLAW_TENDERS_DIR` | Backend | Where tender folders live, if not `specclaw/samples`. |
-
-Secrets live in untracked `.env` files. Only `.env.example` is committed.
-
----
-
-## Testing
-
-| Suite | Command | Covers |
-| :--- | :--- | :--- |
-| Backend | `cd specclaw && python -m pytest -q` | 690 tests, offline and credential-free: parsing, quote verification, value reading, precedence, pricing, engine maths, API, review and brief routes. |
-| Landing page | `npm test` | Ten tests in `src/utils/audit.test.ts`: the sample's totals and vendor order in each view, euro formatting, email validation, copy checks, and the intake submit path. |
-| Review app | `cd specclaw/web && npm test` | Vitest component and contract tests. `npm run e2e` runs Playwright. |
-
----
-
-## Deployment
-
-The static site and the FastAPI backend deploy separately. The checklist, including the launch items that are still open, is `specclaw/docs/deploy-checklist.md`. Static hosts need a rewrite of unknown routes to `index.html` so `/team` survives a refresh.
-
----
-
-## Limitations
-
-- Text PDFs only. A scanned page has no text layer; it is flagged for manual review and its evidence is not read.
-- One equipment class so far (MV GIS switchgear). Other classes need a rate table and a check of the eight parameters.
-- The Claude locate step has only been exercised against fakes, never against a real bid.
-- The rate tables hold illustrative figures written for the synthetic tenders, not market data. A real evaluation needs rates you have checked.
-
----
+- The pipeline passes 800+ backend tests and a web suite that pins the TypeScript pricing math to the Python engine. CI never calls a paid API.
+- The reference tender datasets are synthetic: generated documents and fictional vendors, with a known answer key. The parser has not yet been run on customer tenders, and scanned pages are flagged, not read.
+- Rate tables carry one rate per item. Rate ranges and currency conversion are not built.
+- See [`specclaw/docs/yc-demo-roadmap.md`](specclaw/docs/yc-demo-roadmap.md) for what is next.
 
 ## License
 
-All rights reserved. This repository is published for review and demonstration only. See `LICENSE`.
+See [LICENSE](LICENSE).
