@@ -24,6 +24,7 @@ from specclaw_ingest import config
 from specclaw_ingest.pipeline import UnknownTender
 from specclaw_models import IngestJobRequest, JobStatusResponse
 from specclaw_review_api import router as review_router
+from specclaw_upload_api import router as upload_router
 from specclaw_workers import job_manager
 
 from fastapi import Depends
@@ -67,6 +68,7 @@ app.add_middleware(
 
 app.include_router(briefs_router)
 app.include_router(review_router)
+app.include_router(upload_router)
 
 
 @app.get("/favicon.ico", include_in_schema=False)
