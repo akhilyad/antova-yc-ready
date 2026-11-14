@@ -1,8 +1,8 @@
 /**
- * Sample tender TENDER-2026-402, as produced by the specclaw ingest pipeline.
+ * Sample tender TENDER-2026-402, as produced by the Antova ingest pipeline.
  *
  * Every quote, page, status and adder below is copied from the pipeline's
- * answer key (specclaw/samples/TENDER-2026-402/expected.json) and the cost
+ * answer key (antova_backend/samples/TENDER-2026-402/expected.json) and the cost
  * table in the pipeline design spec (§11.2-11.3). The documents are synthetic:
  * the generator stamps "SYNTHETIC SAMPLE - not a real offer" on every page.
  * Do not edit figures here without regenerating them from the pipeline.
@@ -477,7 +477,7 @@ export const COMPARE_KEYS = ['PARAM-01', 'PARAM-02', 'PARAM-03', 'PARAM-04', 'PA
 export const PIPELINE_STAGES = [
   { pct: 5, name: 'Intake', detail: 'Manifest validated · SHA-256 per file' },
   { pct: 20, name: 'Parse', detail: 'Pages of words with boxes · sections tagged' },
-  { pct: 60, name: 'Locate', detail: 'Claude returns candidate quotes per document' },
+  { pct: 60, name: 'Locate', detail: 'the model returns candidate quotes per document' },
   { pct: 70, name: 'Verify citations', detail: 'Quotes matched word-for-word on the page' },
   { pct: 80, name: 'Read values & check', detail: 'Typed values · Pint unit checks' },
   { pct: 85, name: 'Resolve precedence', detail: 'Governing value · status per cell' },

@@ -31,7 +31,7 @@ import { formatEuro, submitAuditRequest, validateWorkEmail } from './audit';
 const vendor = (id: string) => VENDORS.find((v) => v.id === id)!;
 
 describe('Antova landing data and copy', () => {
-  // Figures from specclaw/samples/TENDER-2026-402/expected.json
+  // Figures from antova_backend/samples/TENDER-2026-402/expected.json
   it('reproduces the pipeline answer key adders per parameter', () => {
     const b = CELLS['vendor-b'];
     assert.equal(cellAdder(b['PARAM-01']), 18500);
@@ -140,7 +140,6 @@ describe('Antova landing data and copy', () => {
       TEAM_FOUNDER_DATA,
     });
     assert.equal(serialized.includes('—'), false);
-    assert.equal(serialized.includes('SpecClaw'), false);
     // v1 pipeline: text-based PDFs only, PDF report, no spreadsheet export
     assert.equal(/excel|xlsx|scanned schematics|word addenda/i.test(serialized), false);
   });
