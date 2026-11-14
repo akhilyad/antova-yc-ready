@@ -48,11 +48,18 @@ class DocumentUnreadable(Exception):
 
 def load_manifest(tender_dir: Path) -> TenderManifest:
     tender_dir = Path(tender_dir)
-    path = tender_dir / "manifest.json"
     try:
-        manifest = TenderManifest.model_validate(json.loads(path.read_text(encoding="utf-8")))
+        text = (tender_dir / "manifest.json").read_text(encoding="utf-8")
     except FileNotFoundError as exc:
         raise ManifestError(f"manifest.json not found in {tender_dir}") from exc
+    return parse_manifest(tender_dir, text)
+
+
+def parse_manifest(tender_dir: Path, text: str) -> TenderManifest:
+    """Validate manifest JSON against the files in `tender_dir`. Raises ManifestError."""
+    tender_dir = Path(tender_dir)
+    try:
+        manifest = TenderManifest.model_validate(json.loads(text))
     except (json.JSONDecodeError, ValidationError) as exc:
         raise ManifestError(f"invalid manifest.json: {exc}") from exc
     if not re.fullmatch(TENDER_ID_PATTERN, manifest.tender_id):

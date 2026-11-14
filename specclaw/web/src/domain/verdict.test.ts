@@ -38,7 +38,7 @@ describe('buildVerdict', () => {
     const verdict = buildVerdict(levelTender(tender, DEFAULT_RATES, []), NO_OPEN)
     expect(verdict.kind).toBe('reversal')
     expect(verdict.sentence).toBe(
-      'VoltSwitch Industrial bid €418,000, the lowest. With its gaps priced in, it costs €482,800. Nordwerk Schaltanlagen GmbH is the lowest evaluated bid at €452,000.',
+      'VoltSwitch Industrial bid €418,000, the lowest. With its gaps priced in, it costs €479,650. Nordwerk Schaltanlagen GmbH is the lowest evaluated bid at €452,000.',
     )
     expect(verdict.caveat).toBeNull()
     expect(verdict.missingPrice).toEqual([])
@@ -51,7 +51,7 @@ describe('buildVerdict', () => {
     const verdict = buildVerdict(levels, NO_OPEN)
     expect(verdict.kind).toBe('holds')
     expect(verdict.sentence).toBe(
-      'VoltSwitch Industrial is the lowest bid at €380,000 and stays lowest once its gaps are priced: €444,800.',
+      'VoltSwitch Industrial is the lowest bid at €380,000 and stays lowest once its gaps are priced: €441,650.',
     )
   })
 

@@ -8,9 +8,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 40110.0,
-        "true_evaluated_price": 471310.0,
+        "true_evaluated_price": 473910.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -20,7 +20,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 0.5,
       "freight": 0.5,
@@ -36,9 +43,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 42200.0,
-        "true_evaluated_price": 473400.0,
+        "true_evaluated_price": 476000.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -53,6 +60,12 @@
         "adder_eur": "10000.00",
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
+        "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
         "vendor_id": "vendor-b"
       }
     ],
@@ -83,7 +96,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 0.5,
       "freight": 1.0,
@@ -117,6 +137,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -134,9 +160,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 40110.0,
-        "true_evaluated_price": 481710.0,
+        "true_evaluated_price": 473910.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -146,7 +172,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 0.5,
       "freight": 2.5,
@@ -162,9 +195,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 42200.0,
-        "true_evaluated_price": 483800.0,
+        "true_evaluated_price": 476000.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -180,6 +213,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -197,9 +236,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 42710.0,
-        "true_evaluated_price": 473910.0,
+        "true_evaluated_price": 476510.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -209,7 +248,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 0.5,
       "freight": 0.5,
@@ -225,9 +271,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 44800.0,
-        "true_evaluated_price": 476000.0,
+        "true_evaluated_price": 478600.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -242,6 +288,12 @@
         "adder_eur": "10000.00",
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
+        "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
         "vendor_id": "vendor-b"
       }
     ],
@@ -272,7 +324,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 0.5,
       "freight": 1.0,
@@ -306,6 +365,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -323,9 +388,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 42710.0,
-        "true_evaluated_price": 484310.0,
+        "true_evaluated_price": 476510.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -335,7 +400,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 0.5,
       "freight": 2.5,
@@ -351,9 +423,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 44800.0,
-        "true_evaluated_price": 486400.0,
+        "true_evaluated_price": 478600.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -369,6 +441,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -386,9 +464,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 44497.5,
-        "true_evaluated_price": 475697.5,
+        "true_evaluated_price": 478297.5,
         "vendor_id": "vendor-b"
       },
       {
@@ -398,7 +476,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 0.5,
       "freight": 0.5,
@@ -414,9 +499,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 46587.5,
-        "true_evaluated_price": 477787.5,
+        "true_evaluated_price": 480387.5,
         "vendor_id": "vendor-b"
       },
       {
@@ -431,6 +516,12 @@
         "adder_eur": "10000.00",
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
+        "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
         "vendor_id": "vendor-b"
       }
     ],
@@ -461,7 +552,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 0.5,
       "freight": 1.0,
@@ -495,6 +593,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -512,9 +616,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 44497.5,
-        "true_evaluated_price": 486097.5,
+        "true_evaluated_price": 478297.5,
         "vendor_id": "vendor-b"
       },
       {
@@ -524,7 +628,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 0.5,
       "freight": 2.5,
@@ -540,9 +651,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 46587.5,
-        "true_evaluated_price": 488187.5,
+        "true_evaluated_price": 480387.5,
         "vendor_id": "vendor-b"
       },
       {
@@ -558,6 +669,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -575,9 +692,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 51810.0,
-        "true_evaluated_price": 483010.0,
+        "true_evaluated_price": 485610.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -587,7 +704,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 0.5,
       "freight": 0.5,
@@ -603,9 +727,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 53900.0,
-        "true_evaluated_price": 485100.0,
+        "true_evaluated_price": 487700.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -620,6 +744,12 @@
         "adder_eur": "10000.00",
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
+        "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
         "vendor_id": "vendor-b"
       }
     ],
@@ -650,7 +780,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 0.5,
       "freight": 1.0,
@@ -684,6 +821,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -701,9 +844,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 51810.0,
-        "true_evaluated_price": 493410.0,
+        "true_evaluated_price": 485610.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -713,7 +856,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 0.5,
       "freight": 2.5,
@@ -729,9 +879,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 53900.0,
-        "true_evaluated_price": 495500.0,
+        "true_evaluated_price": 487700.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -747,6 +897,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -764,9 +920,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 46400.0,
-        "true_evaluated_price": 477600.0,
+        "true_evaluated_price": 480200.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -776,7 +932,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.0,
       "freight": 0.5,
@@ -792,9 +955,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 42200.0,
-        "true_evaluated_price": 473400.0,
+        "true_evaluated_price": 476000.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -809,6 +972,12 @@
         "adder_eur": "10000.00",
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
+        "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
         "vendor_id": "vendor-b"
       }
     ],
@@ -839,7 +1008,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.0,
       "freight": 1.0,
@@ -873,6 +1049,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -890,9 +1072,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 46400.0,
-        "true_evaluated_price": 488000.0,
+        "true_evaluated_price": 480200.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -902,7 +1084,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.0,
       "freight": 2.5,
@@ -918,9 +1107,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 42200.0,
-        "true_evaluated_price": 483800.0,
+        "true_evaluated_price": 476000.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -936,6 +1125,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -953,9 +1148,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 49000.0,
-        "true_evaluated_price": 480200.0,
+        "true_evaluated_price": 482800.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -965,7 +1160,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.0,
       "freight": 0.5,
@@ -981,9 +1183,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 44800.0,
-        "true_evaluated_price": 476000.0,
+        "true_evaluated_price": 478600.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -998,6 +1200,12 @@
         "adder_eur": "10000.00",
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
+        "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
         "vendor_id": "vendor-b"
       }
     ],
@@ -1028,7 +1236,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.0,
       "freight": 1.0,
@@ -1062,6 +1277,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -1079,9 +1300,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 49000.0,
-        "true_evaluated_price": 490600.0,
+        "true_evaluated_price": 482800.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -1091,7 +1312,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.0,
       "freight": 2.5,
@@ -1107,9 +1335,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 44800.0,
-        "true_evaluated_price": 486400.0,
+        "true_evaluated_price": 478600.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -1125,6 +1353,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -1142,9 +1376,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 50787.5,
-        "true_evaluated_price": 481987.5,
+        "true_evaluated_price": 484587.5,
         "vendor_id": "vendor-b"
       },
       {
@@ -1154,7 +1388,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.0,
       "freight": 0.5,
@@ -1170,9 +1411,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 46587.5,
-        "true_evaluated_price": 477787.5,
+        "true_evaluated_price": 480387.5,
         "vendor_id": "vendor-b"
       },
       {
@@ -1187,6 +1428,12 @@
         "adder_eur": "10000.00",
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
+        "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
         "vendor_id": "vendor-b"
       }
     ],
@@ -1217,7 +1464,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.0,
       "freight": 1.0,
@@ -1251,6 +1505,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -1268,9 +1528,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 50787.5,
-        "true_evaluated_price": 492387.5,
+        "true_evaluated_price": 484587.5,
         "vendor_id": "vendor-b"
       },
       {
@@ -1280,7 +1540,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.0,
       "freight": 2.5,
@@ -1296,9 +1563,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 46587.5,
-        "true_evaluated_price": 488187.5,
+        "true_evaluated_price": 480387.5,
         "vendor_id": "vendor-b"
       },
       {
@@ -1314,6 +1581,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -1331,9 +1604,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 58100.0,
-        "true_evaluated_price": 489300.0,
+        "true_evaluated_price": 491900.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -1343,7 +1616,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.0,
       "freight": 0.5,
@@ -1359,9 +1639,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 53900.0,
-        "true_evaluated_price": 485100.0,
+        "true_evaluated_price": 487700.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -1376,6 +1656,12 @@
         "adder_eur": "10000.00",
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
+        "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
         "vendor_id": "vendor-b"
       }
     ],
@@ -1406,7 +1692,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.0,
       "freight": 1.0,
@@ -1440,6 +1733,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -1457,9 +1756,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 58100.0,
-        "true_evaluated_price": 499700.0,
+        "true_evaluated_price": 491900.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -1469,7 +1768,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.0,
       "freight": 2.5,
@@ -1485,9 +1791,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 53900.0,
-        "true_evaluated_price": 495500.0,
+        "true_evaluated_price": 487700.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -1503,6 +1809,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -1520,9 +1832,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 48287.0,
-        "true_evaluated_price": 479487.0,
+        "true_evaluated_price": 482087.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -1532,7 +1844,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.15,
       "freight": 0.5,
@@ -1548,9 +1867,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 42200.0,
-        "true_evaluated_price": 473400.0,
+        "true_evaluated_price": 476000.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -1565,6 +1884,12 @@
         "adder_eur": "10000.00",
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
+        "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
         "vendor_id": "vendor-b"
       }
     ],
@@ -1595,7 +1920,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.15,
       "freight": 1.0,
@@ -1629,6 +1961,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -1646,9 +1984,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 48287.0,
-        "true_evaluated_price": 489887.0,
+        "true_evaluated_price": 482087.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -1658,7 +1996,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.15,
       "freight": 2.5,
@@ -1674,9 +2019,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 42200.0,
-        "true_evaluated_price": 483800.0,
+        "true_evaluated_price": 476000.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -1692,6 +2037,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -1709,9 +2060,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 50887.0,
-        "true_evaluated_price": 482087.0,
+        "true_evaluated_price": 484687.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -1721,7 +2072,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.15,
       "freight": 0.5,
@@ -1737,9 +2095,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 44800.0,
-        "true_evaluated_price": 476000.0,
+        "true_evaluated_price": 478600.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -1754,6 +2112,12 @@
         "adder_eur": "10000.00",
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
+        "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
         "vendor_id": "vendor-b"
       }
     ],
@@ -1784,7 +2148,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.15,
       "freight": 1.0,
@@ -1818,6 +2189,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -1835,9 +2212,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 50887.0,
-        "true_evaluated_price": 492487.0,
+        "true_evaluated_price": 484687.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -1847,7 +2224,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.15,
       "freight": 2.5,
@@ -1863,9 +2247,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 44800.0,
-        "true_evaluated_price": 486400.0,
+        "true_evaluated_price": 478600.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -1881,6 +2265,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -1898,9 +2288,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 52674.5,
-        "true_evaluated_price": 483874.5,
+        "true_evaluated_price": 486474.5,
         "vendor_id": "vendor-b"
       },
       {
@@ -1910,7 +2300,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.15,
       "freight": 0.5,
@@ -1926,9 +2323,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 46587.5,
-        "true_evaluated_price": 477787.5,
+        "true_evaluated_price": 480387.5,
         "vendor_id": "vendor-b"
       },
       {
@@ -1943,6 +2340,12 @@
         "adder_eur": "10000.00",
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
+        "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
         "vendor_id": "vendor-b"
       }
     ],
@@ -1973,7 +2376,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.15,
       "freight": 1.0,
@@ -2007,6 +2417,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -2024,9 +2440,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 52674.5,
-        "true_evaluated_price": 494274.5,
+        "true_evaluated_price": 486474.5,
         "vendor_id": "vendor-b"
       },
       {
@@ -2036,7 +2452,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.15,
       "freight": 2.5,
@@ -2052,9 +2475,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 46587.5,
-        "true_evaluated_price": 488187.5,
+        "true_evaluated_price": 480387.5,
         "vendor_id": "vendor-b"
       },
       {
@@ -2070,6 +2493,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -2087,9 +2516,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 59987.0,
-        "true_evaluated_price": 491187.0,
+        "true_evaluated_price": 493787.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -2099,7 +2528,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.15,
       "freight": 0.5,
@@ -2115,9 +2551,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 53900.0,
-        "true_evaluated_price": 485100.0,
+        "true_evaluated_price": 487700.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -2132,6 +2568,12 @@
         "adder_eur": "10000.00",
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
+        "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
         "vendor_id": "vendor-b"
       }
     ],
@@ -2162,7 +2604,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.15,
       "freight": 1.0,
@@ -2196,6 +2645,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -2213,9 +2668,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 59987.0,
-        "true_evaluated_price": 501587.0,
+        "true_evaluated_price": 493787.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -2225,7 +2680,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 1.15,
       "freight": 2.5,
@@ -2241,9 +2703,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 53900.0,
-        "true_evaluated_price": 495500.0,
+        "true_evaluated_price": 487700.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -2259,6 +2721,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -2276,9 +2744,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 65270.0,
-        "true_evaluated_price": 496470.0,
+        "true_evaluated_price": 499070.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -2288,7 +2756,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 2.5,
       "freight": 0.5,
@@ -2304,9 +2779,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 42200.0,
-        "true_evaluated_price": 473400.0,
+        "true_evaluated_price": 476000.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -2321,6 +2796,12 @@
         "adder_eur": "10000.00",
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
+        "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
         "vendor_id": "vendor-b"
       }
     ],
@@ -2351,7 +2832,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 2.5,
       "freight": 1.0,
@@ -2385,6 +2873,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -2402,9 +2896,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 65270.0,
-        "true_evaluated_price": 506870.0,
+        "true_evaluated_price": 499070.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -2414,7 +2908,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 2.5,
       "freight": 2.5,
@@ -2430,9 +2931,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 42200.0,
-        "true_evaluated_price": 483800.0,
+        "true_evaluated_price": 476000.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -2448,6 +2949,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -2465,9 +2972,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 67870.0,
-        "true_evaluated_price": 499070.0,
+        "true_evaluated_price": 501670.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -2477,7 +2984,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 2.5,
       "freight": 0.5,
@@ -2493,9 +3007,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 44800.0,
-        "true_evaluated_price": 476000.0,
+        "true_evaluated_price": 478600.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -2510,6 +3024,12 @@
         "adder_eur": "10000.00",
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
+        "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
         "vendor_id": "vendor-b"
       }
     ],
@@ -2540,7 +3060,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 2.5,
       "freight": 1.0,
@@ -2574,6 +3101,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -2591,9 +3124,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 67870.0,
-        "true_evaluated_price": 509470.0,
+        "true_evaluated_price": 501670.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -2603,7 +3136,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 2.5,
       "freight": 2.5,
@@ -2619,9 +3159,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 44800.0,
-        "true_evaluated_price": 486400.0,
+        "true_evaluated_price": 478600.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -2637,6 +3177,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -2654,9 +3200,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 69657.5,
-        "true_evaluated_price": 500857.5,
+        "true_evaluated_price": 503457.5,
         "vendor_id": "vendor-b"
       },
       {
@@ -2666,7 +3212,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 2.5,
       "freight": 0.5,
@@ -2682,9 +3235,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 46587.5,
-        "true_evaluated_price": 477787.5,
+        "true_evaluated_price": 480387.5,
         "vendor_id": "vendor-b"
       },
       {
@@ -2699,6 +3252,12 @@
         "adder_eur": "10000.00",
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
+        "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
         "vendor_id": "vendor-b"
       }
     ],
@@ -2729,7 +3288,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 2.5,
       "freight": 1.0,
@@ -2763,6 +3329,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -2780,9 +3352,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 69657.5,
-        "true_evaluated_price": 511257.5,
+        "true_evaluated_price": 503457.5,
         "vendor_id": "vendor-b"
       },
       {
@@ -2792,7 +3364,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 2.5,
       "freight": 2.5,
@@ -2808,9 +3387,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 46587.5,
-        "true_evaluated_price": 488187.5,
+        "true_evaluated_price": 480387.5,
         "vendor_id": "vendor-b"
       },
       {
@@ -2826,6 +3405,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -2843,9 +3428,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 76970.0,
-        "true_evaluated_price": 508170.0,
+        "true_evaluated_price": 510770.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -2855,7 +3440,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 2.5,
       "freight": 0.5,
@@ -2871,9 +3463,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 13200.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 53900.0,
-        "true_evaluated_price": 485100.0,
+        "true_evaluated_price": 487700.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -2888,6 +3480,12 @@
         "adder_eur": "10000.00",
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
+        "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
         "vendor_id": "vendor-b"
       }
     ],
@@ -2918,7 +3516,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 2.5,
       "freight": 1.0,
@@ -2952,6 +3557,12 @@
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
         "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
       }
     ],
     "rates": {
@@ -2969,9 +3580,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 76970.0,
-        "true_evaluated_price": 518570.0,
+        "true_evaluated_price": 510770.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -2981,7 +3592,14 @@
         "vendor_id": "vendor-c"
       }
     ],
-    "overrides": [],
+    "overrides": [
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "rates": {
       "copper": 2.5,
       "freight": 2.5,
@@ -2997,9 +3615,9 @@
         "vendor_id": "vendor-a"
       },
       {
-        "total_commercial_adder": 23600.0,
+        "total_commercial_adder": 15800.0,
         "total_tech_penalty": 53900.0,
-        "true_evaluated_price": 495500.0,
+        "true_evaluated_price": 487700.0,
         "vendor_id": "vendor-b"
       },
       {
@@ -3014,6 +3632,12 @@
         "adder_eur": "10000.00",
         "note": "Parity case: founder priced the gap from the vendor's clarification",
         "param_id": "PARAM-02",
+        "vendor_id": "vendor-b"
+      },
+      {
+        "adder_eur": "9300.00",
+        "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+        "param_id": "PARAM-06",
         "vendor_id": "vendor-b"
       }
     ],

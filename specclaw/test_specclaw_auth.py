@@ -1,4 +1,4 @@
-"""Founder-only routes need the review token; tender IDs are explicit; CORS is closed by default."""
+"""Founder-only routes need the review token; CORS is closed by default."""
 
 import pytest
 from fastapi.testclient import TestClient
@@ -9,26 +9,12 @@ from specclaw_auth import REVIEW_HEADER
 TOKEN = "test-review-token"  # set in conftest.py
 
 GATED_ROUTES = [
-    ("GET", "/api/tender"),
-    ("POST", "/api/evaluate"),
-    ("POST", "/api/negotiate/turn"),
-    ("GET", "/api/audit-trail"),
     ("POST", "/api/jobs/ingest"),
     ("GET", "/api/jobs/no-such-job"),
-    ("GET", "/api/cache/stats"),
-    ("POST", "/api/cache/invalidate"),
-    ("POST", "/api/export-pdf"),
+    ("GET", "/api/review/tenders"),
+    ("GET", "/api/review/tenders/TENDER-NOPE"),
+    ("POST", "/api/review/tenders/TENDER-NOPE/verify"),
 ]
-
-# Routes that read a tender: each must name it, there is no "latest tender" fallback.
-TENDER_ROUTES = [
-    ("GET", "/api/tender", {}),
-    ("POST", "/api/evaluate", {"json": {}}),
-    ("POST", "/api/negotiate/turn", {"params": {"round_num": 2}}),
-    ("GET", "/api/audit-trail", {}),
-    ("POST", "/api/export-pdf", {"json": {}}),
-]
-
 
 @pytest.fixture
 def client():
@@ -65,16 +51,8 @@ def test_unset_server_token_is_503(client, monkeypatch, method, path):
 
 def test_absent_server_token_is_503(client, monkeypatch):
     monkeypatch.delenv("ANTOVA_REVIEW_TOKEN", raising=False)
-    response = client.get("/api/cache/stats", headers={REVIEW_HEADER: TOKEN})
+    response = client.get("/api/review/tenders", headers={REVIEW_HEADER: TOKEN})
     assert response.status_code == 503
-
-
-@pytest.mark.parametrize("method,path,kwargs", TENDER_ROUTES)
-def test_no_latest_fallback(client, method, path, kwargs):
-    response = client.request(method, path, headers={REVIEW_HEADER: TOKEN}, **kwargs)
-    assert response.status_code == 422
-    missing = [e["loc"] for e in response.json()["detail"] if e["type"] == "missing"]
-    assert missing and all(loc[-1] == "tender_id" for loc in missing)
 
 
 def test_health_hides_active_tender(client):
@@ -84,7 +62,7 @@ def test_health_hides_active_tender(client):
 
 
 def _preflight(client, origin):
-    return client.options("/api/tender", headers={
+    return client.options("/api/review/tenders", headers={
         "Origin": origin,
         "Access-Control-Request-Method": "GET",
         "Access-Control-Request-Headers": REVIEW_HEADER,

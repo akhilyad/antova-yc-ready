@@ -1,0 +1,71 @@
+{
+  "key": "7302b0e8970b25996971902fb630f2ad4f5405a154fa3c3139aee5e1580a4655__locate-v1-801b179cc4d5-eca28073b2e7__gpt-6-luna",
+  "filename": "Bid_vendor-b_Orbis.pdf",
+  "sha256": "7302b0e8970b25996971902fb630f2ad4f5405a154fa3c3139aee5e1580a4655",
+  "model": "gpt-6-luna",
+  "served_model": "gpt-6-luna",
+  "prompt_version": "locate-v1",
+  "prompt_fingerprint": "801b179cc4d5",
+  "recorded_at": "2026-11-14T00:37:09+00:00",
+  "usage": {
+    "input_tokens": 4521,
+    "output_tokens": 769
+  },
+  "response": {
+    "page_sections": [
+      {
+        "page": 1,
+        "section": "cover_letter"
+      }
+    ],
+    "candidates": [
+      {
+        "param_id": "PARAM-01",
+        "page": 6,
+        "quote": "Rated short-time withstand current: 31.5 kA / 3 s."
+      },
+      {
+        "param_id": "PARAM-02",
+        "page": 6,
+        "quote": "Main busbars: electrolytic copper Cu-ETP, 1600 A continuous."
+      },
+      {
+        "param_id": "PARAM-03",
+        "page": 7,
+        "quote": "Enclosure protection IP54, internal arc classification IAC AFLR."
+      },
+      {
+        "param_id": "PARAM-04",
+        "page": 8,
+        "quote": "Protection IEDs OE-P3 with IEC 61850 Ed.2 PRP dual-port fibre, pre-wired to the central RTU marshalling cabinet."
+      },
+      {
+        "param_id": "PARAM-05",
+        "page": 18,
+        "quote": "The price includes a 3-day client-witnessed I-FAT with primary injection."
+      },
+      {
+        "param_id": "PARAM-06",
+        "page": 21,
+        "quote": "Delivery FCA Izmir port (Incoterms 2020); warranty 24 months from commissioning."
+      },
+      {
+        "param_id": "PARAM-07",
+        "page": 6,
+        "quote": "Rated voltage Ur: 36 kV."
+      },
+      {
+        "param_id": "PARAM-08",
+        "page": 7,
+        "quote": "Maximum ambient temperature 40 °C without derating."
+      }
+    ],
+    "tender_facts": [],
+    "headline_price": null,
+    "cover_claim": {
+      "page": 2,
+      "quote": "We confirm our offer is compliant with Material Requisition MR-Collector-GIS-Rev2."
+    },
+    "not_stated": []
+  }
+}

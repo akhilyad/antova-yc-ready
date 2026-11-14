@@ -41,7 +41,7 @@ describe('RankingFlip', () => {
     ).toEqual([
       'Nordwerk Schaltanlagen GmbH, €452,000',
       'Deltaport Skid Consortium B.V., €454,000',
-      'VoltSwitch Industrial, €482,800, down from 1st on bid price',
+      'VoltSwitch Industrial, €479,650, down from 1st on bid price',
     ])
 
     // The worsened line is dashed and labelled, not only oxblood.
@@ -218,7 +218,7 @@ describe('RankingFlip: the flip (play)', () => {
     act(() => vi.advanceTimersByTime(500))
     expect(shown(deltaLabel)).toBe(true)
     expect(shown(voltLabel)).toBe(true)
-    expect(within(voltLabel).getByText('€482,800')).toBeInTheDocument()
+    expect(within(voltLabel).getByText('€479,650')).toBeInTheDocument()
     const mark = within(voltLabel).getByText('1st → 3rd')
     expect(shown(mark)).toBe(false)
 
@@ -254,6 +254,6 @@ describe('RankingFlip: the flip (play)', () => {
     expect(html.match(/data-flip-part=""/g)).toHaveLength(10)
     expect(html).not.toContain('data-shown')
     // Without script (index.html un-hides them) a reader gets the final numbers, not the bids.
-    expect(html).toContain('€482,800')
+    expect(html).toContain('€479,650')
   })
 })

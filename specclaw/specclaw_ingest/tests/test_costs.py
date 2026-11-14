@@ -21,7 +21,12 @@ NON_ZERO = [
 def _price_quote(param_id: str, quote: str, quantities=QUANTITIES):
     param = PARAMS_BY_ID[param_id]
     resolution = resolve(param, requirement(param_id), [evidence(param_id, "datasheet", 6, quote)], "vendor-x")
-    return price(param, requirement(param_id), resolution, load_rate_table("mv_gis_switchgear_v1"), quantities)
+    return price(param, requirement(param_id), resolution, load_rate_table("mv_gis_switchgear_v2"), quantities)
+
+
+# vendor-b offers 18 months from dispatch against 36 from commissioning, with no lag stated in the MR.
+# Rate table v2 (strict) flags that warranty shortfall and leaves it unpriced; the EXW-to-DDP class is priced.
+UNPRICED_CELLS = {("vendor-b", "PARAM-06")}
 
 
 def test_ten_non_zero_cells():
@@ -32,11 +37,11 @@ def test_ten_non_zero_cells():
 def test_adders_match_spec(vendor_id, param_id, adder):
     _, pricing = priced(vendor_id, param_id)
     assert pricing.adder == Decimal(adder)
-    assert pricing.pricing_status == "PRICED"
+    assert pricing.pricing_status == ("UNPRICED" if (vendor_id, param_id) in UNPRICED_CELLS else "PRICED")
 
 
 def test_totals():
-    for vendor_id, total in (("vendor-b", "64800.00"), ("vendor-c", "15000.00"), ("vendor-a", "0.00")):
+    for vendor_id, total in (("vendor-b", "61650.00"), ("vendor-c", "15000.00"), ("vendor-a", "0.00")):
         assert sum(priced(vendor_id, p)[1].adder for p in PARAMS_BY_ID) == Decimal(total), vendor_id
 
 
@@ -78,7 +83,7 @@ def test_compliant_is_none():
 
 def test_rate_table_version():
     assert load_rate_table("mv_gis_switchgear_v1").version == "mv_gis_switchgear_v1"
-    assert priced("vendor-b", "PARAM-05")[1].rate_table_version == "mv_gis_switchgear_v1"
+    assert priced("vendor-b", "PARAM-05")[1].rate_table_version == "mv_gis_switchgear_v2"  # the sample's table
 
 
 def test_cost_line_drivers():

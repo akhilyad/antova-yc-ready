@@ -68,7 +68,7 @@ export const HERO_COPY = {
   subtext:
     'Drop in your spec and every vendor quote. See each missing item and price gap, with the page it came from.',
   ctaLabel: 'Audit a tender free',
-  subline: 'First tender free · under NDA · results in 24 hours',
+  subline: 'First tender free · under NDA · draft audit in 24 hours',
 };
 
 export const MANIFESTO_COPY = {
@@ -85,7 +85,7 @@ export const PROBLEM_STACK_SECTION = {
       phaseTag: '01 · The quote',
       title: 'You picked the lowest quote.',
       titleItalic: 'It wasn’t the lowest price.',
-      description: 'Vendor B quoted €34,000 under Vendor A. Brought up to spec, it costs €30,800 more than Vendor A.',
+      description: 'Vendor B quoted €34,000 under Vendor A. Brought up to spec, it costs at least €27,650 more than Vendor A.',
       visualType: 'headline-trap',
     },
     {
@@ -101,7 +101,7 @@ export const PROBLEM_STACK_SECTION = {
       phaseTag: '03 · After award',
       title: 'You signed the PO.',
       titleItalic: 'Then the extras arrived.',
-      description: 'Factory testing, freight and copper busbars, all outside the price. €30,000 in change orders.',
+      description: 'Factory testing, freight and copper busbars, all outside the price. €26,850 in change orders.',
       visualType: 'variation-orders',
     },
   ] as ProblemStackItem[],
@@ -136,13 +136,13 @@ export const HOW_IT_WORKS = {
     },
     {
       id: 'review',
-      title: 'Verify',
-      body: 'Every flag links to the page and exact words behind it. Drawings outrank cover letters, and a contradiction shows both pages.',
+      title: 'Approve',
+      body: 'A person on your procurement team approves every flag before the audit is final. Each one links to the page and exact words behind it. Drawings outrank cover letters, and a contradiction shows both pages. The award decision stays with you.',
     },
   ],
   deliverablesHeading: 'What you get back',
   deliverables: [
-    'An evaluated price for every vendor, with a low to high range',
+    'An evaluated price for every vendor, with unpriced items marked',
     'The page and exact quote behind every flagged cell',
     'Contradictions shown with both pages side by side',
     'Passes that only a cover letter claims, marked as claimed',
@@ -170,7 +170,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     features: [
       'One package, 3 to 5 bids',
       'Every gap cited and priced',
-      'Spec-verified results in 24 hours',
+      'Draft audit in 24 hours, approved by your team',
     ],
     buttonText: 'Audit a tender free',
     href: '#audit',
@@ -219,6 +219,12 @@ export const FAQ_ITEMS: FaqItem[] = [
       'No. AI finds the passage and its page. A quote that is not on that page word for word is thrown out. Fixed rules check the rest against your spec and do every sum.',
   },
   {
+    id: 'faq-human',
+    question: 'Does a person check the results?',
+    answer:
+      'Yes. Reading, checking and pricing are automatic. A manager, engineer or analyst on your procurement team approves every flag before an audit is final. The award decision stays with you.',
+  },
+  {
     id: 'faq-tested',
     question: 'Has it been tested on real tenders?',
     answer:
@@ -252,16 +258,14 @@ export const FINAL_CTA_COPY = {
   badge: 'First tender free',
   headlineLead: 'Send the bids.',
   headlineMuted: 'Get the real price.',
-  subtext: 'Spec and vendor quotes in, under NDA. Spec-verified results in 24 hours.',
+  subtext: 'Spec and vendor quotes in, under NDA. Draft audit in 24 hours, approved by your team.',
   submitButtonText: 'Audit a tender free',
   equipmentHelp: '33 kV switchgear today. Other packages: we’ll confirm fit before you share bids.',
 };
 
 export const EQUIPMENT_OPTIONS = [
   'MV switchgear',
-  'HV switchgear',
-  'PLC & control panels',
-  'BESS skids',
+  'Other electrical package',
 ] as const;
 
 export type EquipmentOption = (typeof EQUIPMENT_OPTIONS)[number];

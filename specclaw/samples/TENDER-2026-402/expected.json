@@ -233,7 +233,11 @@
           "warranty_months": "18"
         },
         "secondary_page": null,
-        "adder": "9300.00"
+        "adder": "6150.00",
+        "pricing_status": "UNPRICED",
+        "flags_include": [
+          "from dispatch"
+        ]
       },
       "PARAM-07": {
         "status": "COMPLIANT",
@@ -354,8 +358,9 @@
     "vendor-b": {
       "name": "VoltSwitch Industrial",
       "headline_price": "418000.00",
-      "total_adders": "64800.00",
-      "true_evaluated_price": "482800.00"
+      "total_adders": "61650.00",
+      "true_evaluated_price": "479650.00",
+      "price_status": "UNPRICED_ITEMS"
     },
     "vendor-c": {
       "name": "Deltaport Skid Consortium B.V.",
@@ -368,7 +373,7 @@
   "clawback": {
     "vendor_id": "vendor-b",
     "round_2": "33900.00",
-    "round_3": "57400.00"
+    "round_3": "54250.00"
   },
   "ideal_locate": {
     "MR-33kV-GIS-Rev4.pdf": {

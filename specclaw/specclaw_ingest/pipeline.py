@@ -1,13 +1,14 @@
 """The ingest pipeline: manifest -> parse -> locate -> verify -> values -> precedence -> price.
 
-run_ingest() is pure with respect to the database; persist() writes the result
-in one transaction and clears the leveling cache for that tender.
+run_ingest() never touches the database; specclaw_service.persist() writes its result
+in one transaction.
 """
 
 from __future__ import annotations
 
 import hashlib
 import os
+from concurrent.futures import ThreadPoolExecutor
 import re
 import time
 from datetime import datetime, timezone
@@ -17,11 +18,8 @@ from statistics import median
 from typing import Callable
 
 import anthropic
-from sqlalchemy.orm import Session
 
 import specclaw_engine as engine
-from specclaw_cache import leveling_cache
-from specclaw_db import TenderRepository
 from specclaw_ingest import artifacts, codec, config, costs, extract, sweep
 from specclaw_ingest.artifacts import STAGE_NAMES, StageArtifact
 from specclaw_ingest.costs import ConfigError, Pricing, load_rate_table, price
@@ -53,6 +51,20 @@ STAGES = [
 ]
 SAMPLES_DIR = Path(__file__).resolve().parents[1] / "samples"
 _DEGRADES_BID = (DocumentTooLarge, LocateRefused, LocateInvalid)
+# Documents located at once. Each is its own Claude call (or calls), so this bounds both the
+# wall-clock time of an ingest and how hard it presses on the API rate limits.
+LOCATE_CONCURRENCY = 3
+
+
+def locate_concurrency() -> int:
+    """SPECCLAW_LOCATE_CONCURRENCY, 1 to 8 (1 locates one document at a time); default LOCATE_CONCURRENCY."""
+    try:
+        value = int(os.environ.get("SPECCLAW_LOCATE_CONCURRENCY") or LOCATE_CONCURRENCY)
+    except ValueError:
+        value = LOCATE_CONCURRENCY
+    return min(max(value, 1), 8)
+
+
 # A headline that deviates from the median of the other bids by more than this share gets a warning.
 HEADLINE_PLAUSIBILITY_SHARE = 0.5
 
@@ -219,32 +231,54 @@ def stage_parsed(tender_dir: Path, manifest: TenderManifest) -> dict:
 
 
 def stage_located(bodies: dict, locator: Locator) -> dict:
+    """Locate every readable document, up to locate_concurrency() at a time.
+
+    Results are taken in manifest order, so the artifact does not depend on which call finished
+    first. A failure that fails the ingest cancels the calls not yet started; the ones already
+    running finish, and their answers are saved for the next run.
+    """
     manifest = _manifest(bodies)
     docs = _documents(bodies, manifest)
+    jobs = [(entry, docs[entry.file]) for entry in manifest.documents if entry.file in docs]
     outcomes: dict[str, dict] = {}
     failed: list[str] = []
     warnings: list[str] = []
-    for entry in manifest.documents:
-        doc = docs.get(entry.file)
-        if doc is None:
-            continue
+    with ThreadPoolExecutor(max_workers=max(1, min(locate_concurrency(), len(jobs)))) as pool:
+        futures = [pool.submit(locator.locate, doc) for _, doc in jobs]
         try:
-            outcome = locator.locate(doc)
-        except _DEGRADES_BID as exc:
-            if entry.role == "mr_spec":
-                raise _failed(exc) from exc
-            failed.append(entry.vendor_id)
-            warnings.append(f"{entry.vendor_id}: {exc}")
-            continue
-        except (ExtractError, anthropic.APIError) as exc:
-            raise _failed(exc) from exc
-        if outcome.model and outcome.model != extract.MODEL:
-            warnings.append(f"{entry.file}: answered by fallback model {outcome.model}, not {extract.MODEL}")
-        outcomes[entry.file] = {
-            "response": outcome.response.model_dump(mode="json"),
-            "input_tokens": outcome.input_tokens, "output_tokens": outcome.output_tokens,
-            "from_store": outcome.from_store, "model": outcome.model,
-        }
+            for (entry, _doc), future in zip(jobs, futures):
+                try:
+                    outcome = future.result()
+                except _DEGRADES_BID as exc:
+                    if entry.role == "mr_spec":
+                        raise _failed(exc) from exc
+                    failed.append(entry.vendor_id)
+                    warnings.append(f"{entry.vendor_id}: {exc}")
+                    continue
+                except (ExtractError, anthropic.APIError) as exc:
+                    raise _failed(exc) from exc
+                asked = getattr(locator, "model", extract.MODEL)
+                if outcome.model and outcome.model != asked:
+                    warnings.append(f"{entry.file}: answered by fallback model {outcome.model}, not {asked}")
+                record = {
+                    "response": outcome.response.model_dump(mode="json"),
+                    "input_tokens": outcome.input_tokens, "output_tokens": outcome.output_tokens,
+                    "from_store": outcome.from_store, "model": outcome.model,
+                }
+                prices = getattr(locator, "prices", None)
+                if prices is not None:  # a model priced differently from Claude: its own rates, in the artifact
+                    record["prices"] = [str(prices[0]), str(prices[1])]
+                windows = getattr(outcome, "windows", None)
+                if windows:
+                    record["windows"] = [list(w) for w in windows]
+                    spans = ", ".join(f"p.{a}-{b}" for a, b in windows)
+                    warnings.append(f"{entry.file}: too long for one call; located in {len(windows)} "
+                                    f"overlapping page windows ({spans})")
+                outcomes[entry.file] = record
+        except BaseException:
+            for future in futures:
+                future.cancel()
+            raise
     ingest_mode = getattr(locator, "ingest_mode_label", None) or (
         "replay" if outcomes and all(o["from_store"] for o in outcomes.values()) else "live")
     return {"outcomes": outcomes, "failed_vendors": failed, "warnings": warnings, "ingest_mode": ingest_mode}
@@ -582,7 +616,9 @@ def stage_leveled(bodies: dict) -> dict:
 
     input_tokens = sum(o["input_tokens"] for o in located["outcomes"].values())
     output_tokens = sum(o["output_tokens"] for o in located["outcomes"].values())
-    cost = extract.api_cost_usd(input_tokens, output_tokens)
+    cost = sum((
+        extract.api_cost_usd(o["input_tokens"], o["output_tokens"], *(Decimal(p) for p in o.get("prices", ())))
+        for o in located["outcomes"].values()), Decimal("0"))
     page_counts = {d["file"]: len(d["pages"]) for d in parsed["documents"]}
     vendors = [
         engine.Vendor(
@@ -781,27 +817,3 @@ def run_ingest(tender_dir: Path, mode: str = "auto", progress: Callable[[str, in
     except ConfigError as exc:
         raise _failed(exc) from exc
     return _finish(arts, fingerprint, started, stage_log)
-
-
-def persist(result: IngestResult, db: Session, share_id: str | None = None) -> list[dict]:
-    """Save the tender; returns the founder overrides the re-ingest cleared, sorted by (param_id, vendor_id).
-
-    `share_id` is used only if the tender is new; an existing tender keeps its share ID.
-    """
-    repo = TenderRepository(db)
-    cleared = [
-        {"param_id": param_id, "vendor_id": vendor_id, "adder_eur": str(o.adder_eur), "note": o.note}
-        for (param_id, vendor_id), o in sorted(repo.get_overrides(result.tender.id).items())
-    ]
-    stats = result.stats
-    repo.save_tender(
-        result.tender, result.documents, datetime.now(timezone.utc),
-        ingest_mode=stats["ingest_mode"], synthetic=stats["synthetic"],
-        ingest_stats={k: v for k, v in stats.items() if k != "stage_log"},
-        stage_log=stats["stage_log"],
-        share_id=share_id,
-        run={"run_id": stats["run_id"], "fingerprint": stats["run_fingerprint"],
-             "parts": result.fingerprint.get("parts", {}), "artifacts": result.artifacts} if result.artifacts else None,
-    )
-    leveling_cache.invalidate_tender(result.tender.id)
-    return cleared

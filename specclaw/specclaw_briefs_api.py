@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 
 from specclaw_db import TenderMeta, TenderRepository, get_db
 from specclaw_engine import Override, SensitivitySettings, TenderPackage, evaluate_vendor_financials
+from specclaw_models import BriefResponse, EvaluateResponse
 from specclaw_evidence import EvidenceNotFound, citation_for, document_path, render_crop
 from specclaw_review import brief_payload, public_brief_payload
 
@@ -89,12 +90,12 @@ def _verified(db: Session, share_id: str) -> LoadedTender:
     return loaded
 
 
-@router.get("/{share_id}")
+@router.get("/{share_id}", response_model=BriefResponse)
 def get_brief(share_id: str, db: Session = Depends(get_db)):
     return public_brief_payload(brief(_verified(db, share_id)))
 
 
-@router.post("/{share_id}/evaluate")
+@router.post("/{share_id}/evaluate", response_model=EvaluateResponse)
 def evaluate_brief(share_id: str, rates: RatesBody, db: Session = Depends(get_db)):
     return evaluate(_verified(db, share_id), rates)
 

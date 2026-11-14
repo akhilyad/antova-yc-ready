@@ -109,15 +109,19 @@ def compare_to_answer_key(tender: engine.TenderPackage, expected: dict, result=N
     return messages
 
 
+# The concessions the answer key's round-3 clawback figures were computed with.
+ROUND_3_CONCESSIONS = ["PARAM-01", "PARAM-02", "PARAM-03", "PARAM-05", "PARAM-06"]
+
+
 def check_api_path(tender_id: str, expected: dict) -> list[str]:
-    """Run ingest -> tender -> evaluate -> negotiate through the HTTP API (replaying saved responses).
+    """Run ingest -> brief -> evaluate through the HTTP API (replaying saved responses).
 
     The routes need the founder review token. When ANTOVA_REVIEW_TOKEN is not
     configured, a random one is set for this in-process run only and removed after.
     """
     from fastapi.testclient import TestClient
 
-    from specclaw_api import NEGOTIATION_ROUNDS, app
+    from specclaw_api import app
     from specclaw_auth import REVIEW_HEADER
     from specclaw_workers import job_manager
 
@@ -143,36 +147,35 @@ def check_api_path(tender_id: str, expected: dict) -> list[str]:
             if status.get("status") != "COMPLETED":
                 return [f"ingest job did not complete: {status}"]
 
-            tender = client.get("/api/tender", params={"tender_id": tender_id})
-            if tender.status_code != 200:
-                messages.append(f"GET /api/tender returned {tender.status_code}")
+            brief = client.get(f"/api/review/tenders/{tender_id}")
+            if brief.status_code != 200:
+                return [f"GET /api/review/tenders/{tender_id} returned {brief.status_code}"]
+            payload = brief.json()
 
-            evaluation = client.post("/api/evaluate", json={"tender_id": tender_id})
+            evaluation = client.post(f"/api/review/tenders/{tender_id}/evaluate", json={})
             if evaluation.status_code != 200:
-                messages.append(f"POST /api/evaluate returned {evaluation.status_code}")
-            else:
-                for f in evaluation.json()["financials"]:
-                    want = expected["vendors"].get(f["vendor_id"])
-                    if want is None:
-                        continue
-                    want_true = float(want["true_evaluated_price"]) if want["true_evaluated_price"] is not None else None
-                    if f["true_evaluated_price"] != want_true:
-                        messages.append(f"evaluate {f['vendor_id']}: true price {f['true_evaluated_price']} "
-                                        f"!= expected {want['true_evaluated_price']}")
+                messages.append(f"POST /api/review/tenders/{tender_id}/evaluate returned {evaluation.status_code}")
 
-            # Round-3 concessions through /api/evaluate: same leveling as /api/negotiate/turn,
-            # without writing a verification row into the audit ledger. The answer key names the
-            # vendor whose deviations are closed; without one it is the negotiating vendor (A2).
-            body = {"tender_id": tender_id, "conceded_params": NEGOTIATION_ROUNDS[3]}
-            if expected["clawback"].get("vendor_id"):
-                body["vendor_id"] = expected["clawback"]["vendor_id"]
-            round_3 = client.post("/api/evaluate", json=body)
-            if round_3.status_code != 200:
-                messages.append(f"POST /api/evaluate (round 3) returned {round_3.status_code}")
-            else:
-                clawed = round_3.json()["summary"]["clawback_value_eur"]
-                if clawed != float(expected["clawback"]["round_3"]):
-                    messages.append(f"round 3 clawback {clawed:.2f} != expected {expected['clawback']['round_3']}")
+            # The answer key prices the run itself. A founder override that survived the re-ingest
+            # (its cell was unchanged) is a later judgement, so the comparison leaves it out.
+            tender = engine.TenderPackage.model_validate(payload["tender"])
+            for f in engine.evaluate_vendor_financials(tender, engine.SensitivitySettings(), []):
+                want = expected["vendors"].get(f["vendor_id"])
+                if want is None:
+                    continue
+                want_true = float(want["true_evaluated_price"]) if want["true_evaluated_price"] is not None else None
+                if f["true_evaluated_price"] != want_true:
+                    messages.append(f"evaluate {f['vendor_id']}: true price {f['true_evaluated_price']} "
+                                    f"!= expected {want['true_evaluated_price']}")
+
+            # Round-3 concessions, computed by the engine on the stored tender. The answer key names the
+            # vendor whose deviations are closed; without one it is the lowest fully priced vendor (A2).
+            closing = expected["clawback"].get("vendor_id")
+            financials = engine.evaluate_vendor_financials(
+                tender, engine.SensitivitySettings(), ROUND_3_CONCESSIONS, closing)
+            clawed = round(sum(f["clawed_back_amount"] for f in financials), 2)
+            if clawed != float(expected["clawback"]["round_3"]):
+                messages.append(f"round 3 clawback {clawed:.2f} != expected {expected['clawback']['round_3']}")
     finally:
         job_manager.locator_factory = previous
         if previous_token is None:

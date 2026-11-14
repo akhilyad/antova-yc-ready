@@ -3,7 +3,7 @@
   "title": "120 MW Wind Farm Collector Substation — 33kV GIS Switchgear Package",
   "client": "Halden Ridge Renewables AS (fictional)",
   "equipment_class": "mv_gis_switchgear",
-  "rate_table": "mv_gis_switchgear_v1",
+  "rate_table": "mv_gis_switchgear_v2",
   "documents": [
     {
       "file": "MR-Collector-GIS-Rev2.pdf",

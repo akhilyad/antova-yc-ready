@@ -2,23 +2,25 @@
 
 import dataclasses
 import shutil
+import copy
 from decimal import Decimal
 from pathlib import Path
 
 import pytest
 
+from specclaw_review import evidence_hash
+
 import specclaw_engine as engine
-from specclaw_cache import leveling_cache
 from specclaw_db import SessionLocal, TenderRepository
 from specclaw_ingest.extract import ClaudeLocator, ResponseStore
 from specclaw_ingest.pipeline import (
     STAGES,
     IngestFailed,
     UnknownTender,
-    persist,
     run_ingest,
     tender_dir_for,
 )
+from specclaw_service import persist
 from specclaw_ingest.tests.fakes import PACK, AnswerKeyLocator, load_expected
 
 VOLTSWITCH = "Bid_vendor-b_VoltSwitch.pdf"
@@ -72,7 +74,7 @@ def test_tender_fields(result):
     tender = result.tender
     assert tender.id == "TENDER-2026-402"
     assert tender.mr_doc == "MR-33kV-GIS-Rev4.pdf (26 pages)"
-    assert tender.rate_table_version == "mv_gis_switchgear_v1"
+    assert tender.rate_table_version == "mv_gis_switchgear_v2"
     p01 = next(p for p in tender.parameters if p.id == "PARAM-01")
     assert p01.pint_rule == "Ik ≥ 50 kA AND t ≥ 3 s"
     badges = {v.id: v.badge for v in tender.vendors}
@@ -95,12 +97,13 @@ def test_stats(result):
     assert stats["pages_parsed"] == 116
     assert stats["sld_sheets"] == 12
     assert stats["deviations_found"] == 10
-    assert stats["exposed_risk_eur"] == 64800.0
-    assert stats["unpriced_items"] == []
+    assert stats["exposed_risk_eur"] == 61650.0  # a lower bound: the dispatch warranty of PARAM-06 is unpriced
+    assert stats["unpriced_items"] == [
+        {"vendor_id": "vendor-b", "param_id": "PARAM-06", "classes": ["PARAM-06.warranty_basis_unresolved"]}]
     assert stats["api_cost_usd"] == 0.0
     assert stats["candidates_rejected"] == 0
     assert stats["candidates_accepted"] > 0
-    assert stats["rate_table_effective_date"] == "2026-11-03"  # R26: the brief says "as of"
+    assert stats["rate_table_effective_date"] == "2026-11-13"  # R26: the brief says "as of"
     assert result.warnings == []
 
 
@@ -121,7 +124,7 @@ def test_fragment_candidate_keeps_conflict(expected):
     assert cell.status == engine.ComplianceStatus.CONFLICT_DOWNGRADE
     assert cell.cost_adder == 18500.0
     financials = {f["vendor_id"]: f for f in engine.evaluate_vendor_financials(run.tender, engine.SensitivitySettings(), [])}
-    assert financials["vendor-b"]["true_evaluated_price"] == 482800.0
+    assert financials["vendor-b"]["true_evaluated_price"] == 479650.0  # a lower bound under v2 (warranty unpriced)
 
 
 def test_manifest_id_must_match_requested_tender(tmp_path, expected):
@@ -175,8 +178,7 @@ def test_replay_miss_fails(tmp_path):
         run_ingest(PACK, locator=locator)
 
 
-def test_persist_round_trip_clears_cache(result):
-    leveling_cache.set("TENDER-2026-402", {"copper_multiplier": 1.0}, [], {"stale": True})
+def test_persist_round_trip(result):
     db = SessionLocal()
     try:
         persist(result, db)
@@ -184,7 +186,6 @@ def test_persist_round_trip_clears_cache(result):
     finally:
         db.close()
     assert loaded.model_dump() == result.tender.model_dump()
-    assert leveling_cache.get_stats()["size"] == 0
 
 
 class _StoredLocator:
@@ -232,18 +233,72 @@ def test_persist_stores_meta(result):
     assert [entry["stage"] for entry in meta.stage_log] == [s for s, _ in STAGES]
 
 
-def test_persist_returns_cleared_overrides(result):
+def _override(repo, result, param_id="PARAM-01", vendor_id="vendor-b", note="Quoted retrofit", hashed=True):
+    cell = next(p.vendors[vendor_id] for p in result.tender.parameters if p.id == param_id)
+    repo.put_override(result.tender.id, param_id, vendor_id, Decimal("12000.00"), note,
+                      evidence_hash(cell) if hashed else None)
+
+
+def test_persist_keeps_an_override_whose_cell_is_unchanged(result):
     db = SessionLocal()
     try:
         repo = TenderRepository(db)
         persist(result, db)
-        repo.put_override("TENDER-2026-402", "PARAM-01", "vendor-b", Decimal("12000.00"), "Quoted retrofit")
+        _override(repo, result)
         cleared = persist(result, db)
         remaining = repo.get_overrides("TENDER-2026-402")
     finally:
         db.close()
+    assert cleared == []
+    assert list(remaining) == [("PARAM-01", "vendor-b")]
+    assert remaining[("PARAM-01", "vendor-b")].adder_eur == Decimal("12000.00")
+
+
+def test_persist_clears_an_override_whose_cell_changed(result):
+    db = SessionLocal()
+    try:
+        repo = TenderRepository(db)
+        persist(result, db)
+        _override(repo, result)
+        changed = result.model_copy(deep=True) if hasattr(result, "model_copy") else copy.deepcopy(result)
+        cell = next(p.vendors["vendor-b"] for p in changed.tender.parameters if p.id == "PARAM-01")
+        cell.extracted_text += " (revised)"
+        cleared = persist(changed, db)
+        remaining = repo.get_overrides("TENDER-2026-402")
+        persist(result, db)  # leave the shared test database as it was
+    finally:
+        db.close()
     assert cleared == [{"param_id": "PARAM-01", "vendor_id": "vendor-b", "adder_eur": "12000.00", "note": "Quoted retrofit"}]
     assert remaining == {}
+
+
+def test_persist_clears_an_override_without_a_recorded_hash(result):
+    db = SessionLocal()
+    try:
+        repo = TenderRepository(db)
+        persist(result, db)
+        _override(repo, result, hashed=False)  # entered before the hash existed: it cannot be shown to apply
+        cleared = persist(result, db)
+        remaining = repo.get_overrides("TENDER-2026-402")
+    finally:
+        db.close()
+    assert [(o["param_id"], o["vendor_id"]) for o in cleared] == [("PARAM-01", "vendor-b")]
+    assert remaining == {}
+
+
+def test_persist_clears_an_override_whose_cell_is_gone(result):
+    db = SessionLocal()
+    try:
+        repo = TenderRepository(db)
+        persist(result, db)
+        _override(repo, result)
+        smaller = copy.deepcopy(result)
+        next(p for p in smaller.tender.parameters if p.id == "PARAM-01").vendors.pop("vendor-b")
+        cleared = persist(smaller, db)
+        persist(result, db)
+    finally:
+        db.close()
+    assert [(o["param_id"], o["vendor_id"]) for o in cleared] == [("PARAM-01", "vendor-b")]
 
 
 def test_tender_dir_for():
