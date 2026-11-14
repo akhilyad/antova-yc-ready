@@ -1,21 +1,31 @@
 """
-SpecClaw Database & Repository Layer (schema v4)
+SpecClaw Database & Repository Layer (schema v8)
 
 - Tender-scoped keys: vendor and parameter IDs repeat across tenders, so they
   are keyed by (tender_id, id).
 - Source documents record each ingested file's hash, role and page count.
 - Structured fields (citations, checks, cost lines) are stored as JSON text.
 - Each tender has a public share ID, a review status (DRAFT or VERIFIED) and
-  the founder's adder overrides; re-ingesting resets it to DRAFT and clears them.
+  the founder's adder overrides; re-ingesting resets it to DRAFT. An override is kept when the
+  evidence it was entered against is unchanged, and cleared (and reported) when it changed.
 - init_db() upgrades the baseline schema in place: it drops the old extraction
   tables only if they are empty, and never touches the audit ledger. A v2
   database is upgraded to v3 in one transaction.
 - v4 adds the run record (fingerprint and stage artifacts), the human review
   record, and an `extras` JSON column for cell and vendor fields added later.
   A v2 or v3 database is upgraded to v4 in one transaction.
+- v5 adds `ingest_jobs`, so a job's status survives a restart. A v4 database is upgraded by
+  creating the table in one transaction.
+- v6 adds `adder_overrides.evidence_hash`: the hash of the cell as the founder saw it, so a
+  re-ingest can tell whether an override still applies. A row without one (entered before v6)
+  cannot be shown to apply, so the next re-ingest clears it.
+- v7 adds `adder_overrides.set_by` and `tenders.verified_by`: the reviewer ID the server took from
+  the request's token. Both are NULL for rows that predate v7.
+- v8 adds `tenders.verified_run_id`: the ingest run that was verified (NULL before v8).
 """
 
 import json
+import logging
 import os
 import secrets
 from dataclasses import dataclass
@@ -25,19 +35,48 @@ from typing import Any, List, Optional
 
 from sqlalchemy import (
     Boolean, Column, Connection, DateTime, Engine, Float, ForeignKey, Index, Integer, String, Text,
-    UniqueConstraint, create_engine, inspect, text,
+    UniqueConstraint, create_engine, event, inspect, text,
 )
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
 import specclaw_engine as engine_models
 
+log = logging.getLogger(__name__)
+
 DATABASE_URL = os.getenv("SPECCLAW_DATABASE_URL", "sqlite:///./specclaw_enterprise.db")
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 8
 LEGACY_TABLES = ("extracted_parameters", "parameters", "vendors", "tenders")
 TENDER_STATUSES = ("DRAFT", "VERIFIED")
 
 connect_args = {"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
 engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=True, echo=False)
+
+# Applied to every SQLite connection. SQLite ignores foreign keys unless asked per connection, so
+# without this the ondelete rules in the models never fire. WAL lets a reader and the writer run
+# together; busy_timeout makes a second writer wait up to 5 s instead of failing with "locked".
+SQLITE_PRAGMAS = (
+    "PRAGMA journal_mode=WAL",
+    "PRAGMA synchronous=NORMAL",
+    "PRAGMA foreign_keys=ON",
+    "PRAGMA busy_timeout=5000",
+)
+
+
+def configure_sqlite(bind: Engine) -> Engine:
+    """Run SQLITE_PRAGMAS on every new connection of `bind`. Does nothing for other databases."""
+    if bind.dialect.name == "sqlite":
+        @event.listens_for(bind, "connect")
+        def _pragmas(dbapi_connection, _record):
+            cursor = dbapi_connection.cursor()
+            try:
+                for pragma in SQLITE_PRAGMAS:
+                    cursor.execute(pragma)
+            finally:
+                cursor.close()
+    return bind
+
+
+configure_sqlite(engine)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -45,6 +84,11 @@ Base = declarative_base()
 
 class LegacyDataError(RuntimeError):
     """The baseline-schema tables hold data, so they cannot be rebuilt automatically."""
+
+
+class ForeignKeyViolation(RuntimeError):
+    """Rows point at parents that do not exist. Foreign keys are enforced from now on, so the
+    database has to be repaired (or the orphans deleted) before the service will start."""
 
 
 # --- DATABASE MODELS ---
@@ -70,6 +114,8 @@ class TenderRecord(Base):
     share_id = Column(String(32), nullable=False, unique=True, index=True)
     status = Column(String(16), nullable=False, default="DRAFT")
     verified_at = Column(DateTime, nullable=True)
+    verified_by = Column(String(64), nullable=True)  # reviewer ID, from the request's token
+    verified_run_id = Column(String(64), nullable=True)  # the ingest run that was verified
     ingest_mode = Column(String(16), nullable=False, default="live")
     synthetic = Column(Boolean, nullable=False, default=False)
     ingest_stats = Column(Text, nullable=False, default="{}")
@@ -86,6 +132,8 @@ class AdderOverrideRecord(Base):
     adder_eur = Column(String(32), nullable=False)  # the Decimal's string, e.g. "12000.00"
     note = Column(Text, nullable=False)
     created_at = Column(DateTime, nullable=False)
+    evidence_hash = Column(String(64), nullable=True)  # specclaw_review.evidence_hash of the cell when it was set
+    set_by = Column(String(64), nullable=True)  # reviewer ID, from the request's token
 
 
 class SourceDocumentRecord(Base):
@@ -202,6 +250,22 @@ class CellReviewRecord(Base):
     created_at = Column(DateTime, nullable=False)
 
 
+class IngestJobRecord(Base):
+    """One queued or finished ingest job. No foreign key: a tender may not exist until its first job ends."""
+    __tablename__ = "ingest_jobs"
+
+    job_id = Column(String(32), primary_key=True)
+    tender_id = Column(String(64), nullable=False, index=True)
+    mode = Column(String(16), nullable=False)
+    status = Column(String(16), nullable=False, default="PENDING")
+    progress_pct = Column(Integer, nullable=False, default=0)
+    stage = Column(String(255), nullable=False, default="")
+    created_at = Column(DateTime, nullable=False)
+    completed_at = Column(DateTime, nullable=True)
+    result = Column(Text, nullable=True)  # JSON
+    error = Column(Text, nullable=True)
+
+
 class AuditLedgerRecord(Base):
     __tablename__ = "audit_clawback_ledger"
 
@@ -259,6 +323,8 @@ class TenderMeta:
     synthetic: bool
     ingest_stats: dict
     stage_log: list[dict]
+    verified_by: Optional[str] = None
+    verified_run_id: Optional[str] = None
 
 
 def _utc(value: Optional[datetime]) -> Optional[datetime]:
@@ -280,6 +346,8 @@ def _meta(record: TenderRecord) -> TenderMeta:
         tender_id=record.id, title=record.title, share_id=record.share_id, status=record.status,
         verified_at=_utc(record.verified_at), ingested_at=_utc(record.ingested_at), ingest_mode=record.ingest_mode,
         synthetic=record.synthetic, ingest_stats=_load(record.ingest_stats, {}), stage_log=_load(record.stage_log, []),
+        verified_by=record.verified_by,
+        verified_run_id=record.verified_run_id,
     )
 
 
@@ -301,21 +369,23 @@ class TenderRepository:
         stage_log: Optional[list[dict]] = None,
         share_id: Optional[str] = None,
         run: Optional[dict] = None,
-    ) -> None:
+    ) -> list[dict]:
         """Replace everything stored for this tender in one transaction.
 
         The tender row is updated in place (never deleted) so audit-ledger rows
         that reference it are unaffected. It keeps its share ID (a new tender
-        takes `share_id` if given, else a fresh one), goes back to DRAFT and
-        loses its overrides, which were judgements about the previous ingest.
+        takes `share_id` if given, else a fresh one) and goes back to DRAFT.
+
+        Overrides were judgements about the previous ingest. One whose cell is unchanged (same
+        evidence hash) is kept; one whose cell changed or vanished, or that has no hash, is
+        deleted. Returns the deleted ones as [{param_id, vendor_id, adder_eur, note}], sorted.
 
         `run` is {"run_id", "fingerprint", "parts", "artifacts": {stage: StageArtifact}}.
         The run row is kept; stage artifacts are kept for the tender's latest run only.
         """
         tid = tender.id
         try:
-            for model in (ExtractedParameterRecord, ParameterRecord, VendorRecord, SourceDocumentRecord,
-                          AdderOverrideRecord):
+            for model in (ExtractedParameterRecord, ParameterRecord, VendorRecord, SourceDocumentRecord):
                 self.db.query(model).filter(model.tender_id == tid).delete(synchronize_session=False)
             record = self.db.get(TenderRecord, tid) or TenderRecord(id=tid, share_id=share_id or new_share_id())
             record.title = tender.title
@@ -329,11 +399,16 @@ class TenderRepository:
             record.ingested_at = ingested_at
             record.status = "DRAFT"
             record.verified_at = None
+            record.verified_by = None
+            record.verified_run_id = None
             record.ingest_mode = ingest_mode
             record.synthetic = synthetic
             record.ingest_stats = _dump(ingest_stats or {})
             record.stage_log = _dump(stage_log or [])
             self.db.add(record)
+            # No relationship() links these tables, so SQLAlchemy does not order the inserts by foreign
+            # key. Write the tender row first: every row below points at it.
+            self.db.flush()
             for position, v in enumerate(tender.vendors):
                 self.db.add(VendorRecord(
                     tender_id=tid, id=v.id, position=position, name=v.name, country=v.country,
@@ -367,10 +442,27 @@ class TenderRepository:
                     tender_id=tid, vendor_id=d.vendor_id, filename=d.filename, sha256=d.sha256,
                     role=d.role, page_count=d.page_count, pages_without_text=_dump(d.pages_without_text),
                 ))
+            cleared = self._reconcile_overrides(tender)
             self.db.commit()
+            return cleared
         except Exception:
             self.db.rollback()
             raise
+
+    def _reconcile_overrides(self, tender: engine_models.TenderPackage) -> list[dict]:
+        """Keep each override whose cell is unchanged in `tender`; delete and report the rest."""
+        from specclaw_review import evidence_hash
+
+        cells = {(p.id, vid): cell for p in tender.parameters for vid, cell in p.vendors.items()}
+        cleared = []
+        for row in self.db.query(AdderOverrideRecord).filter(AdderOverrideRecord.tender_id == tender.id):
+            cell = cells.get((row.param_id, row.vendor_id))
+            if cell is not None and row.evidence_hash is not None and row.evidence_hash == evidence_hash(cell):
+                continue
+            cleared.append({"param_id": row.param_id, "vendor_id": row.vendor_id,
+                            "adder_eur": row.adder_eur, "note": row.note})
+            self.db.delete(row)
+        return sorted(cleared, key=lambda o: (o["param_id"], o["vendor_id"]))
 
     def _save_run(self, tender_id: str, run: dict, at: datetime) -> None:
         old = [r for (r,) in self.db.query(IngestRunRecord.run_id).filter(IngestRunRecord.tender_id == tender_id)]
@@ -453,8 +545,8 @@ class TenderRepository:
     def tender_id_for_share(self, share_id: str) -> Optional[str]:
         return self.db.query(TenderRecord.id).filter(TenderRecord.share_id == share_id).scalar()
 
-    def set_status(self, tender_id: str, status: str, at: datetime) -> None:
-        """Verify (stamping `at`) or withdraw back to DRAFT (clearing the stamp)."""
+    def set_status(self, tender_id: str, status: str, at: datetime, by: Optional[str] = None) -> None:
+        """Verify (stamping `at` and the reviewer `by`) or withdraw back to DRAFT (clearing both)."""
         if status not in TENDER_STATUSES:
             raise ValueError(f"Unknown tender status {status!r}")
         record = self.db.get(TenderRecord, tender_id)
@@ -462,7 +554,26 @@ class TenderRepository:
             raise LookupError(f"Unknown tender {tender_id!r}")
         record.status = status
         record.verified_at = at if status == "VERIFIED" else None
+        record.verified_by = by if status == "VERIFIED" else None
+        if status != "VERIFIED":
+            record.verified_run_id = None
         self.db.commit()
+
+    def claim_verification(self, tender_id: str, expected_ingested_at: datetime, at: datetime, by: str,
+                           run_id: Optional[str]) -> bool:
+        """Mark the tender VERIFIED if it has not been ingested again since `expected_ingested_at`.
+
+        One conditional UPDATE, not committed: the caller re-checks what blocks verification while
+        this transaction holds the write lock, then commits or rolls back. False means the tender
+        was replaced (or is gone) after the caller read it.
+        """
+        changed = (
+            self.db.query(TenderRecord)
+            .filter(TenderRecord.id == tender_id, TenderRecord.ingested_at == expected_ingested_at.replace(tzinfo=None))
+            .update({"status": "VERIFIED", "verified_at": at, "verified_by": by, "verified_run_id": run_id},
+                    synchronize_session=False)
+        )
+        return changed == 1
 
     def list_documents(self, tender_id: str) -> List[dict]:
         """The tender's source documents in ingest order."""
@@ -477,15 +588,29 @@ class TenderRepository:
         return {(o.param_id, o.vendor_id): engine_models.Override(adder_eur=Decimal(o.adder_eur), note=o.note)
                 for o in rows}
 
-    def put_override(self, tender_id: str, param_id: str, vendor_id: str, adder_eur: Decimal, note: str) -> None:
-        """Create or replace the override for one cell; `created_at` records when it was last set."""
+    def put_override(self, tender_id: str, param_id: str, vendor_id: str, adder_eur: Decimal, note: str,
+                     evidence_hash: Optional[str] = None, set_by: Optional[str] = None) -> None:
+        """Create or replace the override for one cell; `created_at` records when it was last set.
+
+        `evidence_hash` is the hash of the cell as the founder saw it (specclaw_review.evidence_hash).
+        Without it a re-ingest cannot show the override still applies, so it will clear it."""
         record = (self.db.get(AdderOverrideRecord, (tender_id, param_id, vendor_id))
                   or AdderOverrideRecord(tender_id=tender_id, param_id=param_id, vendor_id=vendor_id))
         record.adder_eur = str(adder_eur)
         record.note = note
+        record.evidence_hash = evidence_hash
+        record.set_by = set_by
         record.created_at = datetime.now(timezone.utc)
         self.db.add(record)
         self.db.commit()
+
+    def list_override_rows(self, tender_id: str) -> list[dict]:
+        """The tender's overrides as stored, with who set them and when, sorted by (param_id, vendor_id)."""
+        rows = (self.db.query(AdderOverrideRecord).filter(AdderOverrideRecord.tender_id == tender_id)
+                .order_by(AdderOverrideRecord.param_id, AdderOverrideRecord.vendor_id))
+        return [{"param_id": o.param_id, "vendor_id": o.vendor_id, "adder_eur": o.adder_eur, "note": o.note,
+                 "set_by": o.set_by, "created_at": _utc(o.created_at).isoformat() if o.created_at else None}
+                for o in rows]
 
     def delete_override(self, tender_id: str, param_id: str, vendor_id: str) -> bool:
         """Remove one cell's override; False if there was none."""
@@ -519,6 +644,54 @@ class TenderRepository:
     def latest_reviews(self, tender_id: str) -> dict[tuple[str, str], dict]:
         """The most recent review of each cell, keyed (param_id, vendor_id)."""
         return {(r["param_id"], r["vendor_id"]): r for r in self.list_reviews(tender_id)}
+
+    # --- ingest jobs ---
+
+    def create_job(self, job_id: str, tender_id: str, mode: str) -> dict:
+        self.db.add(IngestJobRecord(job_id=job_id, tender_id=tender_id, mode=mode, status="PENDING",
+                                    progress_pct=0, stage="Queued in worker pipeline",
+                                    created_at=datetime.now(timezone.utc)))
+        self.db.commit()
+        return self.get_job(job_id)
+
+    def update_job(self, job_id: str, *, status: Optional[str] = None, progress_pct: Optional[int] = None,
+                   stage: Optional[str] = None, result: Optional[dict] = None, error: Optional[str] = None,
+                   finished: bool = False) -> None:
+        """Change the given fields of a job; `finished` stamps completed_at."""
+        record = self.db.get(IngestJobRecord, job_id)
+        if record is None:
+            return
+        if status is not None:
+            record.status = status
+        if progress_pct is not None:
+            record.progress_pct = progress_pct
+        if stage is not None:
+            record.stage = stage
+        if result is not None:
+            record.result = _dump(result)
+        if error is not None:
+            record.error = error
+        if finished:
+            record.completed_at = datetime.now(timezone.utc)
+        self.db.commit()
+
+    def get_job(self, job_id: str) -> Optional[dict]:
+        record = self.db.get(IngestJobRecord, job_id)
+        if record is None:
+            return None
+        return {"job_id": record.job_id, "tender_id": record.tender_id, "mode": record.mode,
+                "status": record.status, "progress_pct": record.progress_pct, "stage": record.stage,
+                "created_at": _utc(record.created_at), "completed_at": _utc(record.completed_at),
+                "result": _load(record.result), "error": record.error}
+
+    def fail_unfinished_jobs(self, reason: str) -> int:
+        """Mark every PENDING or PROCESSING job FAILED. For service start: such a job died with its process."""
+        now = datetime.now(timezone.utc)
+        rows = self.db.query(IngestJobRecord).filter(IngestJobRecord.status.in_(("PENDING", "PROCESSING"))).all()
+        for record in rows:
+            record.status, record.error, record.completed_at = "FAILED", reason, now
+        self.db.commit()
+        return len(rows)
 
     def log_negotiation_round(
         self,
@@ -596,18 +769,76 @@ def _upgrade_v3_to_v4(conn: Connection) -> None:
     _write_version(conn)
 
 
+def _upgrade_v4_to_v5(conn: Connection) -> None:
+    """Create ingest_jobs (and anything else missing). The caller records the version."""
+    Base.metadata.create_all(bind=conn)
+
+
+def _add_missing_columns(conn: Connection, table: str, columns: dict[str, str]) -> None:
+    present = {c["name"] for c in inspect(conn).get_columns(table)}
+    for name, ddl in columns.items():
+        if name not in present:
+            conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {name} {ddl}"))
+
+
+def _upgrade_v5_to_v6(conn: Connection) -> None:
+    """Add adder_overrides.evidence_hash (NULL for rows that exist). The caller records the version."""
+    _add_missing_columns(conn, "adder_overrides", {"evidence_hash": "VARCHAR(64)"})
+
+
+def _upgrade_v7_to_v8(conn: Connection) -> None:
+    """Add tenders.verified_run_id (NULL for rows that exist). The caller records the version."""
+    _add_missing_columns(conn, "tenders", {"verified_run_id": "VARCHAR(64)"})
+
+
+def _upgrade_v6_to_v7(conn: Connection) -> None:
+    """Add the reviewer columns (NULL for rows that exist). The caller records the version."""
+    _add_missing_columns(conn, "adder_overrides", {"set_by": "VARCHAR(64)"})
+    _add_missing_columns(conn, "tenders", {"verified_by": "VARCHAR(64)"})
+
+
 def _write_version(conn: Connection) -> None:
     conn.execute(text("DELETE FROM schema_version"))
     conn.execute(text("INSERT INTO schema_version (version) VALUES (:v)"), {"v": SCHEMA_VERSION})
 
 
+# The ledger is a record of what was said in negotiation. Databases from before the v2 schema have
+# ledger rows whose tender was never migrated; those rows are kept (never deleted), so they are
+# reported, not fatal.
+TOLERATED_ORPHANS = ("audit_clawback_ledger",)
+
+
+def check_foreign_keys(bind: Engine) -> None:
+    """Raise ForeignKeyViolation, naming the tables and counts, if a row has no parent (SQLite only).
+
+    Orphans in TOLERATED_ORPHANS are logged as a warning instead.
+    """
+    if bind.dialect.name != "sqlite":
+        return
+    with bind.connect() as conn:
+        rows = conn.exec_driver_sql("PRAGMA foreign_key_check").fetchall()
+    counts: dict[str, int] = {}
+    for table, *_ in rows:
+        counts[table] = counts.get(table, 0) + 1
+    for table in TOLERATED_ORPHANS:
+        if table in counts:
+            log.warning("%s has %d row(s) whose tender no longer exists; kept as history", table, counts.pop(table))
+    if counts:
+        detail = ", ".join(f"{table}: {n}" for table, n in sorted(counts.items()))
+        raise ForeignKeyViolation(f"orphaned rows found ({detail}); fix or delete them before starting")
+
+
 def init_db(bind: Optional[Engine] = None) -> None:
-    """Create or upgrade the schema to version 4."""
-    bind = bind or engine
+    """Create or upgrade the schema to the current version."""
+    if bind is None:
+        bind = engine
+    elif bind is not engine:
+        configure_sqlite(bind)  # an engine built elsewhere (a test, a script) gets the same pragmas
     tables = set(inspect(bind).get_table_names())
     version = _current_version(bind, tables)
     if version is not None and version >= SCHEMA_VERSION:
         Base.metadata.create_all(bind=bind)
+        check_foreign_keys(bind)
         return
     if version in (2, 3):
         with bind.begin() as conn:
@@ -617,6 +848,24 @@ def init_db(bind: Optional[Engine] = None) -> None:
             if version == 2:
                 _upgrade_v2_to_v3(conn)
             _upgrade_v3_to_v4(conn)
+            _upgrade_v5_to_v6(conn)  # a v3 database already has adder_overrides, without the columns
+            _upgrade_v6_to_v7(conn)
+            _upgrade_v7_to_v8(conn)
+        check_foreign_keys(bind)
+        return
+    if version in (4, 5, 6, 7):
+        with bind.begin() as conn:
+            if conn.dialect.name == "sqlite":
+                conn.exec_driver_sql("BEGIN")  # see the v2/v3 branch: the ALTER must roll back too
+            if version == 4:
+                _upgrade_v4_to_v5(conn)
+            if version < 6:
+                _upgrade_v5_to_v6(conn)
+            if version < 7:
+                _upgrade_v6_to_v7(conn)
+            _upgrade_v7_to_v8(conn)
+            _write_version(conn)
+        check_foreign_keys(bind)
         return
     legacy = [t for t in LEGACY_TABLES if t in tables]
     with bind.begin() as conn:
@@ -632,6 +881,7 @@ def init_db(bind: Optional[Engine] = None) -> None:
     Base.metadata.create_all(bind=bind)
     with bind.begin() as conn:
         _write_version(conn)
+    check_foreign_keys(bind)
 
 
 def get_db():

@@ -31,7 +31,7 @@ If you change a field, change the backend, `schemas.ts`, the fixtures and this f
 | `useReviewBrief(tenderId, token)` | `GET /api/review/tenders/{id}` | token | `Brief` (any status, with `open_items`) |
 | `usePutOverride` | `PUT /api/review/tenders/{id}/overrides/{param}/{vendor}` | token | none (204) |
 | `useDeleteOverride` | `DELETE` same path | token | 204 |
-| `useVerify` | `POST /api/review/tenders/{id}/verify` | token | `VerifyResponse` (`share_id`, `verified_at`) |
+| `useVerify(runId)` | `POST /api/review/tenders/{id}/verify`, body `{run_id?}` | token | `VerifyResponse` (`share_id`, `verified_at`) |
 | `useWithdraw` | `POST /api/review/tenders/{id}/withdraw` | token | `WithdrawResponse` (`status: DRAFT`) |
 | `useStartIngest(token)` | `POST /api/jobs/ingest` body `{tender_id, mode}` | token | `StartIngestResponse` (`job_id`, `QUEUED`) |
 | `useJob(jobId, token)` | `GET /api/jobs/{job_id}` | token | `Job` |
@@ -70,7 +70,7 @@ Things the UI depends on:
 |---|---|---|
 | `not_found` | 404 | public brief: the "not available" page (unknown and unverified look identical). Evidence crop: fall back to the quote text. |
 | `unauthorized` | 401 | show the token gate with "That token didn't work." |
-| `conflict` | 409 | verify refused (body lists `open_items`), or an override change on a VERIFIED brief |
+| `conflict` | 409 | verify refused (body lists `open_items`, or `code: "run_changed"` when the tender was ingested again after the page loaded or `run_id` is not the stored run), or an override change on a VERIFIED brief |
 | `invalid` | 422 | the form shows the server's detail |
 | `network` | none | "can't reach the server" banner with retry |
 | `server` | other | same banner. A **503** on a review route means the server has no review token configured: show "not configured" (`review/access.ts`). |
@@ -88,8 +88,8 @@ Everything else settles at once. Mutations never retry (a retried ingest would s
 - Verify, withdraw, override changes and a finished ingest invalidate the review brief, the list
   and any public brief (`invalidateAfterIngest`).
 - Jobs poll every 750 ms until `COMPLETED` or `FAILED`. Polling also stops on a 401 or 404.
-- The WebSocket (`/ws/telemetry`) is not used by the new frontend. It no longer carries tender IDs,
-  prices or override notes (R8).
+- There is no WebSocket. The legacy `/ws/telemetry` socket, `/api/evaluate`, `/api/negotiate/turn`,
+  `/api/export-pdf` and the other pre-brief routes were removed; progress is read by polling the job.
 
 ## Job states the modal must handle
 
@@ -102,7 +102,7 @@ Everything else settles at once. Mutations never retry (a retried ingest would s
 - `FAILED` shows the stage and `error`, with *Try again*. A `FAILED` job with an unknown stage still
   shows the failure.
 - A finished job never turns into "lost" after an API restart (R29).
-- `overrides_cleared` lists the overrides a re-ingest dropped. The review page tells the founder.
+- `overrides_cleared` lists the overrides a re-ingest dropped: those whose cell's evidence changed, whose cell is gone, or that were entered before evidence hashes existed. An override on an unchanged cell survives and is not listed. The review page tells the founder.
 
 ## Static sample (landing)
 
@@ -139,8 +139,21 @@ specclaw_ingest.export_fixtures`). They are LF files (`web/.gitattributes`, R11)
 | `VITE_SAMPLE_SHARE_ID` | frontend | the live sample's share ID (the landing links to it) |
 | `VITE_CONTACT_EMAIL` | frontend | the offer's mailto and copyable address |
 | `VITE_SITE_URL` | frontend build | canonical link, structured data, `robots.txt`, `sitemap.xml` |
-| `ANTOVA_REVIEW_TOKEN` | backend | founder token. Unset means founder routes return 503. |
+| `ANTOVA_REVIEW_TOKEN` | backend | shared review token; its holder is the reviewer `founder`. With no token configured at all, review routes return 503. |
+| `ANTOVA_REVIEWERS` | backend | JSON `{"<id>": {"name": "...", "token": "..."}}`. Each token is one reviewer; the server records that ID on reviews, overrides and verification, and ignores any reviewer name a request sends. A malformed value, or two reviewers with one token, closes review (503). |
 | `ANTOVA_ALLOWED_ORIGINS` | backend | CORS origins (comma separated) |
 | `ANTHROPIC_API_KEY` | backend | live ingests. Not set anywhere today. |
 
 Never write a token value or API key into this repo. It is public.
+
+## Uploads and exports (backend only; the web app does not call these yet)
+
+All need the review token. Uploads answer 503 unless `SPECCLAW_TENDERS_DIR` is set.
+
+| Route | Purpose |
+| --- | --- |
+| `PUT /api/review/tenders/{id}/files/{name}.pdf` | one PDF as the raw body; 201 `{filename, size_bytes, sha256, pages}`. 413 over the size limit, 422 for a bad name, a non-PDF, an encrypted PDF or too many pages, 409 when the tender is full or its brief is verified |
+| `GET /api/review/tenders/{id}/files` | the folder's PDFs and whether a manifest is in place |
+| `PUT /api/review/tenders/{id}/manifest` | the manifest JSON, validated against the folder; then `POST /api/jobs/ingest` |
+| `GET .../clarifications.csv` or `.xlsx`, `?vendor={id}` | the clarification log; with `vendor`, only that vendor's questions (their bid and the MR, no other bidder, no prices). 404 for an unknown vendor |
+| `GET .../export-tbe.xlsx` | the verified evaluation as a workbook (Summary, Leveling, Adders, Overrides, Reviews, Clarifications). 409 until the brief is verified |

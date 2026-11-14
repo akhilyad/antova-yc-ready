@@ -4,8 +4,8 @@ import csv
 import io
 import json
 import shutil
+from decimal import Decimal
 
-import fitz
 import pytest
 from fastapi.testclient import TestClient
 
@@ -15,13 +15,17 @@ from specclaw_api import app
 from specclaw_auth import REVIEW_HEADER
 from specclaw_db import SessionLocal, TenderRepository
 from specclaw_ingest import clarify
-from specclaw_ingest.pipeline import persist, run_ingest
+from specclaw_ingest.pipeline import run_ingest
+from specclaw_service import persist
 from specclaw_ingest.tests.fakes import PACK, AnswerKeyLocator, load_expected
 from specclaw_review import evidence_hash, open_items, review_state
 
 HEADERS = {REVIEW_HEADER: "test-review-token"}
 VOLTSWITCH = "Bid_vendor-b_VoltSwitch.pdf"
 CELL = ("PARAM-01", "vendor-b")  # (param_id, vendor_id)
+# Rate table v2 flags VoltSwitch's warranty measured from dispatch and leaves it unpriced, so the sample always
+# has this second flagged cell, and its price gap is an open item until the founder prices it.
+WARRANTY = ("PARAM-06", "vendor-b")
 
 
 def _dropped(expected: dict) -> dict:
@@ -34,7 +38,7 @@ def _dropped(expected: dict) -> dict:
 
 @pytest.fixture(scope="module")
 def flagged():
-    """TENDER-2026-402 with one review flag (SWEEP_GOVERNS on vendor-b PARAM-01)."""
+    """TENDER-2026-402 with two review flags: SWEEP_GOVERNS on vendor-b PARAM-01, and WARRANTY_BASIS on PARAM-06."""
     return run_ingest(PACK, locator=AnswerKeyLocator(_dropped(load_expected())))
 
 
@@ -58,6 +62,14 @@ def _cell(tender, param_id=CELL[0], vendor_id=CELL[1]):
     return next(p for p in tender.parameters if p.id == param_id).vendors[vendor_id]
 
 
+def _open(tender, reviews, overrides=None, cell=CELL):
+    """The open items on one (param_id, vendor_id) cell."""
+    return [i for i in open_items(tender, overrides or {}, reviews) if (i.param_id, i.vendor_id) == cell]
+
+
+WARRANTY_BODY = {"action": "approve", "reviewer": "a.yadav", "note": "Warranty start date checked against the bid"}
+
+
 # --- the review record ----------------------------------------------------------------
 
 def test_evidence_hash_follows_what_the_reviewer_saw(flagged):
@@ -76,12 +88,21 @@ def test_a_flag_is_open_until_someone_approves_it(stored, repo):
     tender_id = stored.id
     assert review_state(_cell(stored), None) == "open"
     assert [(i.kind, i.vendor_id, i.param_id) for i in open_items(stored, {}, repo.latest_reviews(tender_id))] == [
-        ("review_flag", "vendor-b", "PARAM-01")]
+        ("review_flag", "vendor-b", "PARAM-01"), ("review_flag", "vendor-b", "PARAM-06"),
+        ("unpriced", "vendor-b", "PARAM-06")]
     repo.add_review(tender_id, *CELL, action="approve", reviewer="a.yadav", note="Drawing note 7 checked against the PDF",
                     evidence_hash=evidence_hash(_cell(stored)))
     latest = repo.latest_reviews(tender_id)
     assert review_state(_cell(stored), latest[CELL]) == "reviewed"
-    assert open_items(stored, {}, latest) == []
+    assert _open(stored, latest) == []
+    # The warranty cell stays open until it is approved and priced: an approval does not price it, and a price does not approve it.
+    assert [i.kind for i in _open(stored, latest, cell=WARRANTY)] == ["review_flag", "unpriced"]
+    repo.add_review(tender_id, *WARRANTY, action="approve", reviewer="a.yadav", note="ok",
+                    evidence_hash=evidence_hash(_cell(stored, *WARRANTY)))
+    latest = repo.latest_reviews(tender_id)
+    assert [i.kind for i in open_items(stored, {}, latest)] == ["unpriced"]
+    priced = {WARRANTY: engine.Override(adder_eur=Decimal("9300.00"), note="priced")}
+    assert open_items(stored, priced, latest) == []
 
 
 def test_review_row_records_who_what_when_and_the_evidence(stored, repo):
@@ -105,7 +126,7 @@ def test_a_rejected_cell_stays_open(stored, repo):
                     evidence_hash=evidence_hash(_cell(stored)))
     latest = repo.latest_reviews(stored.id)
     assert review_state(_cell(stored), latest[CELL]) == "rejected"
-    assert [i.kind for i in open_items(stored, {}, latest)] == ["review_flag"]
+    assert [i.kind for i in _open(stored, latest)] == ["review_flag"]
 
 
 def test_reingest_with_changed_evidence_makes_the_approval_stale(stored, repo, tmp_path):
@@ -123,14 +144,21 @@ def test_reingest_with_changed_evidence_makes_the_approval_stale(stored, repo, t
     changed = run_ingest(mutate.write(pack, tmp_path), locator=AnswerKeyLocator(pack.expected))
     cell = _cell(changed.tender)
     assert cell.flags and review_state(cell, latest[CELL]) == "stale"
-    items = open_items(changed.tender, {}, latest)
+    items = _open(changed.tender, latest)
     assert [(i.kind, i.message) for i in items] == [("review_flag", "Evidence changed since it was approved; review again")]
 
 
 def test_unflagged_cells_need_no_review():
+    """The sample's only flag is the warranty basis; once the founder approves it and prices the cell, nothing is open."""
+    from specclaw_ingest.dev_seed import founder_resolution
+
     result = run_ingest(PACK, locator=AnswerKeyLocator(load_expected()))
-    assert open_items(result.tender, {}, {}) == []
-    assert result.stats["flags_raised"] == 0
+    assert [(i.kind, i.vendor_id, i.param_id) for i in open_items(result.tender, {}, {})] == [
+        ("review_flag", "vendor-b", "PARAM-06"), ("unpriced", "vendor-b", "PARAM-06")]
+    assert result.stats["flags_raised"] == 1
+    overrides, reviews = founder_resolution(result.tender)
+    assert list(reviews) == [WARRANTY] and list(overrides) == [WARRANTY]
+    assert open_items(result.tender, overrides, reviews) == []
 
 
 # --- nothing is final while flags are open -----------------------------------------------
@@ -143,8 +171,9 @@ def client(stored):
 
 def test_brief_reports_open_flags_and_is_not_final(client, stored):
     brief = client.get(f"/api/review/tenders/{stored.id}").json()
-    assert brief["review"] == {"open_flags": 1, "stale": 0, "rejected": 0, "reviewed": 0, "final": False}
-    assert [i["kind"] for i in brief["open_items"]] == ["review_flag"]
+    assert brief["review"] == {"open_flags": 2, "stale": 0, "rejected": 0, "reviewed": 0, "final": False}
+    assert [(i["kind"], i["param_id"]) for i in brief["open_items"]] == [
+        ("review_flag", "PARAM-01"), ("review_flag", "PARAM-06"), ("unpriced", "PARAM-06")]
 
 
 def test_verify_is_refused_while_a_flag_is_open_and_allowed_after_approval(client, stored):
@@ -154,7 +183,14 @@ def test_verify_is_refused_while_a_flag_is_open_and_allowed_after_approval(clien
                      json={"action": "approve", "reviewer": "a.yadav", "note": "Checked note 7 on p.11"})
     assert put.status_code == 200 and put.json()["state"] == "reviewed"
     brief = client.get(f"/api/review/tenders/{stored.id}").json()
-    assert brief["review"]["open_flags"] == 0 and brief["review"]["reviewed"] == 1
+    assert brief["review"]["open_flags"] == 1 and brief["review"]["reviewed"] == 1
+    # The warranty cell is still flagged and unpriced: it needs its own approval and a price.
+    assert client.post(f"/api/review/tenders/{stored.id}/verify").status_code == 409
+    assert client.put(f"/api/review/tenders/{stored.id}/reviews/PARAM-06/vendor-b", json=WARRANTY_BODY).status_code == 200
+    assert client.put(f"/api/review/tenders/{stored.id}/overrides/PARAM-06/vendor-b",
+                      json={"adder_eur": "9300.00", "note": "priced by the founder"}).status_code == 204
+    brief = client.get(f"/api/review/tenders/{stored.id}").json()
+    assert brief["review"]["open_flags"] == 0 and brief["review"]["reviewed"] == 2
     assert client.post(f"/api/review/tenders/{stored.id}/verify").status_code == 200
     assert client.get(f"/api/review/tenders/{stored.id}").json()["review"]["final"] is True
     client.post(f"/api/review/tenders/{stored.id}/withdraw")
@@ -163,25 +199,15 @@ def test_verify_is_refused_while_a_flag_is_open_and_allowed_after_approval(clien
 def test_review_route_validates_its_input(client, stored):
     base = f"/api/review/tenders/{stored.id}/reviews"
     assert client.put(f"{base}/PARAM-01/vendor-b", json={"action": "bless", "reviewer": "a", "note": "n"}).status_code == 422
-    assert client.put(f"{base}/PARAM-01/vendor-b", json={"action": "approve", "reviewer": "", "note": "n"}).status_code == 422
+    assert client.put(f"{base}/PARAM-01/vendor-b", json={"action": "approve", "reviewer": "x" * 129, "note": "n"}).status_code == 422
     assert client.put(f"{base}/PARAM-99/vendor-b", json={"action": "approve", "reviewer": "a", "note": "n"}).status_code == 404
     listed = client.get(base)
     assert listed.status_code == 200 and isinstance(listed.json(), list)
 
 
-def test_evaluate_says_whether_the_result_is_final(client, stored):
-    data = client.post("/api/evaluate", json={"tender_id": stored.id}).json()
-    assert (data["open_flags"], data["final"]) == (1, False)
-
-
-def test_pdf_is_marked_draft_while_flags_are_open(client, stored):
-    response = client.post("/api/export-pdf", params={"tender_id": stored.id, "vendor_id": "vendor-b"},
-                           json={"negotiation_round": 3})
-    assert response.status_code == 200
-    with fitz.open(stream=response.content, filetype="pdf") as doc:
-        text = " ".join(" ".join(page.get_text().split()) for page in doc)
-    assert "DRAFT" in text and "1 review flag open" in text
-    assert "Signed Closure" not in text
+def test_brief_says_whether_the_result_is_final(client, stored):
+    review = client.get(f"/api/review/tenders/{stored.id}").json()["review"]
+    assert (review["open_flags"], review["final"]) == (2, False)
 
 
 # --- the clarification register -------------------------------------------------------------

@@ -16,6 +16,7 @@ from pathlib import Path
 
 import specclaw_engine as engine
 from specclaw_db import SessionLocal, init_db
+from specclaw_service import persist
 from specclaw_ingest import pipeline, verify
 
 
@@ -89,7 +90,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     db = SessionLocal()
     try:
-        pipeline.persist(result, db)
+        persist(result, db)
     finally:
         db.close()
     print("\n".join(_summary(result)))

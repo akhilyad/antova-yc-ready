@@ -46,7 +46,7 @@ def test_unknown_headline_is_null_everywhere_never_zero():
     assert row["true_evaluated_price"] is None
     assert (row["true_evaluated_low"], row["true_evaluated_high"]) == (None, None)
     assert row["price_status"] == "NO_HEADLINE"
-    assert row["total_adders"] == 64800.0  # the adders are known and still shown
+    assert row["total_adders"] == 61650.0  # the adders are known and still shown (the warranty is unpriced under v2)
 
 
 def test_legacy_zero_headline_is_treated_as_unknown():
@@ -56,9 +56,15 @@ def test_legacy_zero_headline_is_treated_as_unknown():
 
 
 def test_every_price_row_carries_a_status():
-    for row in _evaluate(sample_tender()).values():
-        assert row["price_status"] == "PRICED" and row["currency"] == "EUR"
-        assert all(item["pricing_status"] in ("PRICED", "NONE") for item in row["itemized_breakdown"])
+    rows = _evaluate(sample_tender())
+    for vendor_id, row in rows.items():
+        # vendor-b's dispatch warranty has no price under v2, so its total is a lower bound.
+        assert row["price_status"] == ("UNPRICED_ITEMS" if vendor_id == "vendor-b" else "PRICED")
+        assert row["currency"] == "EUR"
+        allowed = ("PRICED", "NONE", "UNPRICED") if vendor_id == "vendor-b" else ("PRICED", "NONE")
+        assert all(item["pricing_status"] in allowed for item in row["itemized_breakdown"])
+    unpriced = [i["param_id"] for i in rows["vendor-b"]["itemized_breakdown"] if i["pricing_status"] == "UNPRICED"]
+    assert unpriced == ["PARAM-06"]
 
 
 def test_missing_headline_pack_has_a_null_price_and_a_status(tmp_path):

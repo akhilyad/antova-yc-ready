@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw'
 import draftBrief from '../fixtures/draft-brief.json'
+import { draftWithoutOverrides } from '../fixtures/draftWithoutOverrides'
 import jobs from '../fixtures/jobs.json'
 import reviewList from '../fixtures/review-list.json'
 import verifiedBrief from '../fixtures/verified-brief.json'
@@ -57,7 +58,7 @@ export const handlers = [
     '/api/review/tenders/:tenderId',
     ({ request, params }) =>
       denied(request) ??
-      (params.tenderId === TENDER_ID ? HttpResponse.json(draftBrief) : notFound()),
+      (params.tenderId === TENDER_ID ? HttpResponse.json(draftWithoutOverrides()) : notFound()),
   ),
   http.post(
     '/api/review/tenders/:tenderId/evaluate',

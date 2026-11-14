@@ -157,11 +157,20 @@ def line_amount(line: CostLine, s: SensitivitySettings, bound: str = "base") -> 
     return line.qty * rate
 
 
-def adder_amount(extraction: ExtractedParameter, s: SensitivitySettings, bound: str = "base") -> float:
+def cents(value: Decimal) -> Decimal:
+    """`value` rounded half up to whole cents."""
+    return value.quantize(_CENTS, rounding=ROUND_HALF_UP)
+
+
+def adder_decimal(extraction: ExtractedParameter, s: SensitivitySettings, bound: str = "base") -> Decimal:
+    """One cell's adder in exact whole cents."""
     if not extraction.cost_lines:
-        return float(extraction.cost_adder)  # legacy data without cost lines
-    total = sum((line_amount(line, s, bound) for line in extraction.cost_lines), Decimal("0"))
-    return float(total.quantize(_CENTS, rounding=ROUND_HALF_UP))
+        return cents(Decimal(str(extraction.cost_adder)))  # legacy data without cost lines
+    return cents(sum((line_amount(line, s, bound) for line in extraction.cost_lines), Decimal("0")))
+
+
+def adder_amount(extraction: ExtractedParameter, s: SensitivitySettings, bound: str = "base") -> float:
+    return float(adder_decimal(extraction, s, bound))
 
 
 def headline_status(vendor: Vendor) -> str:
@@ -236,6 +245,7 @@ def evaluate_vendor_financials(
 ) -> List[Dict[str, Any]]:
     """
     True Evaluated Price = Headline Quote + Sum(Tech Penalties) + Sum(Commercial Adders).
+    Every sum is exact (Decimal, whole cents); a float appears only in the returned figures.
     Concessions apply only to the vendor in negotiation and move its adders to clawed_back_amount.
     `negotiating_vendor` names that vendor; None means the lowest true evaluated price (A2).
     Overrides, keyed (param_id, vendor_id), replace a cell's computed adder before concessions apply.
@@ -247,11 +257,8 @@ def evaluate_vendor_financials(
     negotiating = negotiating_vendor
     results = []
     for v in tender.vendors:
-        total_tech_penalty = 0.0
-        total_commercial_adder = 0.0
-        clawed_back_amount = 0.0
-        total_low = 0.0
-        total_high = 0.0
+        zero = Decimal("0")
+        total_tech_penalty = total_commercial_adder = clawed_back_amount = total_low = total_high = zero
         itemized_breakdown = []
         has_unpriced = False
         for p in tender.parameters:
@@ -259,10 +266,10 @@ def evaluate_vendor_financials(
             if extraction is None:
                 continue
             override = overrides.get((p.id, v.id))
-            adder = float(override.adder_eur) if override is not None else adder_amount(extraction, sensitivity)
+            adder = cents(override.adder_eur) if override is not None else adder_decimal(extraction, sensitivity)
             # A founder's override is one figure, so it has no range.
-            adder_low = adder if override is not None else adder_amount(extraction, sensitivity, "low")
-            adder_high = adder if override is not None else adder_amount(extraction, sensitivity, "high")
+            adder_low = adder if override is not None else adder_decimal(extraction, sensitivity, "low")
+            adder_high = adder if override is not None else adder_decimal(extraction, sensitivity, "high")
             is_conceded = v.id == negotiating and p.id in conceded_set
             # An override is the founder's own figure, so the cell is priced whatever the table said.
             pricing_status = "OVERRIDDEN" if override is not None else extraction.pricing_status
@@ -282,9 +289,9 @@ def evaluate_vendor_financials(
                 "param_name": p.name,
                 "status": extraction.status.value,
                 "is_conceded": is_conceded,
-                "adder_eur": adder,
-                "adder_low_eur": adder_low,
-                "adder_high_eur": adder_high,
+                "adder_eur": float(adder),
+                "adder_low_eur": float(adder_low),
+                "adder_high_eur": float(adder_high),
                 "criticality": p.criticality.value,
                 "pricing_status": pricing_status,
                 "is_overridden": override is not None,
@@ -298,9 +305,10 @@ def evaluate_vendor_financials(
             price_status = "NO_HEADLINE" if status == "NOT_FOUND" else status
         else:
             headline = v.headline_price
-            true_evaluated = round(headline + total_adders, 2)
-            true_low = round(headline + total_low, 2)
-            true_high = round(headline + total_high, 2)
+            exact_headline = Decimal(str(headline))
+            true_evaluated = float(cents(exact_headline + total_adders))
+            true_low = float(cents(exact_headline + total_low))
+            true_high = float(cents(exact_headline + total_high))
             # UNPRICED_ITEMS: a lower bound, some deviation has no rate yet.
             price_status = "UNPRICED_ITEMS" if has_unpriced else "PRICED"
         results.append({
@@ -310,12 +318,12 @@ def evaluate_vendor_financials(
             "badge": v.badge,
             "headline_price": headline,
             "currency": LEVELING_CURRENCY,
-            "total_tech_penalty": round(total_tech_penalty, 2),
-            "total_commercial_adder": round(total_commercial_adder, 2),
-            "total_adders": round(total_adders, 2),
-            "total_adders_low": round(total_low, 2),
-            "total_adders_high": round(total_high, 2),
-            "clawed_back_amount": round(clawed_back_amount, 2),
+            "total_tech_penalty": float(cents(total_tech_penalty)),
+            "total_commercial_adder": float(cents(total_commercial_adder)),
+            "total_adders": float(cents(total_adders)),
+            "total_adders_low": float(cents(total_low)),
+            "total_adders_high": float(cents(total_high)),
+            "clawed_back_amount": float(cents(clawed_back_amount)),
             "true_evaluated_price": true_evaluated,
             "true_evaluated_low": true_low,
             "true_evaluated_high": true_high,

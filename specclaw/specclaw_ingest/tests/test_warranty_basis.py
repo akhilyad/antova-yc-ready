@@ -3,12 +3,13 @@
 import pytest
 
 from samples import mutate
+from samples.scenario import manifest
 from specclaw_engine import ComplianceStatus
 from specclaw_ingest.costs import load_rate_table, price
 from specclaw_ingest.ontology import PARAMS_BY_ID
 from specclaw_ingest.pipeline import run_ingest
 from specclaw_ingest.precedence import resolve
-from specclaw_ingest.tests.fakes import AnswerKeyLocator
+from specclaw_ingest.tests.fakes import PACK, AnswerKeyLocator, load_expected
 from specclaw_ingest.tests.helpers import QUANTITIES, evidence
 from specclaw_ingest.types import Citation
 from specclaw_ingest.values import parse_commissioning_lag, parse_field
@@ -130,11 +131,19 @@ def _cells(tender):
     return {(vid, p.id): cell for p in tender.parameters for vid, cell in p.vendors.items()}
 
 
-def test_strict_table_on_the_sample_flags_and_unprices_the_dispatch_warranty(tmp_path):
-    target = mutate.generate(["strict_warranty_basis"], tmp_path)
-    import json
-    expected = json.loads((target / "expected.json").read_text(encoding="utf-8"))
-    result = run_ingest(target, locator=AnswerKeyLocator(expected))
+def test_the_sample_is_evaluated_with_the_strict_table():
+    assert manifest()["rate_table"] == "mv_gis_switchgear_v2"
+    assert load_rate_table("mv_gis_switchgear_v2").policies["warranty_basis"] == "strict"
+
+
+def test_sample_flags_and_unprices_the_dispatch_warranty():
+    """The base pack: VoltSwitch offers 18 months from dispatch against 36 from commissioning, and the MR states
+    no duration between the two. The shortfall is flagged and unpriced; the EXW-to-DDP class is still priced."""
+    expected = load_expected()
+    want = expected["cells"]["vendor-b"]["PARAM-06"]
+    assert (want["adder"], want["pricing_status"], want["flags_include"]) == ("6150.00", "UNPRICED", ["from dispatch"])
+    assert expected["vendors"]["vendor-b"]["price_status"] == "UNPRICED_ITEMS"
+    result = run_ingest(PACK, locator=AnswerKeyLocator(expected))
     cell = _cells(result.tender)[("vendor-b", "PARAM-06")]
     assert cell.status == ComplianceStatus.DEVIATION_DOWNGRADE
     assert (cell.pricing_status, cell.cost_adder) == ("UNPRICED", 6150.0)  # the incoterm class is still priced
@@ -144,7 +153,7 @@ def test_strict_table_on_the_sample_flags_and_unprices_the_dispatch_warranty(tmp
 
 
 def test_mr_stated_duration_is_found_and_cited_in_the_pipeline(tmp_path):
-    pack = mutate.mutate(["strict_warranty_basis"])
+    pack = mutate.base_pack()
     pack.doc(pack.mr_file).pages[13].blocks.append(("p", "Commissioning is planned 6 months after dispatch."))
     result = run_ingest(mutate.write(pack, tmp_path), locator=AnswerKeyLocator(pack.expected))
     cell = _cells(result.tender)[("vendor-b", "PARAM-06")]

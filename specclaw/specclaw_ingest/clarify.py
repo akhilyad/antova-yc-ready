@@ -152,9 +152,15 @@ def clarifications(tender: TenderPackage) -> list[dict]:
     return rows
 
 
+def spreadsheet_safe(value: str) -> str:
+    """`value` that a spreadsheet will show as text. One that starts with = + - @ (or a tab or return) would
+    run as a formula when the file is opened; a vendor name or a quoted bid value can start that way."""
+    return "'" + value if value[:1] in ("=", "+", "-", "@", "\t", "\r") else value
+
+
 def to_csv(rows: list[dict]) -> str:
     buffer = io.StringIO(newline="")
     writer = csv.DictWriter(buffer, fieldnames=CSV_COLUMNS, lineterminator="\r\n")
     writer.writeheader()
-    writer.writerows(rows)
+    writer.writerows({k: spreadsheet_safe(v) if isinstance(v, str) else v for k, v in row.items()} for row in rows)
     return buffer.getvalue()

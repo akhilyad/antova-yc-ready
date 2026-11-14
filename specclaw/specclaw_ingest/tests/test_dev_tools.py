@@ -45,6 +45,13 @@ def test_seed_prints_share_id_and_verifies(seed_engine, capsys):
     assert meta.status == "VERIFIED"
     assert meta.verified_at is not None
     assert meta.ingest_mode == "answer_key"
+    # Rate table v2 flags and leaves unpriced VoltSwitch's dispatch warranty, so the verified seed carries the
+    # founder's approval of that flag and the founder's price for the cell.
+    with Session(seed_engine) as db:
+        repo = TenderRepository(db)
+        assert list(repo.latest_reviews(TENDER_ID)) == [("PARAM-06", "vendor-b")]
+        assert repo.latest_reviews(TENDER_ID)[("PARAM-06", "vendor-b")]["action"] == "approve"
+        assert {k: str(v.adder_eur) for k, v in repo.get_overrides(TENDER_ID).items()} == {("PARAM-06", "vendor-b"): "9300.00"}
 
 
 def test_seed_draft_leaves_the_brief_unverified(seed_engine, capsys):
@@ -77,6 +84,9 @@ def test_verified_and_draft_briefs(exported):
     assert verified["status"] == "VERIFIED"
     assert verified["verified_at"] == "2026-11-05T00:00:00+00:00"
     assert verified["open_items"] == []
+    assert verified["review"] == {"open_flags": 0, "stale": 0, "rejected": 0, "reviewed": 1, "final": True}
+    assert [(o["param_id"], o["vendor_id"], o["adder_eur"]) for o in verified["overrides"]] == [
+        ("PARAM-06", "vendor-b", "9300.00")]
     assert verified["ingest_mode"] == "answer_key"
     assert [s["stage"] for s in verified["stage_log"]] == [s for s, _ in STAGES]
     # The verified brief is the public payload: no run cost. The draft is the founder's review payload.
@@ -114,18 +124,23 @@ def test_parity_cases_cover_the_grid(exported):
     cases = _read(exported, "parity-cases.json")
     assert len(cases) == 4 * 4 * 3 * 2
     grid = {(c["rates"]["copper"], c["rates"]["labour"], c["rates"]["freight"], len(c["overrides"])) for c in cases}
-    assert len(grid) == 96
-    overridden = [c for c in cases if c["overrides"]]
-    assert {json.dumps(c["overrides"], sort_keys=True) for c in overridden} == {json.dumps([{
-        "param_id": "PARAM-02", "vendor_id": "vendor-b", "adder_eur": "10000.00",
-        "note": export_fixtures.PARITY_OVERRIDE_NOTE,
-    }], sort_keys=True)}
+    assert len(grid) == 96 and {g[3] for g in grid} == {1, 2}
+    # Every case carries the founder's price for the sample's unpriced warranty cell; half add the parity override.
+    founder = {"param_id": "PARAM-06", "vendor_id": "vendor-b", "adder_eur": "9300.00",
+               "note": dev_seed.FOUNDER_OVERRIDES[("PARAM-06", "vendor-b")].note}
+    parity = {"param_id": "PARAM-02", "vendor_id": "vendor-b", "adder_eur": "10000.00",
+              "note": export_fixtures.PARITY_OVERRIDE_NOTE}
+    overridden = [c for c in cases if len(c["overrides"]) == 2]
+    assert len(overridden) == len(cases) // 2
+    assert {json.dumps(c["overrides"], sort_keys=True) for c in overridden} == {json.dumps([parity, founder], sort_keys=True)}
+    assert {json.dumps(c["overrides"], sort_keys=True) for c in cases if len(c["overrides"]) == 1} == {
+        json.dumps([founder], sort_keys=True)}
     for case in cases:
         assert [e["vendor_id"] for e in case["expected"]] == ["vendor-a", "vendor-b", "vendor-c"]
         assert set(case["expected"][0]) == {"vendor_id", "total_tech_penalty", "total_commercial_adder",
                                             "true_evaluated_price"}
     default = next(c for c in cases if c["rates"] == {"copper": 1.0, "labour": 60.0, "freight": 1.0}
-                   and not c["overrides"])
+                   and len(c["overrides"]) == 1)
     verified = _read(exported, "verified-brief.json")
     by_vendor = {f["vendor_id"]: f for f in verified["financials"]}
     for e in default["expected"]:

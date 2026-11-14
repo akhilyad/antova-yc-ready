@@ -15,6 +15,7 @@ import { createQueryClient } from '../api/queryClient'
 import { copy } from '../content/copy'
 import { AppShell } from '../router'
 import draftJson from '../test/fixtures/draft-brief.json'
+import { draftWithoutOverrides } from '../test/fixtures/draftWithoutOverrides'
 import jobsJson from '../test/fixtures/jobs.json'
 import reviewList from '../test/fixtures/review-list.json'
 import { SHARE_ID, TENDER_ID, TEST_REVIEW_TOKEN } from '../test/msw/handlers'
@@ -122,7 +123,7 @@ function statefulReview(initial: { override?: number | null; status?: 'DRAFT' | 
   }
 
   const brief = (): BriefJson => {
-    const b = structuredClone(draftJson)
+    const b = draftWithoutOverrides()
     b.status = state.status
     ;(b as { verified_at: string | null }).verified_at =
       state.status === 'VERIFIED' ? '2026-11-06T00:00:00+00:00' : null
@@ -528,6 +529,52 @@ describe('Review: brief', () => {
     expect(screen.queryByTestId('verified-stamp')).toBeNull()
   })
 
+  it('verify names the ingest run on screen, so the server can refuse a different one', async () => {
+    const user = userEvent.setup()
+    statefulReview({ override: 2600 })
+    let body: unknown
+    server.use(
+      http.post(`/api/review/tenders/${TENDER_ID}/verify`, async ({ request }) => {
+        body = await request.json()
+        return HttpResponse.json({
+          share_id: draftJson.share_id,
+          verified_at: '2026-11-06T00:00:00+00:00',
+        })
+      }),
+    )
+    renderAt(BRIEF_PATH, { token: TEST_REVIEW_TOKEN })
+    await briefLoaded()
+    await user.click(verifyButton())
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Mark verified' }),
+    )
+    await screen.findByText('Verified. Share link copied.')
+    expect(body).toEqual({ run_id: draftJson.ingest_stats.run_id })
+  })
+
+  it('explains a verify refused because the tender was ingested again after the page loaded', async () => {
+    const user = userEvent.setup()
+    statefulReview({ override: 2600 })
+    server.use(
+      http.post(`/api/review/tenders/${TENDER_ID}/verify`, () =>
+        HttpResponse.json(
+          { detail: 'This tender was ingested again.', code: 'run_changed' },
+          { status: 409 },
+        ),
+      ),
+    )
+    renderAt(BRIEF_PATH, { token: TEST_REVIEW_TOKEN })
+    await briefLoaded()
+    await user.click(verifyButton())
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Mark verified' }),
+    )
+    expect(
+      await within(screen.getByRole('dialog')).findByText(copy.review.verify.runChanged),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Verified · shared')).toBeNull()
+  })
+
   it('shows the verified stamp once when motion is allowed', async () => {
     reducedMotion = false
     const user = userEvent.setup()
@@ -650,14 +697,14 @@ describe('Review: brief', () => {
 
   it('a tender migrated from v2 (no recorded run) still opens in review (R27)', async () => {
     // The v2 → v3 migration fills ingest_stats with {} and stage_log with [].
-    const migrated = structuredClone(draftJson) as Record<string, unknown>
+    const migrated = draftWithoutOverrides() as Record<string, unknown>
     migrated.ingest_stats = {}
     migrated.stage_log = []
     server.use(http.get(`/api/review/tenders/${TENDER_ID}`, () => HttpResponse.json(migrated)))
     renderAt(BRIEF_PATH, { token: TEST_REVIEW_TOKEN })
     await briefLoaded()
     expect(
-      screen.getByText('Gaps are priced from rate table mv_gis_switchgear_v1.'),
+      screen.getByText('Gaps are priced from rate table mv_gis_switchgear_v2.'),
     ).toBeInTheDocument()
   })
 
@@ -769,7 +816,7 @@ describe('Review: re-ingesting a brief (F2)', () => {
   /** A second tender, VERIFIED with two overrides, that only the lookup's GET knows. */
   const OTHER_ID = 'TENDER-2026-417'
   function serveVerifiedOther() {
-    const other = structuredClone(draftJson)
+    const other = draftWithoutOverrides()
     other.tender.id = OTHER_ID
     other.status = 'VERIFIED'
     ;(other as { verified_at: string | null }).verified_at = '2026-11-06T00:00:00+00:00'
@@ -854,7 +901,7 @@ describe('Review: re-ingesting a brief (F2)', () => {
       name: copy.review.reingestConfirm.title(OTHER_ID),
     })
     expect(confirm).toHaveTextContent('share link stops working')
-    expect(confirm).toHaveTextContent('2 overrides will be cleared')
+    expect(confirm).toHaveTextContent('2 overrides on this brief')
     expect(started).toEqual([])
   })
 
@@ -878,7 +925,7 @@ describe('Review: re-ingesting a brief (F2)', () => {
     renderAt(BRIEF_PATH, { token: TEST_REVIEW_TOKEN })
     await briefLoaded()
     // Another tab verifies the brief: this tab's cache still holds the draft.
-    const verified = structuredClone(draftJson)
+    const verified = draftWithoutOverrides()
     verified.status = 'VERIFIED'
     ;(verified as { verified_at: string | null }).verified_at = '2026-11-06T00:00:00+00:00'
     verified.open_items = []
@@ -907,7 +954,7 @@ describe('Review: re-ingesting a brief (F2)', () => {
       copy.review.reingestConfirm.body({ verified: true, overrides: 1 }),
     )
     expect(confirm).toHaveTextContent('share link stops working')
-    expect(confirm).toHaveTextContent('1 override will be cleared')
+    expect(confirm).toHaveTextContent('1 override on this brief')
     await user.click(
       within(confirm).getByRole('button', { name: copy.review.reingestConfirm.cancel }),
     )
@@ -935,7 +982,7 @@ describe('Review: re-ingesting a brief (F2)', () => {
     const confirm = await screen.findByRole('dialog', {
       name: copy.review.reingestConfirm.title(TENDER_ID),
     })
-    expect(confirm).toHaveTextContent('1 override will be cleared')
+    expect(confirm).toHaveTextContent('1 override on this brief')
     expect(confirm).not.toHaveTextContent('share link')
   })
 

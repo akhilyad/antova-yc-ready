@@ -9,7 +9,7 @@ const mono = 'font-mono text-[11px]';
 /** 01: headline ranking vs evaluated ranking for the two closest bids. */
 function HeadlineTrap() {
   const rows = [
-    { name: 'Vendor B', headline: 418000, evaluated: 482800 },
+    { name: 'Vendor B', headline: 418000, evaluated: 479650 },
     { name: 'Vendor A', headline: 452000, evaluated: 452000 },
   ];
   const max = 500000;
@@ -84,7 +84,7 @@ function VariationOrders() {
   const b = CELLS['vendor-b'];
   const items = [
     { id: 'PARAM-05', label: 'Witnessed factory test not in price', cell: b['PARAM-05'] },
-    { id: 'PARAM-06', label: 'Freight to site, 18-month warranty', cell: b['PARAM-06'] },
+    { id: 'PARAM-06', label: 'Freight to site', cell: b['PARAM-06'] },
     { id: 'PARAM-02', label: 'Aluminium busbars, copper specified', cell: b['PARAM-02'] },
   ];
   const total = items.reduce((s, i) => s + cellAdder(i.cell), 0);

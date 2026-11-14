@@ -14,16 +14,24 @@ from fastapi.testclient import TestClient
 import specclaw_engine as engine
 from samples import scenario, scenario_417
 from samples.generate_sample_pack import PACKS, generate, pack_files
-from specclaw_api import NEGOTIATION_ROUNDS, app
+from specclaw_api import app
 from specclaw_auth import REVIEW_HEADER
 from specclaw_db import SessionLocal, TenderRepository
 from specclaw_ingest import run as cli
+from samples.pdf_compare import content_form
 from specclaw_ingest.parse import load_manifest, parse_document
-from specclaw_ingest.pipeline import persist, run_ingest
+from specclaw_ingest.pipeline import run_ingest
+from specclaw_service import persist
 from specclaw_ingest.tests.fakes import AnswerKeyLocator
 from specclaw_ingest.verify import compare_to_answer_key
 
 SAMPLES = Path(__file__).resolve().parents[2] / "samples"
+# The concessions the answer key's clawback figures were computed with.
+NEGOTIATION_ROUNDS = {
+    1: [],
+    2: ["PARAM-01", "PARAM-03", "PARAM-05"],
+    3: ["PARAM-01", "PARAM-02", "PARAM-03", "PARAM-05", "PARAM-06"],
+}
 TENDER_ID = "TENDER-2026-417"
 PACK = SAMPLES / TENDER_ID
 MANUAL = engine.ComplianceStatus.MANUAL_INSPECTION_REQUIRED
@@ -53,8 +61,11 @@ def test_every_pack_is_byte_identical_and_committed(tmp_path, tender_id):
     generate(first, pack)
     generate(second, pack)
     for name in pack_files(pack):
-        assert (first / name).read_bytes() == (second / name).read_bytes(), name
-        assert (first / name).read_bytes() == (SAMPLES / tender_id / name).read_bytes(), f"{name}: regenerate the pack"
+        assert (first / name).read_bytes() == (second / name).read_bytes(), name  # same machine: identical bytes
+        made, committed = (first / name).read_bytes(), (SAMPLES / tender_id / name).read_bytes()
+        if name.endswith(".pdf"):  # compressed streams differ between zlib builds; the content must not
+            made, committed = content_form(made), content_form(committed)
+        assert made == committed, f"{name}: regenerate the pack"
 
 
 def test_pack_registry():
@@ -104,8 +115,12 @@ def test_answer_key_money_adds_up(expected):
     assert float(lindqvist["PARAM-03"]["adder"]) == 7 * 400
     assert float(lindqvist["PARAM-04"]["adder"]) == 65 * 60 + 200
     assert float(lindqvist["PARAM-05"]["adder"]) == (3 - 1) * 1300
-    assert float(lindqvist["PARAM-06"]["adder"]) == 1 * 2600 + 950 + (24 - 12) * 175
-    assert float(vendors["vendor-d"]["true_evaluated_price"]) == 372500 + 15150
+    # Rate table v2: 12 months from dispatch against 24 from commissioning, with no lag stated in the MR, so the
+    # warranty shortfall ((24 - 12) x 175 = 2,100) is flagged and left unpriced; only the freight class is priced.
+    assert float(lindqvist["PARAM-06"]["adder"]) == 1 * 2600 + 950
+    assert lindqvist["PARAM-06"]["pricing_status"] == "UNPRICED" and lindqvist["PARAM-06"]["flags_include"] == ["from dispatch"]
+    assert float(vendors["vendor-d"]["true_evaluated_price"]) == 372500 + 13050
+    assert vendors["vendor-d"]["price_status"] == "UNPRICED_ITEMS"
 
 
 # --- the pipeline on the pack -------------------------------------------------------------------
@@ -147,7 +162,8 @@ def test_bid_without_a_headline_gets_no_true_price(result, expected):
         assert financials[vendor_id]["true_evaluated_price"] == want_true, vendor_id
         assert financials[vendor_id]["total_adders"] == float(want["total_adders"]), vendor_id
     assert financials["vendor-b"]["price_status"] == "NO_HEADLINE"
-    assert financials["vendor-d"]["price_status"] == "PRICED"
+    assert financials["vendor-a"]["price_status"] == "PRICED"
+    assert financials["vendor-d"]["price_status"] == "UNPRICED_ITEMS"  # a lower bound: the dispatch warranty has no price
 
 
 def test_unpriced_deviations_are_listed_never_zeroed_silently(result, expected):
@@ -156,7 +172,10 @@ def test_unpriced_deviations_are_listed_never_zeroed_silently(result, expected):
     for item in expected["unpriced"]:
         cell = cells[(item["vendor_id"], item["param_id"])]
         assert cell.pricing_status == "UNPRICED"
-        assert cell.cost_adder == 0.0 and cell.cost_lines == []
+        # What the table could price is shown as lines, and the rest is named in `classes`; nothing is guessed.
+        priced_part = float(expected["cells"][item["vendor_id"]][item["param_id"]]["adder"])
+        assert cell.cost_adder == priced_part
+        assert (cell.cost_lines == []) == (priced_part == 0.0)
 
 
 def test_unreadable_bid_degrades_to_manual_inspection(result):
@@ -205,8 +224,9 @@ def test_running_headers_do_not_change_the_sections():
 
 def test_clawback_rounds(result, expected):
     for round_num, key in ((2, "round_2"), (3, "round_3")):
+        # The key names the vendor whose deviations are closed; the lowest fully priced bid is Kestrel (vendor-a).
         financials = engine.evaluate_vendor_financials(
-            result.tender, engine.SensitivitySettings(), NEGOTIATION_ROUNDS[round_num])
+            result.tender, engine.SensitivitySettings(), NEGOTIATION_ROUNDS[round_num], expected["clawback"]["vendor_id"])
         lindqvist = next(f for f in financials if f["vendor_id"] == "vendor-d")
         assert lindqvist["clawed_back_amount"] == float(expected["clawback"][key])
 
@@ -214,7 +234,7 @@ def test_clawback_rounds(result, expected):
 def test_cli_summary_never_prints_a_price_for_a_bid_without_one(result):
     lines = {line.split()[0]: line for line in cli._summary(result) if line.startswith("  vendor-")}
     assert "true price not available" in lines["vendor-b"] and "headline not found" in lines["vendor-b"]
-    assert "true price EUR 387,650.00" in lines["vendor-d"]
+    assert "true price EUR 385,550.00 (lower bound: unpriced items)" in lines["vendor-d"]
 
 
 # --- through the database and the API -----------------------------------------------------------
@@ -234,15 +254,10 @@ def test_persist_round_trip(ingested, result):
     assert ingested.model_dump() == result.tender.model_dump()
 
 
-def test_api_evaluate_and_round_three(ingested, expected):
+def test_review_evaluate_prices_match_the_answer_key(ingested, expected):
     with TestClient(app, headers=REVIEW_HEADERS) as client:
-        evaluation = client.post("/api/evaluate", json={"tender_id": TENDER_ID})
+        evaluation = client.post(f"/api/review/tenders/{TENDER_ID}/evaluate", json={})
         assert evaluation.status_code == 200
         for f in evaluation.json()["financials"]:
             want = expected["vendors"][f["vendor_id"]]["true_evaluated_price"]
             assert f["true_evaluated_price"] == (float(want) if want is not None else None), f["vendor_id"]
-        round_3 = client.post("/api/evaluate", json={"tender_id": TENDER_ID, "conceded_params": NEGOTIATION_ROUNDS[3]})
-        assert round_3.json()["summary"]["clawback_value_eur"] == float(expected["clawback"]["round_3"])
-        turn = client.post("/api/negotiate/turn", params={"round_num": 2, "tender_id": TENDER_ID})
-        assert turn.json()["vendor_id"] == "vendor-d"
-        assert turn.json()["clawed_amount"] == float(expected["clawback"]["round_2"])

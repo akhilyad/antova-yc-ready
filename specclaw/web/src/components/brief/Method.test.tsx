@@ -11,7 +11,7 @@ describe('Method', () => {
     render(<Method brief={brief} />)
     expect(
       screen.getByText(
-        'Gaps are priced from rate table mv_gis_switchgear_v1, effective 3 November 2026.',
+        'Gaps are priced from rate table mv_gis_switchgear_v2, effective 13 November 2026.',
       ),
     ).toBeInTheDocument()
   })
@@ -21,7 +21,7 @@ describe('Method', () => {
     delete old.ingest_stats?.rate_table_effective_date
     render(<Method brief={old} />)
     expect(
-      screen.getByText('Gaps are priced from rate table mv_gis_switchgear_v1.'),
+      screen.getByText('Gaps are priced from rate table mv_gis_switchgear_v2.'),
     ).toBeInTheDocument()
   })
 })

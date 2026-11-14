@@ -14,7 +14,6 @@
 !/specclaw_*.jsx
 !/specclaw_requirements.txt
 !/test_specclaw*.py
-!/build_frontend.py
 !/specclaw_ingest/
 !/samples/
 !/docs/

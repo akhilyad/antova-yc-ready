@@ -73,14 +73,22 @@ def test_rule_text_reads_at_least():
 def test_negotiating_vendor_is_the_lowest_true_evaluated_price():
     tender = sample_tender()
     choice = engine.negotiating_choice(tender)
-    # Headlines: a 452,000, b 418,000, c 439,000. True prices: a 452,000, b 482,800, c 454,000.
+    # Headlines: a 452,000, b 418,000, c 439,000. True prices: a 452,000, c 454,000, and b 479,650 as a
+    # lower bound (rate table v2 leaves its dispatch warranty unpriced, so b is not ranked at all).
     assert choice["vendor_id"] == "vendor-a" == engine.negotiating_vendor_id(tender)
     assert choice["lowest_headline"] == "vendor-b" == engine.apparent_low_bidder_id(tender)
-    assert choice["basis"] == "lowest true evaluated price" and choice["excluded"] == []
+    assert choice["basis"] == "lowest true evaluated price"
+    assert [(e["vendor_id"], e["reason"]) for e in choice["excluded"]] == [("vendor-b", "UNPRICED_ITEMS")]
+    assert "PARAM-06" in choice["excluded"][0]["detail"]
+    # Priced with the months-only table v1, vendor-b has a full price (482,800) and nobody is excluded.
+    v1 = engine.negotiating_choice(sample_tender(rate_table="mv_gis_switchgear_v1"))
+    assert (v1["vendor_id"], v1["excluded"]) == ("vendor-a", [])
 
 
 def test_vendors_without_a_full_price_are_excluded_and_named():
-    tender = sample_tender({"vendor-a": None, "vendor-b": 418000.0, "vendor-c": 439000.0})
+    # Table v1, so vendor-b is fully priced here and the exclusions come only from what this test sets up.
+    tender = sample_tender({"vendor-a": None, "vendor-b": 418000.0, "vendor-c": 439000.0},
+                           rate_table="mv_gis_switchgear_v1")
     cell = next(p for p in tender.parameters if p.id == "PARAM-07").vendors["vendor-c"]
     cell.status, cell.pricing_status = engine.ComplianceStatus.DEVIATION_DOWNGRADE, "UNPRICED"
     choice = engine.negotiating_choice(tender)
@@ -110,7 +118,8 @@ def test_concessions_default_to_the_negotiating_vendor_and_accept_a_named_one():
     assert default["vendor-b"]["clawed_back_amount"] == 0.0
     named = {f["vendor_id"]: f for f in engine.evaluate_vendor_financials(
         tender, engine.SensitivitySettings(), conceded, "vendor-b")}
-    assert named["vendor-b"]["clawed_back_amount"] == 57400.0
+    # PARAM-06 contributes only its priced EXW-to-DDP class (6,150); the warranty shortfall has no price.
+    assert named["vendor-b"]["clawed_back_amount"] == 54250.0
 
 
 def test_sample_tender_names_nordwerk_and_keeps_the_low_bidder_badge():
@@ -118,6 +127,9 @@ def test_sample_tender_names_nordwerk_and_keeps_the_low_bidder_badge():
     badges = {v.id: v.badge for v in result.tender.vendors}
     assert badges == {"vendor-a": "Lowest Evaluated Price", "vendor-b": "Apparent Low Bidder", "vendor-c": "Bidder"}
     choice = result.stats["negotiating_vendor"]
-    assert (choice["vendor_id"], choice["lowest_headline"], choice["excluded"]) == ("vendor-a", "vendor-b", [])
+    assert (choice["vendor_id"], choice["lowest_headline"]) == ("vendor-a", "vendor-b")
     # The risk hidden in the cheapest-looking bid is still what the run reports.
-    assert result.stats["exposed_risk_eur"] == 64800.0
+    # vendor-b is the lowest headline but now has an unpriced warranty item: it is excluded from the
+    # comparison, and its exposed risk is a lower bound (61,650 priced, warranty unpriced).
+    assert [(e["vendor_id"], e["reason"]) for e in choice["excluded"]] == [("vendor-b", "UNPRICED_ITEMS")]
+    assert result.stats["exposed_risk_eur"] == 61650.0

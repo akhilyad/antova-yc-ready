@@ -627,8 +627,8 @@ export const copy = {
     /** Under the re-ingested banner, before the overrides the re-ingest cleared. */
     reingestedCleared: (n: number) =>
       n === 1
-        ? 'The new ingest cleared this override. Enter it again if it still applies:'
-        : `The new ingest cleared these ${n} overrides. Enter them again if they still apply:`,
+        ? 'The evidence for this override changed, so the new ingest cleared it. Enter it again if it still applies:'
+        : `The evidence for these ${n} overrides changed, so the new ingest cleared them. Enter them again if they still apply:`,
     /** One cleared override: "VoltSwitch Industrial, Main Busbar …: +€10,000 (note)". */
     clearedOverride: ({
       vendor,
@@ -650,14 +650,14 @@ export const copy = {
       title: (tenderId: string) => `Ingest ${tenderId} again?`,
       /** The brief couldn't be looked up, so what re-ingesting loses is unknown. */
       unknownBody:
-        "We couldn't check this tender. If its brief is verified or has overrides, ingesting it again takes it back to draft and clears the overrides.",
+        "We couldn't check this tender. If its brief is verified or has overrides, ingesting it again takes it back to draft and clears any override whose evidence has changed.",
       body: ({ verified, overrides }: { verified: boolean; overrides: number }) =>
         [
           verified
             ? 'The brief goes back to draft, and the share link stops working until you verify it again.'
             : null,
           overrides > 0
-            ? `${count(overrides, 'override', 'overrides')} will be cleared. You'll see them listed afterwards so you can enter them again.`
+            ? `${count(overrides, 'override', 'overrides')} on this brief: each stays only if the evidence it rests on is unchanged. Any that change are cleared and listed afterwards so you can enter them again.`
             : null,
         ]
           .filter((sentence) => sentence !== null)
@@ -714,6 +714,9 @@ export const copy = {
       /** When the browser refuses the clipboard. */
       successNotCopied: 'Verified. Copy the share link below.',
       failed: "Couldn't mark the brief verified. Try again.",
+      /** The tender was ingested again after this page loaded; the page reloads the new run. */
+      runChanged:
+        'This tender was ingested again after you opened it. The page now shows the new run. Check it, then mark it verified.',
       banner: 'Verified · shared',
       copyLink: 'Copy share link',
       linkCopied: 'Share link copied.',

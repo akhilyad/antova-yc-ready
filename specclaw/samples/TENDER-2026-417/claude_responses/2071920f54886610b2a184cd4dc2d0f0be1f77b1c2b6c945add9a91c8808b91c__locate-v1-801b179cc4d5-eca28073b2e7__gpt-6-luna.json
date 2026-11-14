@@ -1,0 +1,135 @@
+{
+  "key": "2071920f54886610b2a184cd4dc2d0f0be1f77b1c2b6c945add9a91c8808b91c__locate-v1-801b179cc4d5-eca28073b2e7__gpt-6-luna",
+  "filename": "Bid_vendor-d_Lindqvist.pdf",
+  "sha256": "2071920f54886610b2a184cd4dc2d0f0be1f77b1c2b6c945add9a91c8808b91c",
+  "model": "gpt-6-luna",
+  "served_model": "gpt-6-luna",
+  "prompt_version": "locate-v1",
+  "prompt_fingerprint": "801b179cc4d5",
+  "recorded_at": "2026-11-14T00:37:22+00:00",
+  "usage": {
+    "input_tokens": 4390,
+    "output_tokens": 1246
+  },
+  "response": {
+    "page_sections": [
+      {
+        "page": 1,
+        "section": "cover_letter"
+      }
+    ],
+    "candidates": [
+      {
+        "param_id": "PARAM-01",
+        "page": 3,
+        "quote": "Rated short-time withstand current 31.5 kA for 3 s - Complied"
+      },
+      {
+        "param_id": "PARAM-03",
+        "page": 7,
+        "quote": "Standard indoor enclosure IP42 with ventilation louvres; internal arc classification IAC AFLR."
+      },
+      {
+        "param_id": "PARAM-04",
+        "page": 8,
+        "quote": "IEC 61850 Ed.2 relays LQ-R5 with PRP fibre ports; RTU marshalling excluded, customer SCADA wiring\ndirectly to individual bay LV compartments."
+      },
+      {
+        "param_id": "PARAM-05",
+        "page": 18,
+        "quote": "Includes 1 day witnessed inspection; additional days billed per tariff."
+      },
+      {
+        "param_id": "PARAM-06",
+        "page": 21,
+        "quote": "Prices are quoted Ex-Works (EXW) Vasteras factory loading dock; standard warranty 12 months from\ndispatch."
+      },
+      {
+        "param_id": "PARAM-08",
+        "page": 7,
+        "quote": "Maximum ambient temperature 113 °F without derating."
+      }
+    ],
+    "tender_facts": [],
+    "headline_price": {
+      "page": 22,
+      "quote": "Total lump-sum price for the complete scope: €372,500"
+    },
+    "cover_claim": {
+      "page": 2,
+      "quote": "Our offer follows MR-Collector-GIS-Rev2 with the deviations listed in the commercial terms."
+    },
+    "not_stated": [
+      {
+        "param_id": "PARAM-02",
+        "pages_searched": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30
+        ]
+      },
+      {
+        "param_id": "PARAM-07",
+        "pages_searched": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30
+        ]
+      }
+    ]
+  }
+}

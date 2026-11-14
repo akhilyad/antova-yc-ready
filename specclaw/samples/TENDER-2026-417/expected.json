@@ -383,7 +383,11 @@
           "warranty_months": "12"
         },
         "secondary_page": null,
-        "adder": "5650.00"
+        "adder": "3550.00",
+        "pricing_status": "UNPRICED",
+        "flags_include": [
+          "from dispatch"
+        ]
       },
       "PARAM-07": {
         "status": "MANUAL_INSPECTION_REQUIRED",
@@ -409,7 +413,7 @@
     "vendor-a": {
       "name": "Kestrel Switchgear AG",
       "headline_price": "388000.00",
-      "badge": "Compliant Baseline",
+      "badge": "Lowest Evaluated Price",
       "total_adders": "0.00",
       "true_evaluated_price": "388000.00"
     },
@@ -430,15 +434,17 @@
     "vendor-d": {
       "name": "Lindqvist Energi AB",
       "headline_price": "372500.00",
-      "badge": "Lowest Evaluated Price",
-      "total_adders": "15150.00",
-      "true_evaluated_price": "387650.00"
+      "badge": "Apparent Low Bidder",
+      "total_adders": "13050.00",
+      "true_evaluated_price": "385550.00",
+      "price_status": "UNPRICED_ITEMS"
     }
   },
-  "negotiating_vendor": "vendor-d",
+  "negotiating_vendor": "vendor-a",
   "clawback": {
+    "vendor_id": "vendor-d",
     "round_2": "5400.00",
-    "round_3": "11050.00"
+    "round_3": "8950.00"
   },
   "unpriced": [
     {
@@ -460,6 +466,13 @@
       "param_id": "PARAM-08",
       "classes": [
         "PARAM-08.ambient_short"
+      ]
+    },
+    {
+      "vendor_id": "vendor-d",
+      "param_id": "PARAM-06",
+      "classes": [
+        "PARAM-06.warranty_basis_unresolved"
       ]
     }
   ],

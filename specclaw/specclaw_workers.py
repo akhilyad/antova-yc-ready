@@ -1,41 +1,48 @@
 """
-SpecClaw Asynchronous Queue Worker System
-- Background job processing decoupling CPU/IO from HTTP requests.
-- Job lifecycle state machine (PENDING -> PROCESSING -> COMPLETED/FAILED).
-- Runs the real ingest pipeline on a worker thread and broadcasts each stage
-  over the Telemetry Hub.
+Ingest job worker.
+
+- A job's status lives in the database (`ingest_jobs`), so it survives a restart and
+  GET /api/jobs/{id} answers from any process.
+- The queue itself is in memory and has one worker. A job that was queued or running when the
+  process stopped cannot resume: start() marks it FAILED ("interrupted"), and the user submits it
+  again. A live (paid) run is never started again automatically.
+- Runs the real ingest pipeline on a worker thread; progress is read by polling the job.
 """
 
 import asyncio
+import logging
+import time
 import uuid
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional
+from typing import Callable, Dict, Optional
 
-from specclaw_db import SessionLocal
+from fastapi.encoders import jsonable_encoder
+
+from specclaw_db import SessionLocal, TenderRepository
 from specclaw_ingest import extract, pipeline
+from specclaw_ingest.extract import ExtractError
 from specclaw_models import JobStatus, JobStatusResponse
-from specclaw_telemetry import telemetry_manager
+from specclaw_service import persist
+
+log = logging.getLogger(__name__)
+
+INTERRUPTED = "Interrupted: the service restarted before this job finished. Submit it again."
 
 
-class BackgroundJob:
-    def __init__(self, job_id: str, job_type: str, payload: Dict[str, Any]):
-        self.job_id = job_id
-        self.job_type = job_type
-        self.payload = payload
-        self.status = JobStatus.PENDING
-        self.progress_pct = 0
-        self.stage = "Queued in worker pipeline"
-        self.created_at = datetime.now(timezone.utc).isoformat()
-        self.completed_at: Optional[str] = None
-        self.result: Optional[Dict[str, Any]] = None
-        self.error: Optional[str] = None
+def _repo_call(fn: Callable[[TenderRepository], object]):
+    """Run `fn` with a repository on its own short session (jobs are written from worker threads)."""
+    db = SessionLocal()
+    try:
+        return fn(TenderRepository(db))
+    finally:
+        db.close()
 
 
 class JobQueueManager:
     def __init__(self):
-        self._queue: asyncio.Queue[BackgroundJob] = asyncio.Queue()
-        self._jobs: Dict[str, BackgroundJob] = {}
+        self._queue: asyncio.Queue[str] = asyncio.Queue()
+        # tender_id -> job_id of the job this process queued or is running for it.
+        self._active: Dict[str, str] = {}
         self._worker_task: Optional[asyncio.Task] = None
         self._running = False
         # Builds the locator for a job; tests swap in an offline one.
@@ -44,8 +51,13 @@ class JobQueueManager:
     def start(self):
         if not self._running:
             self._running = True
+            # Jobs left over from a previous process or app lifespan will never run.
+            interrupted = _repo_call(lambda repo: repo.fail_unfinished_jobs(INTERRUPTED))
+            if interrupted:
+                log.warning("marked %d unfinished ingest job(s) as interrupted", interrupted)
             # A fresh queue per start: each app lifespan has its own event loop.
             self._queue = asyncio.Queue()
+            self._active = {}
             self._worker_task = asyncio.create_task(self._worker_loop())
 
     async def stop(self):
@@ -58,85 +70,91 @@ class JobQueueManager:
                 pass
 
     def enqueue_ingest_job(self, tender_id: str, mode: str) -> str:
-        """Queue an ingest of the tender folder. Raises pipeline.UnknownTender for an unknown ID."""
-        tender_dir = pipeline.tender_dir_for(tender_id)
+        """Queue an ingest of the tender folder. Raises pipeline.UnknownTender for an unknown ID.
+
+        A tender with a job already queued or running in this process gets that job's ID back
+        instead of a second job: two ingests of one tender would race to replace its rows.
+        """
+        pipeline.tender_dir_for(tender_id)
+        existing = self._active.get(tender_id)
+        if existing is not None:
+            return existing
         job_id = f"job-{uuid.uuid4().hex[:8]}"
-        job = BackgroundJob(
-            job_id=job_id,
-            job_type="INGEST_PIPELINE",
-            payload={"tender_id": tender_id, "tender_dir": str(tender_dir), "mode": mode},
-        )
-        self._jobs[job_id] = job
-        self._queue.put_nowait(job)
+        _repo_call(lambda repo: repo.create_job(job_id, tender_id, mode))
+        self._active[tender_id] = job_id
+        self._queue.put_nowait(job_id)
         return job_id
 
     def get_job_status(self, job_id: str) -> Optional[JobStatusResponse]:
-        job = self._jobs.get(job_id)
-        if not job:
+        row = _repo_call(lambda repo: repo.get_job(job_id))
+        if row is None:
             return None
         return JobStatusResponse(
-            job_id=job.job_id,
-            status=job.status,
-            progress_pct=job.progress_pct,
-            stage=job.stage,
-            created_at=job.created_at,
-            completed_at=job.completed_at,
-            result=job.result,
-            error=job.error,
+            job_id=row["job_id"],
+            status=JobStatus(row["status"]),
+            progress_pct=row["progress_pct"],
+            stage=row["stage"],
+            created_at=row["created_at"].isoformat(),
+            completed_at=row["completed_at"].isoformat() if row["completed_at"] else None,
+            result=row["result"],
+            error=row["error"],
         )
 
     async def _worker_loop(self):
         while self._running:
             try:
-                job = await self._queue.get()
-                await self._process_job(job)
+                job_id = await self._queue.get()
+                await self._process_job(job_id)
                 self._queue.task_done()
             except asyncio.CancelledError:
                 break
-            except Exception as e:
-                print(f"[Worker Error] {e}")
+            except Exception:
+                log.exception("ingest worker loop error")
                 await asyncio.sleep(0.5)
 
     @staticmethod
     def _persist(result) -> list[dict]:
         db = SessionLocal()
         try:
-            return pipeline.persist(result, db)
+            return persist(result, db)
         finally:
             db.close()
 
-    async def _process_job(self, job: BackgroundJob):
-        job.status = JobStatus.PROCESSING
-        loop = asyncio.get_running_loop()
+    async def _process_job(self, job_id: str):
+        job = _repo_call(lambda repo: repo.get_job(job_id))
+        if job is None:
+            return
+        tender_id = job["tender_id"]
+        started = time.perf_counter()
+        log.info("ingest job %s started: tender=%s mode=%s", job_id, tender_id, job["mode"])
+        _repo_call(lambda repo: repo.update_job(job_id, status="PROCESSING"))
 
         def progress(stage: str, pct: int) -> None:
-            job.stage, job.progress_pct = stage, pct
-            asyncio.run_coroutine_threadsafe(
-                telemetry_manager.broadcast("JOB_PROGRESS", {"job_id": job.job_id, "progress_pct": pct, "stage": stage}),
-                loop,
-            )
+            _repo_call(lambda repo: repo.update_job(job_id, progress_pct=pct, stage=stage))
 
         try:
-            tender_dir = Path(job.payload["tender_dir"])
-            mode = job.payload["mode"]
+            tender_dir = pipeline.tender_dir_for(tender_id)
+            mode = job["mode"]
             locator = self.locator_factory(tender_dir, mode)
-            result = await asyncio.to_thread(
-                pipeline.run_ingest, tender_dir, mode, progress, locator, job.payload["tender_id"]
-            )
+            result = await asyncio.to_thread(pipeline.run_ingest, tender_dir, mode, progress, locator, tender_id)
             cleared = await asyncio.to_thread(self._persist, result)
-            job.stage, job.progress_pct = "Persist", 100
-            await telemetry_manager.broadcast("JOB_PROGRESS", {"job_id": job.job_id, "progress_pct": 100, "stage": "Persist"})
-            job.result = {**result.stats, "overrides_cleared": cleared}
-            job.status = JobStatus.COMPLETED
-            job.completed_at = datetime.now(timezone.utc).isoformat()
-            # The socket is public; the result (stats, cleared overrides) is read via GET /api/jobs/{id}.
-            await telemetry_manager.broadcast("JOB_COMPLETED", {"job_id": job.job_id, "status": "COMPLETED"})
+            _repo_call(lambda repo: repo.update_job(
+                job_id, status="COMPLETED", progress_pct=100, stage="Persist", finished=True,
+                result=jsonable_encoder({**result.stats, "overrides_cleared": cleared})))
+            log.info("ingest job %s completed: tender=%s %.1fs, %d override(s) cleared", job_id, tender_id,
+                     time.perf_counter() - started, len(cleared))
         except Exception as e:
-            job.status = JobStatus.FAILED
-            job.error = f"{type(e).__name__}: {e}"
-            job.completed_at = datetime.now(timezone.utc).isoformat()
-            # Like JOB_COMPLETED: the error text (folder IDs, filenames, paths) is read via GET /api/jobs/{id}.
-            await telemetry_manager.broadcast("JOB_FAILED", {"job_id": job.job_id, "status": "FAILED"})
+            # An ingest that fails for a reason about the documents (a bad manifest, an unreadable MR, a
+            # model refusal) is an outcome, not a bug: a warning. Anything else is logged with its traceback.
+            if isinstance(e, (pipeline.IngestFailed, pipeline.UnknownTender, ExtractError)):
+                log.warning("ingest job %s failed: tender=%s: %s", job_id, tender_id, e)
+            else:
+                log.exception("ingest job %s crashed: tender=%s", job_id, tender_id)
+            _repo_call(lambda repo: repo.update_job(
+                job_id, status="FAILED", finished=True, error=f"{type(e).__name__}: {e}"))
+        finally:
+            if self._active.get(tender_id) == job_id:
+                del self._active[tender_id]
 
 
 # Global singleton worker queue

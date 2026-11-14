@@ -228,11 +228,11 @@
           "adder_low_eur": 9300.0,
           "criticality": "COMMERCIAL",
           "is_conceded": false,
-          "is_overridden": false,
-          "override_note": null,
+          "is_overridden": true,
+          "override_note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
           "param_id": "PARAM-06",
           "param_name": "Incoterms 2020 & Site Unloading",
-          "pricing_status": "PRICED",
+          "pricing_status": "OVERRIDDEN",
           "status": "DEVIATION_DOWNGRADE"
         },
         {
@@ -406,8 +406,8 @@
     "deviations_found": 10,
     "documents": 4,
     "duration_s": 41.7,
-    "exposed_risk_eur": 64800.0,
-    "flags_raised": 0,
+    "exposed_risk_eur": 61650.0,
+    "flags_raised": 1,
     "ingest_mode": "answer_key",
     "locales": {
       "Bid_vendor-a_Nordwerk.pdf": "en",
@@ -417,14 +417,20 @@
     },
     "negotiating_vendor": {
       "basis": "lowest true evaluated price",
-      "excluded": [],
+      "excluded": [
+        {
+          "detail": "has deviations with no rate (PARAM-06), so its price is only a lower bound",
+          "reason": "UNPRICED_ITEMS",
+          "vendor_id": "vendor-b"
+        }
+      ],
       "lowest_headline": "vendor-b",
       "true_evaluated_price": 452000.0,
       "vendor_id": "vendor-a"
     },
     "no_text_pages": {},
     "pages_parsed": 116,
-    "rate_table_effective_date": "2026-11-03",
+    "rate_table_effective_date": "2026-11-13",
     "rules_evaluated": 39,
     "run_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
     "run_id": "e2e0e2e0e2e0e2e0e2e0e2e0e2e0e2e0",
@@ -434,16 +440,31 @@
     "sweep_recall": 1.0,
     "synthetic": true,
     "tender_id": "TENDER-2026-402",
-    "unpriced_items": [],
+    "unpriced_items": [
+      {
+        "classes": [
+          "PARAM-06.warranty_basis_unresolved"
+        ],
+        "param_id": "PARAM-06",
+        "vendor_id": "vendor-b"
+      }
+    ],
     "warnings": []
   },
   "open_items": [],
-  "overrides": [],
+  "overrides": [
+    {
+      "adder_eur": "9300.00",
+      "note": "Priced by the founder: freight 6,150 plus 18 months x EUR 175, pending VoltSwitch's warranty start date",
+      "param_id": "PARAM-06",
+      "vendor_id": "vendor-b"
+    }
+  ],
   "review": {
     "final": true,
     "open_flags": 0,
     "rejected": 0,
-    "reviewed": 0,
+    "reviewed": 1,
     "stale": 0
   },
   "share_id": "e2e-sample-share-id-000000",
@@ -646,7 +667,7 @@
             },
             "flags": [],
             "pricing_status": "NONE",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -834,7 +855,7 @@
             },
             "flags": [],
             "pricing_status": "PRICED",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": {
               "bbox": [
                 56.0,
@@ -1049,7 +1070,7 @@
             },
             "flags": [],
             "pricing_status": "PRICED",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -1264,7 +1285,7 @@
             },
             "flags": [],
             "pricing_status": "NONE",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -1452,7 +1473,7 @@
             },
             "flags": [],
             "pricing_status": "PRICED",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -1621,7 +1642,7 @@
             },
             "flags": [],
             "pricing_status": "NONE",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -1836,7 +1857,7 @@
             },
             "flags": [],
             "pricing_status": "NONE",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -2042,7 +2063,7 @@
             },
             "flags": [],
             "pricing_status": "PRICED",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -2223,7 +2244,7 @@
             },
             "flags": [],
             "pricing_status": "NONE",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -2462,7 +2483,7 @@
             },
             "flags": [],
             "pricing_status": "NONE",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -2689,7 +2710,7 @@
             },
             "flags": [],
             "pricing_status": "PRICED",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": {
               "bbox": [
                 56.0,
@@ -2928,7 +2949,7 @@
             },
             "flags": [],
             "pricing_status": "PRICED",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -3120,7 +3141,7 @@
             },
             "flags": [],
             "pricing_status": "NONE",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -3237,7 +3258,7 @@
             },
             "flags": [],
             "pricing_status": "PRICED",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -3354,7 +3375,7 @@
             },
             "flags": [],
             "pricing_status": "PRICED",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -3542,7 +3563,7 @@
             },
             "flags": [],
             "pricing_status": "NONE",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -3604,7 +3625,7 @@
             "status": "COMPLIANT"
           },
           "vendor-b": {
-            "adder_formula": "2 loads × €2,600.00 + 1 lot × €950.00 + 18 months × €175.00",
+            "adder_formula": "2 loads × €2,600.00 + 1 lot × €950.00",
             "assembled_from": null,
             "bbox": "Page 21 (Commercial terms), BBox [56.0, 65.2, 529.5, 79.0]",
             "checks": [
@@ -3623,7 +3644,7 @@
               },
               {
                 "citation_ref": "Bid_vendor-b_VoltSwitch.pdf#p21",
-                "comparable": true,
+                "comparable": false,
                 "field": "warranty_months",
                 "offered": "18",
                 "offered_basis": "dispatch",
@@ -3659,7 +3680,7 @@
             },
             "confidence": 1.0,
             "conflict_note": null,
-            "cost_adder": 9300.0,
+            "cost_adder": 6150.0,
             "cost_lines": [
               {
                 "driver": "freight",
@@ -3678,15 +3699,6 @@
                 "rate_high": null,
                 "rate_low": null,
                 "unit": "lot"
-              },
-              {
-                "driver": "fixed",
-                "label": "Extended defect liability bond",
-                "qty": "18",
-                "rate": "175.00",
-                "rate_high": null,
-                "rate_low": null,
-                "unit": "months"
               }
             ],
             "evidence": null,
@@ -3737,9 +3749,14 @@
                 "section": "commercial"
               }
             },
-            "flags": [],
-            "pricing_status": "PRICED",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "flags": [
+              {
+                "code": "WARRANTY_BASIS",
+                "message": "warranty 18 months runs from dispatch; the MR requires 36 months from commissioning. The MR states no duration between the two, so the shortfall cannot be computed and is left unpriced"
+              }
+            ],
+            "pricing_status": "UNPRICED",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -3927,7 +3944,7 @@
             },
             "flags": [],
             "pricing_status": "PRICED",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -4101,7 +4118,7 @@
             },
             "flags": [],
             "pricing_status": "NONE",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -4208,7 +4225,7 @@
             },
             "flags": [],
             "pricing_status": "NONE",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -4315,7 +4332,7 @@
             },
             "flags": [],
             "pricing_status": "NONE",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -4462,7 +4479,7 @@
             },
             "flags": [],
             "pricing_status": "NONE",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -4569,7 +4586,7 @@
             },
             "flags": [],
             "pricing_status": "NONE",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -4676,7 +4693,7 @@
             },
             "flags": [],
             "pricing_status": "NONE",
-            "rate_table_version": "mv_gis_switchgear_v1",
+            "rate_table_version": "mv_gis_switchgear_v2",
             "secondary_citation": null,
             "segments": [
               {
@@ -4713,7 +4730,7 @@
         }
       }
     ],
-    "rate_table_version": "mv_gis_switchgear_v1",
+    "rate_table_version": "mv_gis_switchgear_v2",
     "title": "350 MWp Solar + BESS Substation — 33kV GIS Switchgear & RTU Protection Package",
     "vendors": [
       {

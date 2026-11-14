@@ -15,6 +15,8 @@ derived from the pipeline's output. All names are fictional.
 
 from __future__ import annotations
 
+import copy
+
 from samples.scenario import (
     BID_SECTIONS,
     COMPLIANCE_TOPICS,
@@ -163,8 +165,9 @@ CELLS = {
         "PARAM-04": ("DEVIATION_DOWNGRADE", "d.p04", {"protocol": "IEC 61850 Ed. 2 with PRP", "marshalling": "not pre-wired"}, None, "4100.00"),
         # 2 missing days x EUR 1,300.
         "PARAM-05": ("DEVIATION_DOWNGRADE", "d.p05", {"witnessed_fat_days_included": "1"}, None, "2600.00"),
-        # 1 load x EUR 2,600 + EUR 950 insurance + 12 missing months x EUR 175.
-        "PARAM-06": ("DEVIATION_DOWNGRADE", "d.p06", {"incoterm": "EXW", "warranty_months": "12"}, None, "5650.00"),
+        # 1 load x EUR 2,600 + EUR 950 insurance. The 12 months are from dispatch against 24 from
+        # commissioning with no lag stated in the MR, so that shortfall is flagged and unpriced (v2, strict).
+        "PARAM-06": ("DEVIATION_DOWNGRADE", "d.p06", {"incoterm": "EXW", "warranty_months": "12"}, None, "3550.00"),
         "PARAM-07": _MANUAL,  # on the scanned page
         "PARAM-08": ("COMPLIANT", "d.p08", {"max_ambient": "113 °F"}, None, "0.00"),
     },
@@ -175,18 +178,23 @@ VENDOR_TOTALS = {
     "vendor-a": ("0.00", "388000.00"),
     "vendor-b": ("0.00", None),
     "vendor-c": ("0.00", None),
-    "vendor-d": ("15150.00", "387650.00"),
+    "vendor-d": ("13050.00", "385550.00"),
 }
 BADGES = {
-    "vendor-a": "Compliant Baseline",
+    "vendor-a": "Lowest Evaluated Price",
     "vendor-b": "Price not found",
     "vendor-c": "Price not found",
-    "vendor-d": "Lowest Evaluated Price",  # also the lowest headline (amendment A2 names the badge)
+    "vendor-d": "Apparent Low Bidder",  # the lowest headline, but its price is only a lower bound
 }
+CELL_EXTRAS = {
+    ("vendor-d", "PARAM-06"): {"pricing_status": "UNPRICED", "flags_include": ["from dispatch"]},
+}
+VENDOR_PRICE_STATUS = {"vendor-d": "UNPRICED_ITEMS"}
 UNPRICED = [
     {"vendor_id": "vendor-b", "param_id": "PARAM-02", "classes": ["PARAM-02.current_short"]},
     {"vendor_id": "vendor-b", "param_id": "PARAM-06", "classes": ["PARAM-06.incoterm_fca_to_ddp"]},
     {"vendor_id": "vendor-b", "param_id": "PARAM-08", "classes": ["PARAM-08.ambient_short"]},
+    {"vendor_id": "vendor-d", "param_id": "PARAM-06", "classes": ["PARAM-06.warranty_basis_unresolved"]},
 ]
 # Each warning the run must give, as the text it starts with (the unreadable file's
 # reason comes from the PDF library and is not pinned here).
@@ -196,9 +204,12 @@ WARNING_PREFIXES = [
     "Bid_vendor-d_Lindqvist.pdf: 1 of 30 pages has no text layer (p.6)",
     "vendor-b: headline price not found",
 ]
-# Lindqvist (vendor-d) negotiates. Round 2 concedes PARAM-01/03/05; round 3 adds PARAM-02/06.
-CLAWBACK = {"round_2": "5400.00", "round_3": "11050.00"}
-NEGOTIATING_VENDOR = "vendor-d"
+# Amendment A2 names the vendor to negotiate with by lowest true evaluated price among fully priced
+# bids. Lindqvist (vendor-d) now has an unpriced warranty item, so only Kestrel (vendor-a) is fully
+# priced and negotiates. The clawback figures are what closing Lindqvist's deviations recovers (round 2
+# concedes PARAM-01/03/05; round 3 adds PARAM-02/06), so they name that vendor.
+CLAWBACK = {"vendor_id": "vendor-d", "round_2": "5400.00", "round_3": "8950.00"}
+NEGOTIATING_VENDOR = "vendor-a"
 BAY_COUNT = 7
 ENGINEERING_ESTIMATES = {"busbar_cu_kg": 940, "heavy_haul_loads": 1}
 STATS = {"documents": 5, "pages_parsed": 116, "deviations_found": 17}
@@ -257,7 +268,7 @@ def manifest() -> dict:
         "title": TITLE,
         "client": CLIENT,
         "equipment_class": "mv_gis_switchgear",
-        "rate_table": "mv_gis_switchgear_v1",
+        "rate_table": "mv_gis_switchgear_v2",
         "documents": [{"file": MR_FILE, "role": "mr_spec"}] + [
             {"file": v.file, "role": "vendor_bid", "vendor_id": v.id,
              "vendor_name": v.name, "country": v.country}
@@ -291,11 +302,14 @@ def expected() -> dict:
                 "status": status, "page": e.page if e else None, "quote": e.text if e else None,
                 "values": values, "secondary_page": secondary, "adder": adder,
             }
+            cells[vendor_id][param_id].update(copy.deepcopy(CELL_EXTRAS.get((vendor_id, param_id), {})))
     vendors = {
         v.id: {"name": v.name, "headline_price": v.headline or None, "badge": BADGES[v.id],
                "total_adders": VENDOR_TOTALS[v.id][0], "true_evaluated_price": VENDOR_TOTALS[v.id][1]}
         for v in VENDORS
     }
+    for vendor_id, status in VENDOR_PRICE_STATUS.items():
+        vendors[vendor_id]["price_status"] = status
     ideal = {
         MR_FILE: {
             "page_sections": [],
