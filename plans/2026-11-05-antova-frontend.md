@@ -23,7 +23,6 @@
 - User-facing strings: exactly spec §10, kept in `web/src/content/copy.ts`; run `unslop` over any new string before merge.
 - WCAG 2.2 AA (spec §11). No text under 12 px except footnote superscripts. Every status shows glyph + word.
 - No analytics, no cookies, no third-party font or script requests at runtime.
-- Commits end with `Co-Authored-By: the locator model <noreply@anthropic.com>`.
 
 ## Review Focus
 

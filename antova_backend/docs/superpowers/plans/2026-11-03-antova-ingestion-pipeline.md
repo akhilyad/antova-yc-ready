@@ -32,7 +32,6 @@ PyMuPDF 1.27, reportlab 5.1, anthropic SDK 0.97, pytest 9.
 - Fixed IDs: tender `TENDER-2026-402`; vendors `vendor-a`, `vendor-b`, `vendor-c`; parameters `PARAM-01` to `PARAM-08`; rate table `mv_gis_switchgear_v1`; prompt version `locate-v1`.
 - Footer on every sample PDF page: `SYNTHETIC SAMPLE — not a real offer · Page N of M`.
 - Tests never touch `antova_enterprise.db` and never call the network. The only live the model calls are in Task 10.
-- Every commit message ends with `Co-Authored-By: the locator model <noreply@anthropic.com>`.
 
 ## Review Focus
 
