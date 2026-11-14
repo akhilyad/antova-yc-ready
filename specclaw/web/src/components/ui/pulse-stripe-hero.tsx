@@ -178,7 +178,10 @@ function StatementReveal({
   return (
     <div ref={statementRef} className={styles.say}>
       {statementLabel && <span className={styles.sayLab}>{statementLabel}</span>}
-      <p className={styles.statementText} aria-label={statement}>
+      {/* The sentence is read once, whole, from the hidden copy; the animated words are decoration.
+          (aria-label is not allowed on a <p>, so it cannot carry the sentence.) */}
+      <p className={styles.statementText}>
+        <span className={styles.srOnly}>{statement}</span>
         {words.map((word, i) => {
           const threshold = i / Math.max(words.length - 1, 1)
           const isLit = progress >= threshold

@@ -5,8 +5,8 @@ test('landing replay opens the brief at the VoltSwitch contradiction', async ({ 
   await page.goto('/')
   // The hero's button; How it works has a second one.
   const watch = page
-    .getByRole('region', { name: "The cheapest bid wasn't the cheapest." })
-    .getByRole('button', { name: 'Watch it check a tender' })
+    .getByRole('region', { name: 'The lowest bid is almost never the cheapest.' })
+    .getByRole('button', { name: 'Watch 1-Minute Walkthrough' })
   const replay = page.getByRole('dialog', { name: 'Replay: checking TENDER-2026-402' })
 
   // The landing is prerendered: a click before hydration does nothing, so retry until it opens.
@@ -39,18 +39,15 @@ test('hero chart is prerendered armed and settles after its flip', async ({ page
   await expect(chart.locator('line[data-vendor="vendor-b"]')).toHaveAttribute('x2', '100')
 })
 
-// Landing proposal, step 3: the receipt's two page crops are static files in the build (saved
-// by snapshot:sample), so they load without the API.
-test('receipt crops load from the static build', async ({ page }) => {
+// The side-by-side example links to the full sample brief, which the landing ships without the API.
+test('the side-by-side example opens the sample brief', async ({ page }) => {
   await page.goto('/')
-  const receipt = page.getByRole('region', { name: /extra €64,800 comes from/ })
-  await receipt.scrollIntoViewIfNeeded()
-  const crops = receipt.getByRole('img')
-  await expect(crops).toHaveCount(2)
-  for (const crop of await crops.all()) {
-    await expect
-      .poll(() => crop.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0))
-      .toBe(true)
-  }
-  await expect(receipt.getByRole('table')).toContainText('€482,800')
+  const example = page.getByRole('region', { name: 'How buyers get tricked by low bids' })
+  await example.scrollIntoViewIfNeeded()
+  const link = example.getByRole('link', { name: /See full sample check with direct page proof/ })
+  await expect(link).toHaveAttribute('href', /\/b\/e2e-sample-share-id-000000/)
+  // Prerendered: a click before hydration is a full page load, which also lands on the brief.
+  await link.click()
+  await expect(page).toHaveURL(/\/b\/e2e-sample-share-id-000000/)
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 })
