@@ -436,13 +436,14 @@ PROVIDERS = ("anthropic", "explabs")
 
 def locate_provider() -> str:
     """Who answers the locate call: SPECCLAW_LOCATE_PROVIDER (anthropic or explabs) when set, else
-    explabs if only an Experiential Labs key is configured, else anthropic."""
+    explabs whenever an Experiential Labs key is configured (Claude is paid per call and is never
+    chosen by accident because an Anthropic key happens to be in the environment), else anthropic."""
     explicit = (os.environ.get("SPECCLAW_LOCATE_PROVIDER") or "").strip().lower()
     if explicit:
         if explicit not in PROVIDERS:
             raise ValueError(f"SPECCLAW_LOCATE_PROVIDER must be one of {', '.join(PROVIDERS)}, not {explicit!r}")
         return explicit
-    if os.environ.get("EXPLABS_API_KEY") and not has_credentials():
+    if os.environ.get("EXPLABS_API_KEY"):
         return "explabs"
     return "anthropic"
 
