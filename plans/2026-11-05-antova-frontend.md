@@ -12,18 +12,18 @@
 
 ## Global Constraints
 
-- Work only inside the worktree `C:\Users\akhil\Desktop\Antova\specclaw\.claude\worktrees\web-frontend` on branch `worktree-web-frontend`.
+- Work only inside the worktree `C:\Users\akhil\Desktop\Antova\antova_backend\.model\worktrees\web-frontend` on branch `worktree-web-frontend`.
 - Backend test command: `python -m pytest -q` (baseline 228 passing). It must stay green after every backend task.
 - Frontend test commands (from `web/`): `npm test` (Vitest, run mode), `npm run typecheck`, `npm run lint`, `npm run e2e` (Playwright).
-- `.gitignore` ignores every top-level path not whitelisted; Task 9 adds `!/web/`. New backend modules must be named `specclaw_*.py` or live in `specclaw_ingest/` to be tracked.
-- Review header: `X-Antova-Review-Token`. Env: `ANTOVA_REVIEW_TOKEN`, `ANTOVA_ALLOWED_ORIGINS`, `SPECCLAW_TENDERS_DIR`; frontend `VITE_API_BASE`, `VITE_SAMPLE_SHARE_ID`, `VITE_CONTACT_EMAIL`.
+- `.gitignore` ignores every top-level path not whitelisted; Task 9 adds `!/web/`. New backend modules must be named `antova_*.py` or live in `antova_ingest/` to be tracked.
+- Review header: `X-Antova-Review-Token`. Env: `ANTOVA_REVIEW_TOKEN`, `ANTOVA_ALLOWED_ORIGINS`, `ANTOVA_TENDERS_DIR`; frontend `VITE_API_BASE`, `VITE_SAMPLE_SHARE_ID`, `VITE_CONTACT_EMAIL`.
 - Tests use review token `test-review-token` (set in `conftest.py`) and share ID `e2e-sample-share-id-000000` where a fixed ID is needed.
 - Colour tokens, type scale, motion durations: exactly spec §8.1. Colour only marks something wrong; no green.
 - Money: `€482,800`, adders `+€18,500` (spec §8.1). All sums in integer cents or Decimal, never float accumulation.
 - User-facing strings: exactly spec §10, kept in `web/src/content/copy.ts`; run `unslop` over any new string before merge.
 - WCAG 2.2 AA (spec §11). No text under 12 px except footnote superscripts. Every status shows glyph + word.
 - No analytics, no cookies, no third-party font or script requests at runtime.
-- Commits end with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
+- Commits end with `Co-Authored-By: the locator model <noreply@anthropic.com>`.
 
 ## Review Focus
 
@@ -58,7 +58,7 @@ Manual pass after Task 21: NVDA on Windows through flows 1–3, and 200 % browse
 
 | Layer | Tool | What | Target |
 |---|---|---|---|
-| Backend unit | pytest | migration v2→v3, repository, overrides in engine, open items, evidence lookup and containment | every new function; 100 % of branches in `specclaw_review.py`, `specclaw_auth.py`, `specclaw_evidence.py` |
+| Backend unit | pytest | migration v2→v3, repository, overrides in engine, open items, evidence lookup and containment | every new function; 100 % of branches in `antova_review.py`, `antova_auth.py`, `antova_evidence.py` |
 | Backend HTTP | pytest + TestClient | token gating on every founder and legacy route, public 404 rules, verify/withdraw, CORS | every route × (no token, wrong token, right token) |
 | Contract | pytest + Vitest | `export_fixtures` output is committed; pytest fails if regeneration differs; zod parses every fixture | fixtures for verified brief, draft brief with open items, review list, job states, parity cases |
 | Frontend domain | Vitest | `leveling` (parity to the cent), `verdict`, `ranking`, `footnotes`, `replay`, `money`, `status` | 100 % lines |
@@ -70,15 +70,15 @@ Existing gaps this closes: no test asserts tender isolation (the latest-tender f
 ## File structure
 
 Backend (repo root):
-- Modify `specclaw_db.py` — schema v3 columns, `AdderOverrideRecord`, `TenderMeta`, repository methods, v2→v3 migration.
-- Modify `specclaw_engine.py` — `Override`, overrides in `evaluate_vendor_financials`.
-- Modify `specclaw_ingest/pipeline.py`, `specclaw_ingest/types.py`, `specclaw_ingest/tests/fakes.py`, `samples/scenario.py`, `samples/TENDER-2026-402/manifest.json` — stage log, ingest mode, synthetic flag.
-- Create `specclaw_auth.py` — token dependency.
-- Create `specclaw_review.py` — open items, brief payload.
-- Create `specclaw_evidence.py` — citation lookup, path containment, crop rendering.
-- Create `specclaw_briefs_api.py` (public router) and `specclaw_review_api.py` (founder router); modify `specclaw_api.py` to gate legacy routes, include routers, set CORS.
-- Create `specclaw_ingest/dev_seed.py`, `specclaw_ingest/export_fixtures.py`.
-- Tests: `specclaw_ingest/tests/test_db.py` (extend), `test_specclaw.py` (update), create `test_specclaw_review.py`, `test_specclaw_briefs.py`, `test_specclaw_evidence.py`, `specclaw_ingest/tests/test_dev_tools.py`.
+- Modify `antova_db.py` — schema v3 columns, `AdderOverrideRecord`, `TenderMeta`, repository methods, v2→v3 migration.
+- Modify `antova_engine.py` — `Override`, overrides in `evaluate_vendor_financials`.
+- Modify `antova_ingest/pipeline.py`, `antova_ingest/types.py`, `antova_ingest/tests/fakes.py`, `samples/scenario.py`, `samples/TENDER-2026-402/manifest.json` — stage log, ingest mode, synthetic flag.
+- Create `antova_auth.py` — token dependency.
+- Create `antova_review.py` — open items, brief payload.
+- Create `antova_evidence.py` — citation lookup, path containment, crop rendering.
+- Create `antova_briefs_api.py` (public router) and `antova_review_api.py` (founder router); modify `antova_api.py` to gate legacy routes, include routers, set CORS.
+- Create `antova_ingest/dev_seed.py`, `antova_ingest/export_fixtures.py`.
+- Tests: `antova_ingest/tests/test_db.py` (extend), `test_antova.py` (update), create `test_antova_review.py`, `test_antova_briefs.py`, `test_antova_evidence.py`, `antova_ingest/tests/test_dev_tools.py`.
 
 Frontend (`web/`): `src/api` (boundary), `src/domain` (pure logic), `src/content` (copy, legal markdown), `src/design` (tokens, fonts, base, print), `src/components/{brief,charts,modal,review,ui}`, `src/pages`, `src/test` (fixtures, msw), `e2e/`, `scripts/`.
 
@@ -89,8 +89,8 @@ Frontend (`web/`): `src/api` (boundary), `src/domain` (pure logic), `src/content
 ### Task 1: Overrides in the engine
 
 **Files:**
-- Modify: `specclaw_engine.py:132-181`
-- Test: `specclaw_ingest/tests/test_engine.py`
+- Modify: `antova_engine.py:132-181`
+- Test: `antova_ingest/tests/test_engine.py`
 
 **Interfaces:**
 - Produces: `class Override(BaseModel): adder_eur: Decimal; note: str`. `evaluate_vendor_financials(tender, sensitivity, conceded_params, negotiating_vendor=None, overrides: Mapping[tuple[str, str], Override] | None = None)` (key `(param_id, vendor_id)`); each itemized row gains `"is_overridden": bool`, `"override_note": str | None`.
@@ -99,7 +99,7 @@ Frontend (`web/`): `src/api` (boundary), `src/domain` (pure logic), `src/content
   - `test_override_replaces_adder_and_ignores_sliders` — `helpers.sample_tender()`, override `("PARAM-02", "vendor-b") → Override(adder_eur=Decimal("10000.00"), note="n")`, `copper_multiplier=2.0`: that row has `adder_eur == 10000.0`, `is_overridden is True`, `override_note == "n"`; vendor-b's evaluated price equals the same call without the override, minus that row's unoverridden adder, plus 10000.
   - `test_override_counts_by_criticality` — overriding a COMMERCIAL parameter moves the amount into `total_commercial_adder`.
   - `test_no_overrides_unchanged` — output with `overrides=None` equals the output of a call without the argument, apart from the two new keys (`is_overridden` False, `override_note` None).
-- [ ] **Step 2: Run** `python -m pytest specclaw_ingest/tests/test_engine.py -q` → FAIL.
+- [ ] **Step 2: Run** `python -m pytest antova_ingest/tests/test_engine.py -q` → FAIL.
 - [ ] **Step 3: Implement.** The override is applied before concession logic: `adder = float(override.adder_eur)` instead of `adder_amount(...)`.
 - [ ] **Step 4: Run** `python -m pytest -q` → PASS.
 - [ ] **Step 5: Commit** `feat(engine): founder adder overrides`
@@ -107,8 +107,8 @@ Frontend (`web/`): `src/api` (boundary), `src/domain` (pure logic), `src/content
 ### Task 2: Schema v3 and repository
 
 **Files:**
-- Modify: `specclaw_db.py:26` (`SCHEMA_VERSION`), `:47-60` (`TenderRecord`), `:164-290` (`TenderRepository`), `:292-321` (`init_db`)
-- Test: `specclaw_ingest/tests/test_db.py`
+- Modify: `antova_db.py:26` (`SCHEMA_VERSION`), `:47-60` (`TenderRecord`), `:164-290` (`TenderRepository`), `:292-321` (`init_db`)
+- Test: `antova_ingest/tests/test_db.py`
 
 **Interfaces:**
 - Consumes: `engine.Override` (Task 1).
@@ -130,7 +130,7 @@ Frontend (`web/`): `src/api` (boundary), `src/domain` (pure logic), `src/content
   - `test_meta_round_trip` — `ingest_mode="answer_key", synthetic=True, ingest_stats={"pages_parsed": 116}, stage_log=[{"stage": "Intake", "pct": 5, "t_ms": 3}]` come back from `get_meta` with the same values; `list_meta()` orders newest first.
   - `test_overrides_round_trip` — `put_override(tid, "PARAM-01", "vendor-b", Decimal("12000.00"), "engineer estimate")` then `get_overrides` returns `{("PARAM-01", "vendor-b"): Override(adder_eur=Decimal("12000.00"), note="engineer estimate")}`; `delete_override` returns True then False.
   - Delete `test_latest_tender_id`.
-- [ ] **Step 2: Run** `python -m pytest specclaw_ingest/tests/test_db.py -q` → new tests FAIL (missing columns/methods).
+- [ ] **Step 2: Run** `python -m pytest antova_ingest/tests/test_db.py -q` → new tests FAIL (missing columns/methods).
 - [ ] **Step 3: Implement** the columns, record, dataclass and methods. Migration in `init_db`: if version is None → existing legacy path then create_all; if version == 2 → in one transaction `ALTER TABLE tenders ADD COLUMN …` for each new column with SQL defaults, then `UPDATE tenders SET share_id = :sid WHERE id = :id` per row with `new_share_id()`, then `CREATE UNIQUE INDEX ix_tenders_share_id ON tenders (share_id)`, then `create_all` (creates `adder_overrides`), then write version 3. Store `adder_eur` as the Decimal's string.
 - [ ] **Step 4: Run** `python -m pytest -q` → all pass except tests that use `latest_tender_id` indirectly through the API (fixed in Task 4); list them in the commit message if any fail.
 - [ ] **Step 5: Commit** `feat(db): schema v3 with share ids, review status and adder overrides`
@@ -138,15 +138,15 @@ Frontend (`web/`): `src/api` (boundary), `src/domain` (pure logic), `src/content
 ### Task 3: Ingest records mode, synthetic flag and stage log
 
 **Files:**
-- Modify: `specclaw_ingest/types.py` (`TenderManifest.synthetic: bool = False`), `specclaw_ingest/pipeline.py:111-135, 320-352`, `specclaw_ingest/tests/fakes.py` (`AnswerKeyLocator.ingest_mode_label = "answer_key"`), `samples/scenario.py:447` (`manifest()` adds `"synthetic": True`), `samples/TENDER-2026-402/manifest.json` (regenerate with `python -m samples.generate_sample_pack`)
-- Test: `specclaw_ingest/tests/test_pipeline.py`, `specclaw_ingest/tests/test_sample_pack.py`
+- Modify: `antova_ingest/types.py` (`TenderManifest.synthetic: bool = False`), `antova_ingest/pipeline.py:111-135, 320-352`, `antova_ingest/tests/fakes.py` (`AnswerKeyLocator.ingest_mode_label = "answer_key"`), `samples/scenario.py:447` (`manifest()` adds `"synthetic": True`), `samples/TENDER-2026-402/manifest.json` (regenerate with `python -m samples.generate_sample_pack`)
+- Test: `antova_ingest/tests/test_pipeline.py`, `antova_ingest/tests/test_sample_pack.py`
 
 **Interfaces:**
 - Produces: `IngestResult.stats` gains `"ingest_mode"` (`"answer_key"`|`"replay"`|`"live"`), `"synthetic"` (bool), `"stage_log"` (`list[{"stage": str, "pct": int, "t_ms": int}]`, one entry per `report` call, `t_ms` since start). `persist(result, db)` passes these to `save_tender`.
 - Rule: `ingest_mode = getattr(locator, "ingest_mode_label", None) or ("replay" if outcomes and all(o.from_store for o in outcomes) else "live")`.
 
 - [ ] **Step 1: Write failing tests:** `test_stats_record_answer_key_mode` (AnswerKeyLocator run → `stats["ingest_mode"] == "answer_key"`), `test_stats_record_replay_mode` (a stub locator whose outcomes all have `from_store=True` → `"replay"`), `test_stage_log_has_seven_ordered_entries` (stage names equal `[s for s, _ in STAGES]`, `t_ms` non-decreasing), `test_synthetic_flag_from_manifest` (`stats["synthetic"] is True`), `test_persist_stores_meta` (after `persist`, `get_meta(...).ingest_mode == "answer_key"` and `synthetic is True`); in `test_sample_pack.py::test_manifest` assert `manifest["synthetic"] is True`.
-- [ ] **Step 2: Run** `python -m pytest specclaw_ingest/tests -q` → FAIL.
+- [ ] **Step 2: Run** `python -m pytest antova_ingest/tests -q` → FAIL.
 - [ ] **Step 3: Implement**; regenerate the sample pack and confirm `git diff --stat samples/` shows only `manifest.json` changed (PDF bytes must be identical; the generator is deterministic).
 - [ ] **Step 4: Run** full suite → PASS.
 - [ ] **Step 5: Commit** `feat(ingest): record ingest mode, synthetic flag and stage log`
@@ -154,17 +154,17 @@ Frontend (`web/`): `src/api` (boundary), `src/domain` (pure logic), `src/content
 ### Task 4: Review token, CORS and gated legacy routes
 
 **Files:**
-- Create: `specclaw_auth.py`
-- Modify: `specclaw_api.py` (CORS block `:57-63`, `_load_tender` `:66-72`, every legacy route, `/api/health`), `conftest.py` (set `ANTOVA_REVIEW_TOKEN=test-review-token`, `ANTOVA_ALLOWED_ORIGINS=http://localhost:5173` before imports)
-- Test: `test_specclaw.py` (update), create `test_specclaw_auth.py`
+- Create: `antova_auth.py`
+- Modify: `antova_api.py` (CORS block `:57-63`, `_load_tender` `:66-72`, every legacy route, `/api/health`), `conftest.py` (set `ANTOVA_REVIEW_TOKEN=test-review-token`, `ANTOVA_ALLOWED_ORIGINS=http://localhost:5173` before imports)
+- Test: `test_antova.py` (update), create `test_antova_auth.py`
 
 **Interfaces:**
 - Produces: `REVIEW_HEADER = "X-Antova-Review-Token"`; `def require_review_token(x_antova_review_token: str | None = Header(default=None)) -> None` — 503 `{"detail": "Review is not configured on this server"}` if env unset/empty; 401 `{"detail": "Invalid review token"}` if missing or not equal by `hmac.compare_digest` after `.strip()` of the header value. `_load_tender(db, tender_id: str)` requires a non-empty ID (422 when absent via FastAPI `Query(...)`/body field `str` without default).
 - Routes gated with `dependencies=[Depends(require_review_token)]`: `/api/tender`, `/api/evaluate`, `/api/negotiate/turn`, `/api/audit-trail`, `/api/jobs/ingest`, `/api/jobs/{job_id}`, `/api/cache/stats`, `/api/cache/invalidate`, `/api/export-pdf`. `EvaluateRequest.tender_id` becomes required (`str`, no default). `/api/health` drops `active_tender`.
 - CORS: `allow_origins=[o.strip() for o in os.environ.get("ANTOVA_ALLOWED_ORIGINS", "").split(",") if o.strip()]`, `allow_credentials=False`, `allow_methods=["GET","POST","PUT","DELETE"]`, `allow_headers=["Content-Type", REVIEW_HEADER]`.
 
-- [ ] **Step 1: Write failing tests** in `test_specclaw_auth.py`, parametrized over the nine gated routes: `test_route_requires_token` (no header → 401), `test_route_rejects_wrong_token` (→ 401), `test_route_accepts_token_with_whitespace` (header `" test-review-token\n"` → not 401), `test_unset_server_token_is_503` (monkeypatch env to "" → 503), `test_no_latest_fallback` (`GET /api/tender` with token, no `tender_id` → 422), `test_health_hides_active_tender`, `test_cors_allows_configured_origin_only` (preflight from `http://localhost:5173` gets `access-control-allow-origin`, from `https://evil.example` does not). Update `test_specclaw.py`: the `client` fixture sends the header by default (`TestClient(app, headers={REVIEW_HEADER: "test-review-token"})`), `tender_id` added where calls relied on the fallback, `test_get_tender_returns_ingested_package` passes `tender_id`.
-- [ ] **Step 2: Run** `python -m pytest test_specclaw_auth.py test_specclaw.py -q` → FAIL.
+- [ ] **Step 1: Write failing tests** in `test_antova_auth.py`, parametrized over the nine gated routes: `test_route_requires_token` (no header → 401), `test_route_rejects_wrong_token` (→ 401), `test_route_accepts_token_with_whitespace` (header `" test-review-token\n"` → not 401), `test_unset_server_token_is_503` (monkeypatch env to "" → 503), `test_no_latest_fallback` (`GET /api/tender` with token, no `tender_id` → 422), `test_health_hides_active_tender`, `test_cors_allows_configured_origin_only` (preflight from `http://localhost:5173` gets `access-control-allow-origin`, from `https://evil.example` does not). Update `test_antova.py`: the `client` fixture sends the header by default (`TestClient(app, headers={REVIEW_HEADER: "test-review-token"})`), `tender_id` added where calls relied on the fallback, `test_get_tender_returns_ingested_package` passes `tender_id`.
+- [ ] **Step 2: Run** `python -m pytest test_antova_auth.py test_antova.py -q` → FAIL.
 - [ ] **Step 3: Implement.**
 - [ ] **Step 4: Run** full suite → PASS.
 - [ ] **Step 5: Commit** `fix(api): require review token and explicit tender ids; tighten CORS`
@@ -172,8 +172,8 @@ Frontend (`web/`): `src/api` (boundary), `src/domain` (pure logic), `src/content
 ### Task 5: Open items and brief payload
 
 **Files:**
-- Create: `specclaw_review.py`
-- Test: `test_specclaw_review.py`
+- Create: `antova_review.py`
+- Test: `test_antova_review.py`
 
 **Interfaces:**
 - Consumes: `Override`, `evaluate_vendor_financials` (Task 1); `TenderMeta`, `list_documents`, `get_overrides` (Task 2).
@@ -183,7 +183,7 @@ Frontend (`web/`): `src/api` (boundary), `src/domain` (pure logic), `src/content
   - `brief_payload(tender, meta, documents, overrides, sensitivity) -> dict` with keys exactly: `share_id, status, verified_at (ISO str | None), synthetic, ingest_mode, ingest_stats, stage_log, documents, tender (tender.model_dump(mode="json")), financials, overrides ([{param_id, vendor_id, adder_eur: str, note}]), open_items ([asdict])`.
 
 - [ ] **Step 1: Write failing tests:** `test_open_items_unpriced_and_inspection` (helpers tender with one cell set to `UNPRICED` and one to `MANUAL_INSPECTION_REQUIRED` → two items in vendor/param order), `test_override_resolves_open_item`, `test_missing_headline_is_open_item` (headline 0 → `missing_price`), `test_brief_payload_keys_and_override_shape` (exact key set; `adder_eur` is a string like `"12000.00"`; financials reflect the override).
-- [ ] **Step 2: Run** `python -m pytest test_specclaw_review.py -q` → FAIL.
+- [ ] **Step 2: Run** `python -m pytest test_antova_review.py -q` → FAIL.
 - [ ] **Step 3: Implement.**
 - [ ] **Step 4: Run** → PASS.
 - [ ] **Step 5: Commit** `feat(review): open items and brief payload`
@@ -191,14 +191,14 @@ Frontend (`web/`): `src/api` (boundary), `src/domain` (pure logic), `src/content
 ### Task 6: Evidence crops
 
 **Files:**
-- Create: `specclaw_evidence.py`
-- Test: `test_specclaw_evidence.py`
+- Create: `antova_evidence.py`
+- Test: `test_antova_evidence.py`
 
 **Interfaces:**
 - Produces: `class EvidenceNotFound(Exception)`; `citation_for(tender, param_id: str, source: str, which: Literal["primary","secondary"]) -> dict` (source `"mr"` → parameter `requirement_citation` and only `which="primary"`; a vendor ID → that extraction's `citation`/`secondary_citation`; anything missing → `EvidenceNotFound`); `document_path(tender_id: str, filename: str, known_filenames: set[str]) -> Path` (filename must be in `known_filenames`, resolved path must be inside `tender_dir_for(tender_id)`, file must exist, else `EvidenceNotFound`); `crop_text(path, page: int, bbox) -> str` (page is 1-based; test helper and sanity check); `render_crop(path: Path, page: int, bbox: tuple[float, float, float, float]) -> bytes` — PNG, clip = bbox padded 24 pt clamped to the page, zoom 2, width capped at 1600 px, 1.5 pt rectangle in `#9E2B1F` around the unpadded bbox; `@lru_cache(maxsize=128)` on a wrapper keyed by `(str(path), page, bbox)`.
 
 - [ ] **Step 1: Write failing tests** (sample pack): `test_vendor_primary_citation_text` (`crop_text` of vendor-b PARAM-01 primary contains `"NOTE 7"`), `test_secondary_citation_is_cover_letter` (contains `"50 kA / 3 s"`), `test_mr_citation` (MR PARAM-01 contains `"50 kA RMS"`), `test_render_crop_is_png` (bytes start with `b"\x89PNG"`, width ≤ 1600), `test_unknown_filename_rejected`, `test_path_traversal_rejected` (`"../manifest.json"` → `EvidenceNotFound`), `test_missing_secondary_raises` (vendor-b PARAM-02 secondary).
-- [ ] **Step 2: Run** `python -m pytest test_specclaw_evidence.py -q` → FAIL.
+- [ ] **Step 2: Run** `python -m pytest test_antova_evidence.py -q` → FAIL.
 - [ ] **Step 3: Implement.**
 - [ ] **Step 4: Run** → PASS.
 - [ ] **Step 5: Commit** `feat(evidence): cited page crops with path containment`
@@ -206,9 +206,9 @@ Frontend (`web/`): `src/api` (boundary), `src/domain` (pure logic), `src/content
 ### Task 7: Public brief and founder review routers
 
 **Files:**
-- Create: `specclaw_briefs_api.py` (`router = APIRouter(prefix="/api/briefs")`), `specclaw_review_api.py` (`router = APIRouter(prefix="/api/review", dependencies=[Depends(require_review_token)])`)
-- Modify: `specclaw_api.py` (include both routers)
-- Test: `test_specclaw_briefs.py`
+- Create: `antova_briefs_api.py` (`router = APIRouter(prefix="/api/briefs")`), `antova_review_api.py` (`router = APIRouter(prefix="/api/review", dependencies=[Depends(require_review_token)])`)
+- Modify: `antova_api.py` (include both routers)
+- Test: `test_antova_briefs.py`
 
 **Interfaces:**
 - Consumes: Tasks 1, 2, 5, 6.
@@ -225,7 +225,7 @@ Frontend (`web/`): `src/api` (boundary), `src/domain` (pure logic), `src/content
   - Override changes and verify/withdraw call `leveling_cache.invalidate_tender(tender_id)`.
 
 - [ ] **Step 1: Write failing tests:** `test_unverified_brief_is_404`, `test_unknown_brief_is_404_with_same_body`, `test_verified_brief_payload` (after verify: `status == "VERIFIED"`, VoltSwitch `true_evaluated_price == 482800.0`), `test_public_evaluate_reprices` (copper 2.0 raises vendor-b above 482800), `test_public_evidence_png`, `test_review_list_counts_open_items`, `test_put_override_validation` (negative → 422, 3 dp → 422, blank note → 422, unknown cell → 404), `test_override_flows_into_public_brief`, `test_verify_blocked_by_open_items` (seed a cell as UNPRICED through the repository → 409 lists it; after override → 200), `test_withdraw_hides_brief`, `test_review_routes_need_token` (each review route without header → 401).
-- [ ] **Step 2: Run** `python -m pytest test_specclaw_briefs.py -q` → FAIL.
+- [ ] **Step 2: Run** `python -m pytest test_antova_briefs.py -q` → FAIL.
 - [ ] **Step 3: Implement.**
 - [ ] **Step 4: Run** full suite → PASS.
 - [ ] **Step 5: Commit** `feat(api): public briefs by share id and founder review routes`
@@ -233,16 +233,16 @@ Frontend (`web/`): `src/api` (boundary), `src/domain` (pure logic), `src/content
 ### Task 8: Dev seed and fixture export
 
 **Files:**
-- Create: `specclaw_ingest/dev_seed.py`, `specclaw_ingest/export_fixtures.py`
-- Test: `specclaw_ingest/tests/test_dev_tools.py`
+- Create: `antova_ingest/dev_seed.py`, `antova_ingest/export_fixtures.py`
+- Test: `antova_ingest/tests/test_dev_tools.py`
 
 **Interfaces:**
 - Produces:
-  - `python -m specclaw_ingest.dev_seed [--share-id ID] [--draft]` — runs `init_db`, ingests the sample with `AnswerKeyLocator` (never calls the Claude API), persists with `share_id=ID` when given, verifies unless `--draft`, prints `share_id=<id>`.
-  - `python -m specclaw_ingest.export_fixtures <out_dir>` builds everything in memory with `run_ingest` + `brief_payload` (no database) and writes: `verified-brief.json` (payload, share ID `e2e-sample-share-id-000000`), `draft-brief.json` (same tender, status DRAFT, with vendor-c PARAM-05 changed to `pricing_status="UNPRICED"`, `cost_lines=[]`, `cost_adder=0` so it is an open item), `review-list.json`, `parity-cases.json` (`[{rates: {copper, labour, freight}, overrides: [...], expected: [{vendor_id, total_tech_penalty, total_commercial_adder, true_evaluated_price}]}]` for copper ∈ {0.5, 1.0, 1.15, 2.5} × labour ∈ {20, 60, 87.5, 200} × freight ∈ {0.5, 1.0, 2.5} × overrides ∈ {none, PARAM-02/vendor-b → "10000.00"}), `jobs.json` (QUEUED, PROCESSING at each stage, COMPLETED, FAILED samples). Output is deterministic (sorted keys, fixed timestamps `2026-11-05T00:00:00+00:00`).
+  - `python -m antova_ingest.dev_seed [--share-id ID] [--draft]` — runs `init_db`, ingests the sample with `AnswerKeyLocator` (never calls the LLM API), persists with `share_id=ID` when given, verifies unless `--draft`, prints `share_id=<id>`.
+  - `python -m antova_ingest.export_fixtures <out_dir>` builds everything in memory with `run_ingest` + `brief_payload` (no database) and writes: `verified-brief.json` (payload, share ID `e2e-sample-share-id-000000`), `draft-brief.json` (same tender, status DRAFT, with vendor-c PARAM-05 changed to `pricing_status="UNPRICED"`, `cost_lines=[]`, `cost_adder=0` so it is an open item), `review-list.json`, `parity-cases.json` (`[{rates: {copper, labour, freight}, overrides: [...], expected: [{vendor_id, total_tech_penalty, total_commercial_adder, true_evaluated_price}]}]` for copper ∈ {0.5, 1.0, 1.15, 2.5} × labour ∈ {20, 60, 87.5, 200} × freight ∈ {0.5, 1.0, 2.5} × overrides ∈ {none, PARAM-02/vendor-b → "10000.00"}), `jobs.json` (QUEUED, PROCESSING at each stage, COMPLETED, FAILED samples). Output is deterministic (sorted keys, fixed timestamps `2026-11-05T00:00:00+00:00`).
 - [ ] **Step 1: Write failing tests:** `test_seed_prints_share_id_and_verifies`, `test_export_is_deterministic` (run twice into two tmp dirs → identical bytes), `test_committed_fixtures_are_current` (export to tmp and compare with `web/src/test/fixtures/` byte-for-byte; skip with a clear reason if `web/` doesn't exist yet — it will after Task 9).
 - [ ] **Step 2: Run** → FAIL.
-- [ ] **Step 3: Implement.** Both modules import `AnswerKeyLocator` from `specclaw_ingest.tests.fakes`; module docstrings say "development and tests only".
+- [ ] **Step 3: Implement.** Both modules import `AnswerKeyLocator` from `antova_ingest.tests.fakes`; module docstrings say "development and tests only".
 - [ ] **Step 4: Run** full suite → PASS.
 - [ ] **Step 5: Commit** `feat(dev): offline sample seed and frontend fixture export`
 
@@ -262,7 +262,7 @@ Frontend (`web/`): `src/api` (boundary), `src/domain` (pure logic), `src/content
 - [ ] **Step 1: Scaffold** with `npm create vite@latest web -- --template react-ts`, then install: `react-router`, `@tanstack/react-query`, `zod`, `decimal.js-light`, `motion`, `@fontsource-variable/newsreader`, `@fontsource-variable/instrument-sans`; dev: `vitest`, `jsdom`, `@testing-library/react`, `@testing-library/user-event`, `@testing-library/jest-dom`, `msw`, `@playwright/test`, `@axe-core/playwright`, `tsx`, `eslint`, `typescript-eslint`, `eslint-plugin-react-hooks`, `prettier`.
 - [ ] **Step 2: Write failing tests** `renders the not-found page for unknown routes` (MemoryRouter at `/nope` → heading "Page not found." and link "Go to the home page" to `/`); `sets the document title per route` (`/nope` → "Page not found · Antova"); `app shell has a skip link to main`. `base.css` sets `scroll-padding-top: var(--nav-height)`.
 - [ ] **Step 3: Run** `npm test` → FAIL; implement router, NotFound, tokens, copy; run → PASS; `npm run typecheck && npm run lint` clean.
-- [ ] **Step 4: Run** `python -m specclaw_ingest.export_fixtures web/src/test/fixtures` and `python -m pytest specclaw_ingest/tests/test_dev_tools.py -q` → the committed-fixtures test now runs and passes.
+- [ ] **Step 4: Run** `python -m antova_ingest.export_fixtures web/src/test/fixtures` and `python -m pytest antova_ingest/tests/test_dev_tools.py -q` → the committed-fixtures test now runs and passes.
 - [ ] **Step 5: Commit** `feat(web): scaffold Vite app, Footnote tokens and routing shell`
 
 ### Task 10: API boundary
@@ -435,7 +435,7 @@ Load `dataviz` before Task 15's charts and `frontend-design` before each screen 
 ### Task 21: End-to-end and accessibility
 
 **Files:**
-- Create: `web/e2e/start-api.mjs` (deletes `web/e2e/.tmp/e2e.db`, runs `python -m specclaw_ingest.dev_seed --share-id e2e-sample-share-id-000000` then `python -m uvicorn specclaw_api:app --port 8000` from the repo root, with env `SPECCLAW_DATABASE_URL=sqlite:///<abs path to web/e2e/.tmp/e2e.db>`, `ANTOVA_REVIEW_TOKEN=e2e-token`, `ANTOVA_ALLOWED_ORIGINS=http://localhost:4173`), `web/playwright.config.ts` (`workers: 1`, `fullyParallel: false`; webServer 1: `node e2e/start-api.mjs` on port 8000; webServer 2: `npm run build && npm run preview -- --port 4173` with `VITE_SAMPLE_SHARE_ID=e2e-sample-share-id-000000`, `VITE_CONTACT_EMAIL=e2e@example.invalid`), `web/e2e/{1-landing,2-brief,3-review,keyboard,mobile,a11y}.spec.ts`; add `web/e2e/.tmp/` to `.gitignore`
+- Create: `web/e2e/start-api.mjs` (deletes `web/e2e/.tmp/e2e.db`, runs `python -m antova_ingest.dev_seed --share-id e2e-sample-share-id-000000` then `python -m uvicorn antova_api:app --port 8000` from the repo root, with env `ANTOVA_DATABASE_URL=sqlite:///<abs path to web/e2e/.tmp/e2e.db>`, `ANTOVA_REVIEW_TOKEN=e2e-token`, `ANTOVA_ALLOWED_ORIGINS=http://localhost:4173`), `web/playwright.config.ts` (`workers: 1`, `fullyParallel: false`; webServer 1: `node e2e/start-api.mjs` on port 8000; webServer 2: `npm run build && npm run preview -- --port 4173` with `VITE_SAMPLE_SHARE_ID=e2e-sample-share-id-000000`, `VITE_CONTACT_EMAIL=e2e@example.invalid`), `web/e2e/{1-landing,2-brief,3-review,keyboard,mobile,a11y}.spec.ts`; add `web/e2e/.tmp/` to `.gitignore`
 - [ ] **Step 1: Write the specs:**
   - `1-landing`: `/` → *Watch it check a tender* → *Skip to result* → *Open the brief* → URL hash `#f-vendor-b-PARAM-01`, sidenote shows "NOTE 7".
   - `2-brief`: grid cell click → crop image loads (`naturalWidth > 0`) → copper slider to max → VoltSwitch evaluated figure changes.

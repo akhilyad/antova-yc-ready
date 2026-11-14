@@ -1,11 +1,11 @@
 /**
  * Landing page copy.
  *
- * Every figure quoted here comes from the specclaw sample tender
+ * Every figure quoted here comes from the Antova sample tender
  * TENDER-2026-402 (see src/data/tender402.ts and
- * specclaw/samples/TENDER-2026-402/expected.json). Capability claims are
- * limited to what the specclaw ingest pipeline does today; see
- * specs/2026-11-03-specclaw-ingestion-pipeline-design.md.
+ * antova_backend/samples/TENDER-2026-402/expected.json). Capability claims are
+ * limited to what the Antova ingest pipeline does today; see
+ * specs/2026-11-03-antova-ingestion-pipeline-design.md.
  */
 
 export interface FaqItem {
