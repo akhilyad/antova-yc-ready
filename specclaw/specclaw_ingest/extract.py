@@ -144,19 +144,22 @@ class LocateInvalid(ExtractError):
 
 
 class MissingCredentials(ExtractError):
-    def __init__(self, filename: str):
-        super().__init__(
-            filename,
-            f"Cannot call Claude for {filename}: set ANTHROPIC_API_KEY (or ANTHROPIC_AUTH_TOKEN) first",
-        )
+    def __init__(self, filename: str, variable: str = "ANTHROPIC_API_KEY (or ANTHROPIC_AUTH_TOKEN)"):
+        super().__init__(filename, f"Cannot call the model for {filename}: set {variable} first")
 
 
 def has_credentials() -> bool:
     return bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN"))
 
 
-def api_cost_usd(input_tokens: int, output_tokens: int) -> Decimal:
-    cost = (Decimal(input_tokens) * PRICE_INPUT_PER_MTOK + Decimal(output_tokens) * PRICE_OUTPUT_PER_MTOK) / Decimal(1_000_000)
+def sha256_short(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:12]
+
+
+def api_cost_usd(input_tokens: int, output_tokens: int, price_input: Decimal = PRICE_INPUT_PER_MTOK,
+                 price_output: Decimal = PRICE_OUTPUT_PER_MTOK) -> Decimal:
+    """USD for the tokens, at the given per-million prices (default: Claude Opus 5.5 list price)."""
+    cost = (Decimal(input_tokens) * price_input + Decimal(output_tokens) * price_output) / Decimal(1_000_000)
     return cost.quantize(Decimal("0.0001"), rounding=ROUND_HALF_UP)
 
 
@@ -246,11 +249,17 @@ def prompt_fingerprint() -> str:
 
 
 class ResponseStore:
-    def __init__(self, directory: Path):
+    """Saved answers, one file per (document, prompt, model). `model` is the model that answers, so a
+    different model never replays another's answers; `salt` marks a prompt variant of that model."""
+
+    def __init__(self, directory: Path, model: str = MODEL, salt: str = ""):
         self.directory = Path(directory)
+        self.model = model
+        self.salt = salt
 
     def key_for(self, doc: ParsedDocument) -> str:
-        return f"{doc.sha256}__{PROMPT_VERSION}-{prompt_fingerprint()}__{MODEL}"
+        suffix = f"-{self.salt}" if self.salt else ""
+        return f"{doc.sha256}__{PROMPT_VERSION}-{prompt_fingerprint()}{suffix}__{self.model}"
 
     def _path(self, key: str) -> Path:
         return self.directory / f"{key}.json"
@@ -280,8 +289,8 @@ class ResponseStore:
             "key": key,
             "filename": doc.entry.file,
             "sha256": doc.sha256,
-            "model": MODEL,
-            "served_model": outcome.model or MODEL,
+            "model": self.model,
+            "served_model": outcome.model or self.model,
             "prompt_version": PROMPT_VERSION,
             "prompt_fingerprint": prompt_fingerprint(),
             "recorded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -309,6 +318,19 @@ class ClaudeLocator:
         self.store = store
         self.mode = mode
         self.client_factory = client_factory
+        self.model = MODEL
+
+    @property
+    def max_input_tokens(self) -> int:
+        return MAX_INPUT_TOKENS  # read per call, so a test can lower it
+
+    def _ready(self, filename: str) -> None:
+        """Raise MissingCredentials unless a live call could be made."""
+        if not has_credentials():
+            raise MissingCredentials(filename)
+
+    def _system(self) -> str:
+        return build_system_prompt()
 
     def locate(self, doc: ParsedDocument) -> LocateOutcome:
         key = self.store.key_for(doc)
@@ -318,16 +340,15 @@ class ClaudeLocator:
                 return stored
             if self.mode == "replay":
                 raise ReplayMiss(doc.entry.file, key)
-        if not has_credentials():
-            raise MissingCredentials(doc.entry.file)
+        self._ready(doc.entry.file)
         outcome = self._call(self.client_factory(), doc)
         self.store.save(key, outcome, doc)
         return outcome
 
     def _call(self, client: Any, doc: ParsedDocument) -> LocateOutcome:
-        system = build_system_prompt()
+        system = self._system()
         total = self._count(client, system, build_document_content(doc))
-        if total <= MAX_INPUT_TOKENS:
+        if total <= self.max_input_tokens:
             return self._send(client, doc, system, None)
         windows = self._windows(client, doc, system, total)
         outcomes = [self._send(client, doc, system, pages) for pages in windows]
@@ -353,7 +374,7 @@ class ClaudeLocator:
         overhead = self._count(client, system, build_document_content(doc, []))
         sizes = [len(escape(p.text)) + 40 for p in doc.pages]
         per_char = max(total - overhead, 1) / max(sum(sizes), 1)
-        budget = MAX_INPUT_TOKENS * WINDOW_BUDGET_SHARE - overhead
+        budget = self.max_input_tokens * WINDOW_BUDGET_SHARE - overhead
         planned: list[list] = []
         start = 0
         while start < len(doc.pages):
@@ -369,7 +390,7 @@ class ClaudeLocator:
         while planned:
             pages = planned.pop(0)
             count = self._count(client, system, build_document_content(doc, pages))
-            if count <= MAX_INPUT_TOKENS:
+            if count <= self.max_input_tokens:
                 checked.append(pages)
             elif len(pages) == 1:
                 raise DocumentTooLarge(f"{doc.entry.file} p.{pages[0].number}", count)
@@ -410,5 +431,28 @@ class ClaudeLocator:
                              model=getattr(message, "model", None))
 
 
-def make_locator(tender_dir: Path, mode: str) -> ClaudeLocator:
+PROVIDERS = ("anthropic", "explabs")
+
+
+def locate_provider() -> str:
+    """Who answers the locate call: SPECCLAW_LOCATE_PROVIDER (anthropic or explabs) when set, else
+    explabs if only an Experiential Labs key is configured, else anthropic."""
+    explicit = (os.environ.get("SPECCLAW_LOCATE_PROVIDER") or "").strip().lower()
+    if explicit:
+        if explicit not in PROVIDERS:
+            raise ValueError(f"SPECCLAW_LOCATE_PROVIDER must be one of {', '.join(PROVIDERS)}, not {explicit!r}")
+        return explicit
+    if os.environ.get("EXPLABS_API_KEY") and not has_credentials():
+        return "explabs"
+    return "anthropic"
+
+
+def make_locator(tender_dir: Path, mode: str):
+    from specclaw_ingest import envfile
+
+    envfile.load()  # settings in specclaw/.env reach the environment before the provider is chosen
+    if locate_provider() == "explabs":
+        from specclaw_ingest.chat_locator import ChatCompletionsLocator
+
+        return ChatCompletionsLocator.from_env(Path(tender_dir), mode)  # type: ignore[arg-type]
     return ClaudeLocator(ResponseStore(Path(tender_dir) / "claude_responses"), mode)  # type: ignore[arg-type]

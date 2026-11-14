@@ -259,13 +259,17 @@ def stage_located(bodies: dict, locator: Locator) -> dict:
                     continue
                 except (ExtractError, anthropic.APIError) as exc:
                     raise _failed(exc) from exc
-                if outcome.model and outcome.model != extract.MODEL:
-                    warnings.append(f"{entry.file}: answered by fallback model {outcome.model}, not {extract.MODEL}")
+                asked = getattr(locator, "model", extract.MODEL)
+                if outcome.model and outcome.model != asked:
+                    warnings.append(f"{entry.file}: answered by fallback model {outcome.model}, not {asked}")
                 record = {
                     "response": outcome.response.model_dump(mode="json"),
                     "input_tokens": outcome.input_tokens, "output_tokens": outcome.output_tokens,
                     "from_store": outcome.from_store, "model": outcome.model,
                 }
+                prices = getattr(locator, "prices", None)
+                if prices is not None:  # a model priced differently from Claude: its own rates, in the artifact
+                    record["prices"] = [str(prices[0]), str(prices[1])]
                 windows = getattr(outcome, "windows", None)
                 if windows:
                     record["windows"] = [list(w) for w in windows]
@@ -614,7 +618,9 @@ def stage_leveled(bodies: dict) -> dict:
 
     input_tokens = sum(o["input_tokens"] for o in located["outcomes"].values())
     output_tokens = sum(o["output_tokens"] for o in located["outcomes"].values())
-    cost = extract.api_cost_usd(input_tokens, output_tokens)
+    cost = sum((
+        extract.api_cost_usd(o["input_tokens"], o["output_tokens"], *(Decimal(p) for p in o.get("prices", ())))
+        for o in located["outcomes"].values()), Decimal("0"))
     page_counts = {d["file"]: len(d["pages"]) for d in parsed["documents"]}
     vendors = [
         engine.Vendor(
