@@ -1,0 +1,190 @@
+{
+  "key": "e31dc3dcfca4c3f8a364fe2a185b2273d2aaae590313642b729d4f3fee91941e__locate-v1-801b179cc4d5-eca28073b2e7__gpt-6-luna",
+  "filename": "Bid_vendor-a_Nordwerk.pdf",
+  "sha256": "e31dc3dcfca4c3f8a364fe2a185b2273d2aaae590313642b729d4f3fee91941e",
+  "model": "gpt-6-luna",
+  "served_model": "gpt-6-luna",
+  "prompt_version": "locate-v1",
+  "prompt_fingerprint": "801b179cc4d5",
+  "recorded_at": "2026-11-14T00:36:26+00:00",
+  "usage": {
+    "input_tokens": 4034,
+    "output_tokens": 953
+  },
+  "response": {
+    "page_sections": [
+      {
+        "page": 1,
+        "section": "general"
+      },
+      {
+        "page": 2,
+        "section": "cover_letter"
+      },
+      {
+        "page": 3,
+        "section": "compliance_table"
+      },
+      {
+        "page": 4,
+        "section": "compliance_table"
+      },
+      {
+        "page": 5,
+        "section": "datasheet"
+      },
+      {
+        "page": 6,
+        "section": "datasheet"
+      },
+      {
+        "page": 7,
+        "section": "datasheet"
+      },
+      {
+        "page": 8,
+        "section": "datasheet"
+      },
+      {
+        "page": 9,
+        "section": "datasheet"
+      },
+      {
+        "page": 10,
+        "section": "drawing"
+      },
+      {
+        "page": 11,
+        "section": "drawing"
+      },
+      {
+        "page": 12,
+        "section": "drawing"
+      },
+      {
+        "page": 13,
+        "section": "drawing"
+      },
+      {
+        "page": 14,
+        "section": "bom"
+      },
+      {
+        "page": 15,
+        "section": "bom"
+      },
+      {
+        "page": 16,
+        "section": "bom"
+      },
+      {
+        "page": 17,
+        "section": "test_plan"
+      },
+      {
+        "page": 18,
+        "section": "test_plan"
+      },
+      {
+        "page": 19,
+        "section": "test_plan"
+      },
+      {
+        "page": 20,
+        "section": "commercial"
+      },
+      {
+        "page": 21,
+        "section": "commercial"
+      },
+      {
+        "page": 22,
+        "section": "commercial"
+      },
+      {
+        "page": 23,
+        "section": "general"
+      },
+      {
+        "page": 24,
+        "section": "general"
+      },
+      {
+        "page": 25,
+        "section": "general"
+      },
+      {
+        "page": 26,
+        "section": "general"
+      },
+      {
+        "page": 27,
+        "section": "general"
+      },
+      {
+        "page": 28,
+        "section": "general"
+      },
+      {
+        "page": 29,
+        "section": "general"
+      },
+      {
+        "page": 30,
+        "section": "general"
+      }
+    ],
+    "candidates": [
+      {
+        "param_id": "PARAM-01",
+        "page": 6,
+        "quote": "Rated short-time withstand current (main busbar and breaker): 50 kA / 3 s."
+      },
+      {
+        "param_id": "PARAM-02",
+        "page": 6,
+        "quote": "Main busbars: silver-plated high-conductivity electrolytic copper Cu-ETP, 2.5 kA continuous."
+      },
+      {
+        "param_id": "PARAM-03",
+        "page": 7,
+        "quote": "Enclosure protection IP54 with rear gas exhaust ducting, internal arc classification IAC AFLR 50 kA 1 s."
+      },
+      {
+        "param_id": "PARAM-04",
+        "page": 8,
+        "quote": "Protection IEDs NW-Prot 5 with IEC 61850 Ed.2 PRP dual-port fibre, pre-wired to the central RTU\nmarshalling cabinet."
+      },
+      {
+        "param_id": "PARAM-05",
+        "page": 18,
+        "quote": "The price includes a 5-day client-witnessed I-FAT with primary injection."
+      },
+      {
+        "param_id": "PARAM-06",
+        "page": 21,
+        "quote": "Delivery DDP project site Brandenburg (Incoterms 2020) with a 36-month defect liability period."
+      },
+      {
+        "param_id": "PARAM-07",
+        "page": 6,
+        "quote": "Rated voltage Ur: 36 kV."
+      },
+      {
+        "param_id": "PARAM-08",
+        "page": 7,
+        "quote": "Rated for ambient temperatures from -25 °C to +40 °C without derating."
+      }
+    ],
+    "tender_facts": [],
+    "headline_price": {
+      "page": 22,
+      "quote": "Total lump-sum price for the complete scope: €452,000"
+    },
+    "cover_claim": {
+      "page": 2,
+      "quote": "Our offer is in full compliance with MR-33kV-GIS-Rev4 except minor commercial notes."
+    },
+    "not_stated": []
+  }
+}

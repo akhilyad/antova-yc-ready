@@ -1,0 +1,84 @@
+{
+  "key": "7ed27fcc2d420c6c0081cfb817a76974c53bce209595f5541363bccc84f40970__locate-v1-801b179cc4d5-eca28073b2e7__gpt-6-luna",
+  "filename": "Bid_vendor-b_VoltSwitch.pdf",
+  "sha256": "7ed27fcc2d420c6c0081cfb817a76974c53bce209595f5541363bccc84f40970",
+  "model": "gpt-6-luna",
+  "served_model": "gpt-6-luna",
+  "prompt_version": "locate-v1",
+  "prompt_fingerprint": "801b179cc4d5",
+  "recorded_at": "2026-11-14T00:36:39+00:00",
+  "usage": {
+    "input_tokens": 4027,
+    "output_tokens": 1130
+  },
+  "response": {
+    "page_sections": [
+      {
+        "page": 1,
+        "section": "cover_letter"
+      }
+    ],
+    "candidates": [
+      {
+        "param_id": "PARAM-01",
+        "page": 2,
+        "quote": "The switchgear is fully compliant with the Material Requisition, including the 50 kA / 3 s short-time withstand\nrating."
+      },
+      {
+        "param_id": "PARAM-01",
+        "page": 11,
+        "quote": "NOTE 7: Standard switchgear bay rated 31.5kA 1s. 50kA high-duty upgrade excluded from base price."
+      },
+      {
+        "param_id": "PARAM-02",
+        "page": 6,
+        "quote": "Busbar system manufactured from tin-plated E-AlMgSi0.5 aluminium alloy profiles rated 2500 A continuous."
+      },
+      {
+        "param_id": "PARAM-03",
+        "page": 7,
+        "quote": "Standard indoor enclosure IP42 with ventilation louvres; internal arc classification IAC AFL (front and lateral\nonly)."
+      },
+      {
+        "param_id": "PARAM-04",
+        "page": 3,
+        "quote": "IEC 61850 Ed.2 with PRP redundancy - Complied"
+      },
+      {
+        "param_id": "PARAM-04",
+        "page": 15,
+        "quote": "BOM Pos 44: Standard communication port RJ45 Modbus TCP; SCADA marshalling terminals supplied\nloose for EPC field termination."
+      },
+      {
+        "param_id": "PARAM-05",
+        "page": 18,
+        "quote": "Standard routine test certificates provided. Witnessed FAT charged extra at €1,300/day plus test bay setup."
+      },
+      {
+        "param_id": "PARAM-06",
+        "page": 21,
+        "quote": "Prices are quoted Ex-Works (EXW) Izmir factory loading dock; standard warranty 18 months from dispatch."
+      },
+      {
+        "param_id": "PARAM-07",
+        "page": 6,
+        "quote": "Rated voltage Ur: 36,000 V."
+      },
+      {
+        "param_id": "PARAM-08",
+        "page": 7,
+        "quote": "Maximum ambient temperature 40 °C without derating."
+      }
+    ],
+    "tender_facts": [],
+    "headline_price": {
+      "page": 22,
+      "quote": "Total lump-sum price for the complete scope: €418,000"
+    },
+    "cover_claim": {
+      "page": 2,
+      "quote": "We confirm our offer is 100% compliant with Material Requisition MR-33kV-GIS-Rev4."
+    },
+    "not_stated": []
+  }
+}
