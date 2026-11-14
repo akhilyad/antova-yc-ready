@@ -7,6 +7,7 @@ while a brief is VERIFIED: withdraw it first.
 
 from __future__ import annotations
 
+import logging
 from dataclasses import asdict
 from datetime import datetime, timezone
 from decimal import Decimal
@@ -31,6 +32,7 @@ from specclaw_review import evidence_hash, open_items, review_state
 
 _CENTS = Decimal("0.01")
 REVIEW_CACHE = "private, no-store"
+log = logging.getLogger(__name__)
 OVERRIDES_LOCKED = "Withdraw the brief before changing overrides"
 
 router = APIRouter(prefix="/api/review", tags=["Review"], dependencies=[Depends(require_review_token)])
@@ -126,14 +128,17 @@ def put_override(tender_id: str, param_id: str, vendor_id: str, body: OverrideBo
     # Stamped with the cell as the founder sees it now: a re-ingest keeps the override only while it is unchanged.
     TenderRepository(db).put_override(tender_id, param_id, vendor_id, body.adder_eur, body.note,
                                       evidence_hash(cell), set_by=principal.id)
+    log.info("override set: tender=%s cell=%s/%s by=%s", tender_id, param_id, vendor_id, principal.id)
     return Response(status_code=204)
 
 
 @router.delete("/tenders/{tender_id}/overrides/{param_id}/{vendor_id}", status_code=204,
                dependencies=[Depends(_editable)])
-def delete_override(tender_id: str, param_id: str, vendor_id: str, db: Session = Depends(get_db)):
+def delete_override(tender_id: str, param_id: str, vendor_id: str, db: Session = Depends(get_db),
+                    principal: ReviewerPrincipal = Depends(require_review_token)):
     if not TenderRepository(db).delete_override(tender_id, param_id, vendor_id):
         raise not_found()
+    log.info("override deleted: tender=%s cell=%s/%s by=%s", tender_id, param_id, vendor_id, principal.id)
     return Response(status_code=204)
 
 
@@ -158,6 +163,8 @@ def put_review(tender_id: str, param_id: str, vendor_id: str, body: ReviewBody,
         raise not_found()
     row = TenderRepository(db).add_review(tender_id, param_id, vendor_id, action=body.action,
                                           reviewer=principal.id, note=body.note, evidence_hash=evidence_hash(cell))
+    log.info("review recorded: tender=%s cell=%s/%s action=%s by=%s", tender_id, param_id, vendor_id,
+             body.action, principal.id)
     return {**row, "created_at": row["created_at"].isoformat(), "state": review_state(cell, row)}
 
 
@@ -215,13 +222,16 @@ def verify(tender_id: str, body: VerifyBody | None = None, db: Session = Depends
     except Exception:
         db.rollback()
         raise
+    log.info("brief verified: tender=%s run=%s by=%s", tender_id, run_id, principal.id)
     return {"share_id": loaded.meta.share_id, "verified_at": at.isoformat()}
 
 
 @router.post("/tenders/{tender_id}/withdraw", response_model=WithdrawResponse)
-def withdraw(tender_id: str, db: Session = Depends(get_db)):
+def withdraw(tender_id: str, db: Session = Depends(get_db),
+             principal: ReviewerPrincipal = Depends(require_review_token)):
     try:
         TenderRepository(db).set_status(tender_id, "DRAFT", datetime.now(timezone.utc))
     except LookupError:
         raise not_found() from None
+    log.info("brief withdrawn: tender=%s by=%s", tender_id, principal.id)
     return {"status": "DRAFT"}

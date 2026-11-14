@@ -7,6 +7,7 @@ Antova backend service.
   specclaw_briefs_api and specclaw_review_api.
 """
 
+import logging
 import os
 from contextlib import asynccontextmanager
 from typing import Dict
@@ -28,8 +29,18 @@ from specclaw_workers import job_manager
 from fastapi import Depends
 
 
+def configure_logging() -> None:
+    """Log to stderr at SPECCLAW_LOG_LEVEL (default INFO), unless the host already set logging up."""
+    if logging.getLogger().handlers:
+        return
+    level = (os.environ.get("SPECCLAW_LOG_LEVEL") or "INFO").upper()
+    logging.basicConfig(level=level if level in logging.getLevelNamesMapping() else "INFO",
+                        format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    configure_logging()
     init_db()
     config.validate_config()  # an ontology or rate-table gap stops the service at startup
     job_manager.start()
