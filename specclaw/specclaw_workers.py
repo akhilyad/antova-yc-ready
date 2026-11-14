@@ -10,6 +10,8 @@ Ingest job worker.
 """
 
 import asyncio
+import logging
+import time
 import uuid
 from pathlib import Path
 from typing import Callable, Dict, Optional
@@ -18,8 +20,11 @@ from fastapi.encoders import jsonable_encoder
 
 from specclaw_db import SessionLocal, TenderRepository
 from specclaw_ingest import extract, pipeline
+from specclaw_ingest.extract import ExtractError
 from specclaw_models import JobStatus, JobStatusResponse
 from specclaw_service import persist
+
+log = logging.getLogger(__name__)
 
 INTERRUPTED = "Interrupted: the service restarted before this job finished. Submit it again."
 
@@ -47,7 +52,9 @@ class JobQueueManager:
         if not self._running:
             self._running = True
             # Jobs left over from a previous process or app lifespan will never run.
-            _repo_call(lambda repo: repo.fail_unfinished_jobs(INTERRUPTED))
+            interrupted = _repo_call(lambda repo: repo.fail_unfinished_jobs(INTERRUPTED))
+            if interrupted:
+                log.warning("marked %d unfinished ingest job(s) as interrupted", interrupted)
             # A fresh queue per start: each app lifespan has its own event loop.
             self._queue = asyncio.Queue()
             self._active = {}
@@ -101,8 +108,8 @@ class JobQueueManager:
                 self._queue.task_done()
             except asyncio.CancelledError:
                 break
-            except Exception as e:
-                print(f"[Worker Error] {e}")
+            except Exception:
+                log.exception("ingest worker loop error")
                 await asyncio.sleep(0.5)
 
     @staticmethod
@@ -118,6 +125,8 @@ class JobQueueManager:
         if job is None:
             return
         tender_id = job["tender_id"]
+        started = time.perf_counter()
+        log.info("ingest job %s started: tender=%s mode=%s", job_id, tender_id, job["mode"])
         _repo_call(lambda repo: repo.update_job(job_id, status="PROCESSING"))
 
         def progress(stage: str, pct: int) -> None:
@@ -132,7 +141,15 @@ class JobQueueManager:
             _repo_call(lambda repo: repo.update_job(
                 job_id, status="COMPLETED", progress_pct=100, stage="Persist", finished=True,
                 result=jsonable_encoder({**result.stats, "overrides_cleared": cleared})))
+            log.info("ingest job %s completed: tender=%s %.1fs, %d override(s) cleared", job_id, tender_id,
+                     time.perf_counter() - started, len(cleared))
         except Exception as e:
+            # An ingest that fails for a reason about the documents (a bad manifest, an unreadable MR, a
+            # model refusal) is an outcome, not a bug: a warning. Anything else is logged with its traceback.
+            if isinstance(e, (pipeline.IngestFailed, pipeline.UnknownTender, ExtractError)):
+                log.warning("ingest job %s failed: tender=%s: %s", job_id, tender_id, e)
+            else:
+                log.exception("ingest job %s crashed: tender=%s", job_id, tender_id)
             _repo_call(lambda repo: repo.update_job(
                 job_id, status="FAILED", finished=True, error=f"{type(e).__name__}: {e}"))
         finally:
