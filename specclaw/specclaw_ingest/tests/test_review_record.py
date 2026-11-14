@@ -15,7 +15,8 @@ from specclaw_api import app
 from specclaw_auth import REVIEW_HEADER
 from specclaw_db import SessionLocal, TenderRepository
 from specclaw_ingest import clarify
-from specclaw_ingest.pipeline import persist, run_ingest
+from specclaw_ingest.pipeline import run_ingest
+from specclaw_service import persist
 from specclaw_ingest.tests.fakes import PACK, AnswerKeyLocator, load_expected
 from specclaw_review import evidence_hash, open_items, review_state
 

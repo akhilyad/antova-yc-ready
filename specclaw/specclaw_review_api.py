@@ -22,6 +22,10 @@ from specclaw_briefs_api import (
     LoadedTender, RatesBody, brief, evaluate, evidence_png, load_tender, not_found,
 )
 from specclaw_db import TenderRepository, get_db
+from specclaw_models import (
+    BriefResponse, ConflictResponse, EvaluateResponse, ReviewPutResponse, ReviewRow, ReviewTenderRow,
+    VerifyResponse, WithdrawResponse,
+)
 from specclaw_ingest import clarify
 from specclaw_review import evidence_hash, open_items, review_state
 
@@ -78,7 +82,7 @@ def _editable(tender_id: str, db: Session = Depends(get_db)) -> LoadedTender:
     return loaded
 
 
-@router.get("/tenders")
+@router.get("/tenders", response_model=list[ReviewTenderRow])
 def list_tenders(db: Session = Depends(get_db)):
     """Newest ingest first, with the count of open items that block verifying each."""
     rows = []
@@ -96,12 +100,12 @@ def list_tenders(db: Session = Depends(get_db)):
     return rows
 
 
-@router.get("/tenders/{tender_id}")
+@router.get("/tenders/{tender_id}", response_model=BriefResponse)
 def get_tender(tender_id: str, db: Session = Depends(get_db)):
     return brief(_loaded(db, tender_id))
 
 
-@router.post("/tenders/{tender_id}/evaluate")
+@router.post("/tenders/{tender_id}/evaluate", response_model=EvaluateResponse)
 def evaluate_tender(tender_id: str, rates: RatesBody, db: Session = Depends(get_db)):
     return evaluate(_loaded(db, tender_id), rates)
 
@@ -133,14 +137,14 @@ def delete_override(tender_id: str, param_id: str, vendor_id: str, db: Session =
     return Response(status_code=204)
 
 
-@router.get("/tenders/{tender_id}/reviews")
+@router.get("/tenders/{tender_id}/reviews", response_model=list[ReviewRow])
 def list_reviews(tender_id: str, db: Session = Depends(get_db)):
     """The tender's whole review record, oldest first."""
     _loaded(db, tender_id)
     return [{**row, "created_at": row["created_at"].isoformat()} for row in TenderRepository(db).list_reviews(tender_id)]
 
 
-@router.put("/tenders/{tender_id}/reviews/{param_id}/{vendor_id}")
+@router.put("/tenders/{tender_id}/reviews/{param_id}/{vendor_id}", response_model=ReviewPutResponse)
 def put_review(tender_id: str, param_id: str, vendor_id: str, body: ReviewBody,
                loaded: LoadedTender = Depends(_editable), db: Session = Depends(get_db),
                principal: ReviewerPrincipal = Depends(require_review_token)):
@@ -178,7 +182,7 @@ def _open_items_conflict(items) -> JSONResponse:
     })
 
 
-@router.post("/tenders/{tender_id}/verify")
+@router.post("/tenders/{tender_id}/verify", response_model=VerifyResponse, responses={409: {"model": ConflictResponse}})
 def verify(tender_id: str, body: VerifyBody | None = None, db: Session = Depends(get_db),
            principal: ReviewerPrincipal = Depends(require_review_token)):
     """Publish a brief, once, if it is the run the reviewer saw and nothing blocks it.
@@ -214,7 +218,7 @@ def verify(tender_id: str, body: VerifyBody | None = None, db: Session = Depends
     return {"share_id": loaded.meta.share_id, "verified_at": at.isoformat()}
 
 
-@router.post("/tenders/{tender_id}/withdraw")
+@router.post("/tenders/{tender_id}/withdraw", response_model=WithdrawResponse)
 def withdraw(tender_id: str, db: Session = Depends(get_db)):
     try:
         TenderRepository(db).set_status(tender_id, "DRAFT", datetime.now(timezone.utc))

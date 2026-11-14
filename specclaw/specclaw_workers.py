@@ -19,6 +19,7 @@ from fastapi.encoders import jsonable_encoder
 from specclaw_db import SessionLocal, TenderRepository
 from specclaw_ingest import extract, pipeline
 from specclaw_models import JobStatus, JobStatusResponse
+from specclaw_service import persist
 
 INTERRUPTED = "Interrupted: the service restarted before this job finished. Submit it again."
 
@@ -108,7 +109,7 @@ class JobQueueManager:
     def _persist(result) -> list[dict]:
         db = SessionLocal()
         try:
-            return pipeline.persist(result, db)
+            return persist(result, db)
         finally:
             db.close()
 

@@ -27,7 +27,8 @@ from specclaw_ingest.extract import (
 )
 from specclaw_ingest.ontology import PARAMS_BY_ID, FieldDef, ParameterDef
 from specclaw_ingest.parse import ManifestError, load_manifest, parse_document, verify_quote
-from specclaw_ingest.pipeline import IngestFailed, persist, run_ingest
+from specclaw_ingest.pipeline import IngestFailed, run_ingest
+from specclaw_service import persist
 from specclaw_ingest.precedence import merge_requirement, resolve
 from specclaw_ingest.tests.fakes import PACK, AnswerKeyLocator, FakeAnthropic, fake_message, load_expected
 from specclaw_ingest.tests.helpers import QUANTITIES, evidence, sample_tender
