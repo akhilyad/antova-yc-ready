@@ -1,152 +1,148 @@
 <p align="center">
-  <img src="public/antova-logo.svg" alt="Antova logo" width="64" />
+  <img src="public/antova-banner.svg" alt="Antova: technical bid evaluation for electrical tenders" width="100%" />
 </p>
 
-<p align="center">
-  <img src="public/antova-banner.svg" alt="Antova — Technical Bid Evaluation for Electrical Tenders" width="100%" />
-</p>
+# Antova
 
-<p align="center">
-  <a href="https://react.dev"><img alt="React 19" src="https://img.shields.io/badge/React-19.0-FFE98A?style=flat-square&logo=react&logoColor=15120F" /></a>
-  <a href="https://vite.dev"><img alt="Vite 8" src="https://img.shields.io/badge/Vite-8.3-646CFF?style=flat-square&logo=vite&logoColor=white" /></a>
-  <a href="https://tailwindcss.com"><img alt="Tailwind CSS 4" src="https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" /></a>
-  <a href="https://www.typescriptlang.org"><img alt="TypeScript 7" src="https://img.shields.io/badge/TypeScript-7.0-3178C6?style=flat-square&logo=typescript&logoColor=white" /></a>
-  <a href="https://bun.sh"><img alt="Bun Lockfile" src="https://img.shields.io/badge/Bun-Lockfile-15120F?style=flat-square&logo=bun&logoColor=white" /></a>
-</p>
+**The cheapest bid isn't the cheapest.** Antova reads every vendor bid against your technical specification, prices what each bid leaves out, and ties every flag to the page and exact words behind it.
 
-**Antova** is a browser-only demo of technical bid leveling for electrical tenders. Every price, citation, and penalty on the page is static sample data; nothing is computed from uploaded files.
-The real engine (PDF ingestion, specification checks, rate tables) runs separately and is not part of this repo.
-Engine code and a live walkthrough: available on request via [LinkedIn](https://www.linkedin.com/in/akhilyad/).
+Built for procurement and estimating teams comparing bids on heavy electrical equipment. Supported today: 33 kV gas-insulated switchgear.
 
----
+## Overview and problem
 
-## Contents
+An industrial equipment tender runs to hundreds of pages per bid. The lowest quote often wins because the missing items sit in one footnote: a lower short-circuit rating, aluminium busbars where copper was specified, factory testing "charged extra", freight left out. After award they come back as change orders.
 
-- [Features](#features)
-- [Deterministic bid-leveling engine](#deterministic-bid-leveling-engine)
-- [Application architecture](#application-architecture)
-- [Getting started](#getting-started)
-- [Environment variables](#environment-variables)
-- [Testing](#testing)
-- [Scripts](#scripts)
-- [Repository notes and limitations](#repository-notes-and-limitations)
+Today a buyer's engineer finds these by hand, in a spreadsheet, under deadline. Antova automates the repetitive part and keeps the judgment with a person:
 
----
+- **Reads** each bid for the sentence that answers each requirement, with its page and position.
+- **Checks** the values in code. Units are converted (104 °F becomes 40 °C) before they meet the spec limit.
+- **Prices** each gap from a versioned rate table. An unknown quantity is marked unpriced, never counted as zero.
+- **Halts for approval.** A manager, engineer or analyst on the buyer's procurement team approves every flag before an audit is final. The award decision stays with the buyer.
 
-## Features
+On the benchmark 33 kV switchgear package, the lowest headline bid (€418,000) is ranked last once its gaps are priced (from €479,650, a lower bound because one gap cannot be priced from the documents).
 
-| Section | Implementation | Interactive behavior |
-| :--- | :--- | :--- |
-| **Interactive hero comparator** | `HeroSection.tsx` | Switches the `33kV GIS SWITCHGEAR PACKAGE` chart (`MAX_AXIS_EUR = 500000`) between `sticker`, `true`, and `pushback` modes; clicking deviation segments opens an inline PDF citation popover (`page`, `name`, `penalty`, `quote`). |
-| **Pinned workflow stack** | `ProblemStackSection.tsx` + `tilt-stack-scroll.tsx` | Uses GSAP + `ScrollTrigger` to pin three workflow stages (`01 / BID EVALUATION`, `02 / TECHNICAL AUDIT`, `03 / CONTRACT EXECUTION`) with index jump controls. |
-| **Redline comparison & 3D audit card** | `SolutionMockupSection.tsx` | Interactive hover slider (`"As Quoted" €418,000` vs `"Audited" €482,800`) paired with a perspective `DepthCard3D` surfacing exclusion penalties (`+€4,000 (FAT Excluded)`). |
-| **Capabilities bento** | `FeatureBentoSection.tsx` | Four capability cards covering Financial Auditing, Specification Checks, Cost Governance, and a cycling Pushback Notice feed (`2800ms` interval). |
-| **Tiered pricing, FAQ & intake** | `OfferFormAndFaqSection.tsx` | Pre-selects tier (`Shadow Audit`, `Per Tender`, `Pack of Five`) into the request banner, validates work email (`validateWorkEmail`), and uses Radix Accordion for FAQ items. |
-| **Team view** | `TeamPage.tsx` (`Team01`) | Dedicated `/team` view managed via `window.history.pushState` / `popstate` transitions. |
+## Tender Audit Architecture
 
----
+Bid evaluations execute through deterministic rule engines and schema-validated parsing. No unverified model output is committed to a commercial table without deterministic cross-checks and a named reviewer's sign-off.
 
-## Deterministic bid-leveling engine
-
-All chart totals and vendor ordering are calculated deterministically by `src/utils/audit.ts` against `VENDOR_BIDS` in `src/constants.ts`:
-
-| Vendor | Mode | Base price | Active deviations | Total leveled cost | Delta vs Vendor A |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Vendor A** | `sticker` / `true` / `pushback` | `€452,000` | `0` | `€452,000` | `—` |
-| **Vendor B** | `sticker` | `€418,000` | `0` shown | `€418,000` | `-€34,000` |
-| **Vendor B** | `true` | `€418,000` | `5` deviations (`+€64,800`) | `€482,800` | `+€30,800` |
-| **Vendor B** | `pushback` | `€418,000` | `2` remaining (`+€18,300`; `€46,500` absorbed) | `€436,300` | `-€15,700` |
+The model only finds quotes. It returns a page number and the verbatim words, nothing else. Every number, unit, pass/fail decision and euro amount is produced by code.
 
 ```mermaid
-flowchart LR
-    M["Mode Toggle (sticker | true | pushback)"] --> D["getVendorActiveDeviations()"]
-    D --> P["getVendorPenaltyTotal() + getVendorDisplayPrice()"]
-    P --> S["sortVendorsByMode()"]
-    S --> C["Render Scaled Bar (amount / 500000)"]
-    C -->|"Click segment / pill"| CIT["Open PDF Citation Card (page, section, quote)"]
+sequenceDiagram
+    autonumber
+    participant E as Engineer / Frontend
+    participant G as API Gateway
+    participant P as SPECCLAW Parser
+    participant L as Locate Model
+    participant R as Rule & Spec Engine
+    participant A as Audit Ledger
+
+    E->>G: Upload spec and vendor bid PDFs, plus manifest
+    G->>P: Validate files, queue ingest job
+    P->>P: Parse pages into words with bounding boxes
+    P->>L: Find page and verbatim quote for each requirement
+    L-->>P: Candidate quotes only, no numbers or verdicts
+    P->>P: Reject quotes not on the page word for word, sweep for unquoted items
+    P->>R: Verified evidence per vendor and requirement
+    R->>R: Convert units, check values, resolve precedence, flag omissions
+    R->>R: Price each gap from the rate table, leave unknowns unpriced
+    R->>A: Persist draft audit with open flags
+    E->>G: Approve, override or reject each flag, then verify
+    G->>A: Record reviewer, action and evidence hash, refuse while flags are open
+    G-->>E: Final audit, PDF report and workbook
 ```
 
----
-
-## Application architecture
-
-The application runs exclusively in the browser (`index.html` -> `src/main.tsx` -> `src/App.tsx`).
-
-- **Client-side routing**: `src/App.tsx` tracks `PageView` (`'home' | 'team'`) with `window.history.pushState` and a `popstate` listener rather than React Router.
-- **Intake form**: `submitAuditRequest()` in `src/utils/audit.ts` POSTs `email`, `company`, `equipment`, and `plan` as JSON to the Formspree-compatible URL in `VITE_INTAKE_ENDPOINT`. With no endpoint set, the form shows an error instead of silently dropping the request.
-- **Sample-data labels**: the hero chart and the redline section carry a visible "Sample tender, illustrative data" tag.
-
----
-
-## Getting started
-
-### Prerequisites
-
-- Node.js 20+ or Bun (a `bun.lock` lockfile is committed; no `package-lock.json`)
-
-### Install and run locally
-
-```bash
-# 1. Install dependencies
-bun install
-# or: npm install
-
-# 2. Start Vite dev server on http://localhost:3000
-bun run dev
-# or: npm run dev
-```
-
-### Build for static hosting
-
-```bash
-bun run build
-# Outputs static site bundle into dist/
-```
-
----
-
-## Environment variables
-
-| Variable | Scope | Notes |
+| Step | What happens | Code |
 | :--- | :--- | :--- |
-| `VITE_INTAKE_ENDPOINT` | Client build | Formspree (or compatible) form URL for the intake form. Public by design. See `.env.example`. |
+| 1 to 2 | PDFs are checked before they are kept: header, size, page count, encryption. | `specclaw/specclaw_upload_api.py` |
+| 3 to 7 | Pages become words with coordinates. The model proposes quotes. A quote that is not on its page word for word is dropped. A recall sweep catches value-shaped sentences the model missed. Scanned pages are flagged for manual review. | `specclaw/specclaw_ingest/parse.py`, `extract.py`, `verify.py`, `sweep.py` |
+| 8 | Values are read and compared with the spec. Drawings and bills of materials outrank cover letters. A contradiction keeps both pages. A missing item is marked omitted. | `values.py`, `precedence.py`, `ontology.py` |
+| 9 | Each gap is priced from a versioned rate table. The strict warranty rule flags a warranty counted from a different start point and leaves it unpriced unless the spec states the gap. | `costs.py`, `rates/mv_gis_switchgear_v2.json` |
+| 10 to 13 | A draft stays a draft while any flag is open. Approvals are recorded per cell with the reviewer's identity, and a changed re-ingest makes an old approval stale. | `specclaw_review.py`, `specclaw_review_api.py`, `specclaw_db.py` |
 
----
+## Repository blueprint
 
-## Testing
+```text
+.
+├── src/                          Marketing landing page (React 19, Vite, Tailwind 4)
+│   ├── components/               Hero, narrative, pricing, FAQ, intake form
+│   ├── constants.ts              All page copy; every figure comes from the benchmark package
+│   ├── data/tender402.ts         Benchmark 33 kV package as the page renders it
+│   └── utils/audit.test.ts       Copy and figure checks
+├── public/                       Logo, banner, founder photo
+├── specclaw/                     Audit engine (Python, FastAPI, SQLAlchemy)
+│   ├── specclaw_api.py           App entry, job routes, health
+│   ├── specclaw_upload_api.py    Tender PDF and manifest intake with checks
+│   ├── specclaw_review_api.py    Flags, approvals, overrides, verify, exports
+│   ├── specclaw_briefs_api.py    Shareable read-only audit briefs
+│   ├── specclaw_auth.py          Named reviewer tokens
+│   ├── specclaw_workers.py       Background ingest queue (single worker)
+│   ├── specclaw_engine.py        Evaluated prices, ranking, negotiation what-ifs
+│   ├── specclaw_db.py            Tenders, cells, reviews, overrides, ledger
+│   ├── specclaw_export.py        Vendor clarification logs, verified workbook
+│   ├── specclaw_ingest/          The ingestion pipeline
+│   │   ├── parse.py extract.py   PDF to words, model quote lookup
+│   │   ├── verify.py sweep.py    Quote verification, recall sweep
+│   │   ├── values.py             Number, unit and clause parsing (pint)
+│   │   ├── ontology.py           The eight evaluated parameters and their rules
+│   │   ├── precedence.py         Evidence ranking, conflicts, warranty basis
+│   │   ├── costs.py rates/       Rate-table versions and pricing
+│   │   └── eval.py               Accuracy across generated edge-case packs
+│   ├── samples/                  Reference tender datasets and their generator
+│   ├── web/                      Review and brief app (React, TypeScript, Vitest, Playwright)
+│   └── docs/                     Design notes, deploy checklist, roadmap
+└── .github/workflows/ci.yml      Backend and web tests on every pull request
+```
 
-Six unit tests in `src/utils/audit.test.ts` (using `node:test` and `node:assert/strict`) cover:
-1. Exact penalty sums and leveled prices for Vendor A and Vendor B across `'sticker'`, `'true'`, and `'pushback'` modes.
-2. Vendor sort flip between `'sticker'`/`'pushback'` and `'true'` modes.
-3. Euro formatting (`formatEuro`) and work-email validation (`validateWorkEmail`).
-4. Copy integrity across `src/constants.ts` (pricing tiers, no unlimited plan, zero em-dashes, no leftover `'SpecClaw'` strings).
-5. Intake submission: rejects without an endpoint, posts JSON with one, and surfaces HTTP errors.
+## Local setup
 
-Run them with `npm test`.
+Requires Python 3.12+ and Node 20+.
 
----
+**Landing page**
 
-## Scripts
+```bash
+npm install
+npm run dev          # http://localhost:3000
+npm test
+```
 
-| Command | Description |
-| :--- | :--- |
-| `npm run dev` | Starts Vite development server on port `3000` (`--host=0.0.0.0`) |
-| `npm run build` | Builds the production static bundle into `dist/` |
-| `npm run preview` | Previews the built `dist/` bundle locally |
-| `npm run clean` | Removes `dist` via POSIX `rm -rf` |
-| `npm run typecheck` | Runs `tsc --noEmit` |
-| `npm test` | Runs `src/utils/audit.test.ts` with `tsx --test` |
+**Audit engine**
 
----
+```bash
+cd specclaw
+pip install -r specclaw_requirements.txt
+python -m pytest -q
+```
 
-## Repository notes and limitations
+Run the full pipeline on the benchmark 33 kV switchgear package, offline, using recorded model answers, and compare it with the answer key:
 
-- **Demo data only**: citations, penalties, and vendor prices are constants in `src/constants.ts`.
-- **SPA rewrite required for `/team`**: `window.history.pushState` navigates to `/team`, so static hosts must rewrite unknown routes to `index.html` to support direct refreshes on `/team`.
-- **Intake needs an endpoint**: set `VITE_INTAKE_ENDPOINT` at build time, otherwise submissions show an error.
+```bash
+python -m specclaw_ingest.run samples/TENDER-2026-402 --mode replay --verify
+```
 
----
+Serve the API. Use a single worker: the job queue is in-process.
 
-<p align="center">
-  <sub>Antova · React 19 · Vite 8 · Tailwind CSS 4 · GSAP · Electrical Bid Leveling</sub>
-</p>
+```bash
+ANTOVA_REVIEW_TOKEN=change-me uvicorn specclaw_api:app --port 8000
+```
+
+Live runs need a locate-model key (`ANTHROPIC_API_KEY` or `EXPLABS_API_KEY`). Copy `specclaw/.env.example` to `specclaw/.env`.
+
+**Review app**
+
+```bash
+cd specclaw/web
+npm ci
+npm run dev
+```
+
+## Status
+
+- The pipeline passes 800+ backend tests and a web suite that pins the TypeScript pricing math to the Python engine. CI never calls a paid API.
+- The reference tender datasets are synthetic: generated documents and fictional vendors, with a known answer key. The parser has not yet been run on customer tenders, and scanned pages are flagged, not read.
+- Rate tables carry one rate per item. Rate ranges and currency conversion are not built.
+- See [`specclaw/docs/yc-demo-roadmap.md`](specclaw/docs/yc-demo-roadmap.md) for what is next.
+
+## License
+
+See [LICENSE](LICENSE).
