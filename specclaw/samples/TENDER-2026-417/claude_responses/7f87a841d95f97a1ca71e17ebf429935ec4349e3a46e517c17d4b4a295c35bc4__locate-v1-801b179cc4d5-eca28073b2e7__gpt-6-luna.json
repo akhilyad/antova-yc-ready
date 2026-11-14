@@ -1,0 +1,74 @@
+{
+  "key": "7f87a841d95f97a1ca71e17ebf429935ec4349e3a46e517c17d4b4a295c35bc4__locate-v1-801b179cc4d5-eca28073b2e7__gpt-6-luna",
+  "filename": "Bid_vendor-a_Kestrel.pdf",
+  "sha256": "7f87a841d95f97a1ca71e17ebf429935ec4349e3a46e517c17d4b4a295c35bc4",
+  "model": "gpt-6-luna",
+  "served_model": "gpt-6-luna",
+  "prompt_version": "locate-v1",
+  "prompt_fingerprint": "801b179cc4d5",
+  "recorded_at": "2026-11-14T00:37:01+00:00",
+  "usage": {
+    "input_tokens": 4495,
+    "output_tokens": 602
+  },
+  "response": {
+    "page_sections": [
+      {
+        "page": 1,
+        "section": "cover_letter"
+      }
+    ],
+    "candidates": [
+      {
+        "param_id": "PARAM-01",
+        "page": 6,
+        "quote": "Rated short-time withstand current (main busbar and breaker): 31.5 kA / 3 s."
+      },
+      {
+        "param_id": "PARAM-02",
+        "page": 6,
+        "quote": "Main busbars: silver-plated electrolytic copper Cu-ETP, 2000 A continuous."
+      },
+      {
+        "param_id": "PARAM-03",
+        "page": 7,
+        "quote": "Enclosure protection IP54 with rear gas exhaust ducting, internal arc classification IAC AFLR."
+      },
+      {
+        "param_id": "PARAM-04",
+        "page": 8,
+        "quote": "Protection IEDs KS-Guard 7 with IEC 61850 Ed.2 PRP dual-port fibre, pre-wired to the central RTU\nmarshalling cabinet."
+      },
+      {
+        "param_id": "PARAM-05",
+        "page": 18,
+        "quote": "The price includes a 3-day client-witnessed I-FAT with primary injection."
+      },
+      {
+        "param_id": "PARAM-06",
+        "page": 21,
+        "quote": "Delivery DDP project site Rogaland (Incoterms 2020) with a 24-month defect liability period."
+      },
+      {
+        "param_id": "PARAM-07",
+        "page": 6,
+        "quote": "Rated voltage Ur: 36 kV."
+      },
+      {
+        "param_id": "PARAM-08",
+        "page": 7,
+        "quote": "Rated for ambient temperatures from -25 °C to +45 °C without derating."
+      }
+    ],
+    "tender_facts": [],
+    "headline_price": {
+      "page": 22,
+      "quote": "Total lump-sum price for the complete scope: EUR 388.000,00"
+    },
+    "cover_claim": {
+      "page": 2,
+      "quote": "Our offer is in full compliance with MR-Collector-GIS-Rev2."
+    },
+    "not_stated": []
+  }
+}

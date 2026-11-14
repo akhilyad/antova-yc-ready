@@ -1,0 +1,74 @@
+{
+  "key": "a1ff7f0058058fd1d88864c4a04d11ed71af65ab425a4131d01c4f5d527e3b00__locate-v1-801b179cc4d5-eca28073b2e7__gpt-6-luna",
+  "filename": "MR-Collector-GIS-Rev2.pdf",
+  "sha256": "a1ff7f0058058fd1d88864c4a04d11ed71af65ab425a4131d01c4f5d527e3b00",
+  "model": "gpt-6-luna",
+  "served_model": "gpt-6-luna",
+  "prompt_version": "locate-v1",
+  "prompt_fingerprint": "801b179cc4d5",
+  "recorded_at": "2026-11-14T00:36:54+00:00",
+  "usage": {
+    "input_tokens": 4543,
+    "output_tokens": 766
+  },
+  "response": {
+    "page_sections": [],
+    "candidates": [
+      {
+        "param_id": "PARAM-01",
+        "page": 5,
+        "quote": "Rated short-time withstand current Ik shall be 31.5 kA RMS for a duration of 3 s."
+      },
+      {
+        "param_id": "PARAM-02",
+        "page": 6,
+        "quote": "Main busbars shall be electrolytic copper Cu-ETP rated for 2000 A continuous current."
+      },
+      {
+        "param_id": "PARAM-03",
+        "page": 6,
+        "quote": "Enclosure protection shall be IP54 with internal arc classification IAC AFLR."
+      },
+      {
+        "param_id": "PARAM-04",
+        "page": 7,
+        "quote": "Protection IEDs shall communicate via IEC 61850 Edition 2 with PRP redundancy, with pre-wired RTU\nmarshalling in a central marshalling cabinet."
+      },
+      {
+        "param_id": "PARAM-05",
+        "page": 13,
+        "quote": "A 3-day witnessed integrated factory acceptance test (I-FAT) with primary injection shall be included in the\ncontract price."
+      },
+      {
+        "param_id": "PARAM-06",
+        "page": 14,
+        "quote": "Delivery shall be DDP project site Rogaland (Incoterms 2020)."
+      },
+      {
+        "param_id": "PARAM-06",
+        "page": 14,
+        "quote": "The defect liability period shall be 24 months from commissioning."
+      },
+      {
+        "param_id": "PARAM-07",
+        "page": 5,
+        "quote": "Rated voltage Ur shall be not less than 36 kV."
+      },
+      {
+        "param_id": "PARAM-08",
+        "page": 7,
+        "quote": "Equipment shall be rated for a maximum ambient air temperature of +45 °C without derating."
+      }
+    ],
+    "tender_facts": [
+      {
+        "fact": "bay_count",
+        "page": 3,
+        "quote": "The switchgear lineup comprises 7 bays (1 incomer, 1 bus coupler, 5 feeders) of gas-insulated switchgear."
+      }
+    ],
+    "headline_price": null,
+    "cover_claim": null,
+    "not_stated": []
+  }
+}
