@@ -105,8 +105,8 @@ test('landing has no serious axe violations, with and without the audit modal', 
 
   // The hero's button; How it works has a second one.
   const watch = page
-    .getByRole('region', { name: "The cheapest bid wasn't the cheapest." })
-    .getByRole('button', { name: 'Watch it check a tender' })
+    .getByRole('region', { name: 'The lowest bid is almost never the cheapest.' })
+    .getByRole('button', { name: 'Watch 1-Minute Walkthrough' })
   const replay = page.getByRole('dialog', { name: 'Replay: checking TENDER-2026-402' })
   await expect(async () => {
     await watch.click()
