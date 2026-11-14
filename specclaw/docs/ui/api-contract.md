@@ -145,3 +145,15 @@ specclaw_ingest.export_fixtures`). They are LF files (`web/.gitattributes`, R11)
 | `ANTHROPIC_API_KEY` | backend | live ingests. Not set anywhere today. |
 
 Never write a token value or API key into this repo. It is public.
+
+## Uploads and exports (backend only; the web app does not call these yet)
+
+All need the review token. Uploads answer 503 unless `SPECCLAW_TENDERS_DIR` is set.
+
+| Route | Purpose |
+| --- | --- |
+| `PUT /api/review/tenders/{id}/files/{name}.pdf` | one PDF as the raw body; 201 `{filename, size_bytes, sha256, pages}`. 413 over the size limit, 422 for a bad name, a non-PDF, an encrypted PDF or too many pages, 409 when the tender is full or its brief is verified |
+| `GET /api/review/tenders/{id}/files` | the folder's PDFs and whether a manifest is in place |
+| `PUT /api/review/tenders/{id}/manifest` | the manifest JSON, validated against the folder; then `POST /api/jobs/ingest` |
+| `GET .../clarifications.csv` or `.xlsx`, `?vendor={id}` | the clarification log; with `vendor`, only that vendor's questions (their bid and the MR, no other bidder, no prices). 404 for an unknown vendor |
+| `GET .../export-tbe.xlsx` | the verified evaluation as a workbook (Summary, Leveling, Adders, Overrides, Reviews, Clarifications). 409 until the brief is verified |

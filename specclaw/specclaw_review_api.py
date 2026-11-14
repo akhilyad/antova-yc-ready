@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, StringConstraints, field_validator
 from sqlalchemy.orm import Session
@@ -27,6 +27,7 @@ from specclaw_models import (
     BriefResponse, ConflictResponse, EvaluateResponse, ReviewPutResponse, ReviewRow, ReviewTenderRow,
     VerifyResponse, WithdrawResponse,
 )
+from specclaw_export import XLSX_TYPE, clarifications_xlsx, tbe_workbook
 from specclaw_ingest import clarify
 from specclaw_review import evidence_hash, open_items, review_state
 
@@ -168,13 +169,73 @@ def put_review(tender_id: str, param_id: str, vendor_id: str, body: ReviewBody,
     return {**row, "created_at": row["created_at"].isoformat(), "state": review_state(cell, row)}
 
 
+def _clarification_rows(loaded: LoadedTender, vendor: str | None) -> list[dict]:
+    """The clarification questions, for one vendor when `vendor` is given (404 if it is not in the tender).
+
+    A vendor's rows quote only its own bid and the buyer's requirement: no other bidder's name, price or
+    citation, so one vendor's file can be sent to that vendor as it is.
+    """
+    if vendor is not None and vendor not in {v.id for v in loaded.tender.vendors}:
+        raise not_found()
+    rows = clarify.clarifications(loaded.tender)
+    return rows if vendor is None else [r for r in rows if r["vendor_id"] == vendor]
+
+
+def _attachment(body: bytes | str, media_type: str, name: str) -> Response:
+    return Response(content=body, media_type=media_type, headers={
+        "Content-Disposition": f"attachment; filename={name}", "Cache-Control": REVIEW_CACHE})
+
+
 @router.get("/tenders/{tender_id}/clarifications.csv")
-def clarifications_csv(tender_id: str, db: Session = Depends(get_db)):
-    """The vendor clarification register: one templated question per gap, with the pages it rests on."""
+def clarifications_csv(tender_id: str, vendor: Annotated[str | None, Query(max_length=64)] = None,
+                       db: Session = Depends(get_db)):
+    """The vendor clarification register: one templated question per gap, with the pages it rests on.
+    `?vendor=<id>` limits it to one vendor, ready to send to them."""
     loaded = _loaded(db, tender_id)
-    body = clarify.to_csv(clarify.clarifications(loaded.tender))
-    return Response(content=body, media_type="text/csv; charset=utf-8", headers={
-        "Content-Disposition": f"attachment; filename=Clarifications_{tender_id}.csv", "Cache-Control": REVIEW_CACHE})
+    suffix = f"_{vendor}" if vendor else ""
+    return _attachment(clarify.to_csv(_clarification_rows(loaded, vendor)), "text/csv; charset=utf-8",
+                       f"Clarifications_{tender_id}{suffix}.csv")
+
+
+@router.get("/tenders/{tender_id}/clarifications.xlsx")
+def clarifications_xlsx_route(tender_id: str, vendor: Annotated[str | None, Query(max_length=64)] = None,
+                              db: Session = Depends(get_db)):
+    """The same register as a spreadsheet."""
+    loaded = _loaded(db, tender_id)
+    suffix = f"_{vendor}" if vendor else ""
+    return _attachment(clarifications_xlsx(_clarification_rows(loaded, vendor)), XLSX_TYPE,
+                       f"Clarifications_{tender_id}{suffix}.xlsx")
+
+
+@router.get("/tenders/{tender_id}/export-tbe.xlsx", responses={409: {"model": ConflictResponse}})
+def export_tbe(tender_id: str, db: Session = Depends(get_db)):
+    """The verified evaluation as a workbook: summary, leveling, every priced cell, the overrides and
+    reviews behind it, and the clarification log. Only a VERIFIED brief can be exported."""
+    loaded = _loaded(db, tender_id)
+    if loaded.meta.status != "VERIFIED":
+        return JSONResponse(status_code=409, content={"detail": "Verify the brief before exporting it"})
+    payload = brief(loaded)
+    cells_by_key = {(p.id, vid): c for p in loaded.tender.parameters for vid, c in p.vendors.items()}
+    cells = []
+    for f in payload["financials"]:
+        for item in f["itemized_breakdown"]:
+            cell = cells_by_key[(item["param_id"], f["vendor_id"])]
+            source = cell.citation
+            cells.append({
+                "vendor_id": f["vendor_id"], "param_id": item["param_id"], "param_name": item["param_name"],
+                "criticality": item["criticality"], "status": item["status"], "adder_eur": item["adder_eur"],
+                "pricing_status": item["pricing_status"], "is_overridden": item["is_overridden"],
+                "override_note": item["override_note"], "formula": cell.adder_formula or "",
+                "source": f"{source['filename']} p.{source['page']}" if source else "",
+            })
+    repo = TenderRepository(db)
+    body = tbe_workbook(
+        brief=payload, tender_title=loaded.tender.title, client=loaded.tender.client,
+        equipment_class=loaded.tender.equipment_class, rate_table_version=loaded.tender.rate_table_version,
+        cells=cells, override_rows=repo.list_override_rows(tender_id), reviews=repo.list_reviews(tender_id),
+        clarification_rows=clarify.clarifications(loaded.tender), verified_by=loaded.meta.verified_by,
+        generated_at=datetime.now(timezone.utc))
+    return _attachment(body, XLSX_TYPE, f"TBE_{tender_id}.xlsx")
 
 
 RUN_CHANGED = {

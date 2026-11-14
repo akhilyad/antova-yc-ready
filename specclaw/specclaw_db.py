@@ -604,6 +604,14 @@ class TenderRepository:
         self.db.add(record)
         self.db.commit()
 
+    def list_override_rows(self, tender_id: str) -> list[dict]:
+        """The tender's overrides as stored, with who set them and when, sorted by (param_id, vendor_id)."""
+        rows = (self.db.query(AdderOverrideRecord).filter(AdderOverrideRecord.tender_id == tender_id)
+                .order_by(AdderOverrideRecord.param_id, AdderOverrideRecord.vendor_id))
+        return [{"param_id": o.param_id, "vendor_id": o.vendor_id, "adder_eur": o.adder_eur, "note": o.note,
+                 "set_by": o.set_by, "created_at": _utc(o.created_at).isoformat() if o.created_at else None}
+                for o in rows]
+
     def delete_override(self, tender_id: str, param_id: str, vendor_id: str) -> bool:
         """Remove one cell's override; False if there was none."""
         deleted = self.db.query(AdderOverrideRecord).filter(
