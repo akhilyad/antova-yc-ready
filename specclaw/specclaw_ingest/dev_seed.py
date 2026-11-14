@@ -25,9 +25,10 @@ from sqlalchemy.orm import Session
 import specclaw_db
 from specclaw_db import TenderRepository, init_db
 from specclaw_engine import Override, TenderPackage
-from specclaw_ingest.pipeline import persist, run_ingest
-from specclaw_ingest.tests.fakes import PACK, AnswerKeyLocator, load_expected
+from specclaw_ingest.pipeline import run_ingest
+from specclaw_ingest.answer_key import PACK, AnswerKeyLocator, load_expected
 from specclaw_review import evidence_hash, open_items
+from specclaw_service import persist
 
 SEED_REVIEWER = "founder"
 # The gap the sample leaves unpriced under rate table v2: VoltSwitch offers 18 months from dispatch against

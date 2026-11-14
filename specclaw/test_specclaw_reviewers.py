@@ -9,7 +9,8 @@ from sqlalchemy import text
 from specclaw_api import app
 from specclaw_auth import REVIEW_HEADER, ReviewerConfigError, _configured
 from specclaw_db import SessionLocal, TenderRepository
-from specclaw_ingest.pipeline import persist, run_ingest
+from specclaw_ingest.pipeline import run_ingest
+from specclaw_service import persist
 from specclaw_ingest.tests.fakes import PACK, AnswerKeyLocator, load_expected
 
 TENDER_ID = "TENDER-2026-402"

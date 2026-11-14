@@ -22,7 +22,7 @@ from pathlib import Path
 from samples import mutate
 from specclaw_ingest import verify
 from specclaw_ingest.pipeline import IngestFailed, run_ingest
-from specclaw_ingest.tests.fakes import AnswerKeyLocator
+from specclaw_ingest.answer_key import AnswerKeyLocator
 
 COLUMNS = [
     ("operator", "operator"), ("packs", "packs"), ("accepted", "quotes ok"), ("rejected", "rejected"),

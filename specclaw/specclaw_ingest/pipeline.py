@@ -1,6 +1,6 @@
 """The ingest pipeline: manifest -> parse -> locate -> verify -> values -> precedence -> price.
 
-run_ingest() is pure with respect to the database; persist() writes the result
+run_ingest() never touches the database; specclaw_service.persist() writes its result
 in one transaction.
 """
 
@@ -18,10 +18,8 @@ from statistics import median
 from typing import Callable
 
 import anthropic
-from sqlalchemy.orm import Session
 
 import specclaw_engine as engine
-from specclaw_db import TenderRepository
 from specclaw_ingest import artifacts, codec, config, costs, extract, sweep
 from specclaw_ingest.artifacts import STAGE_NAMES, StageArtifact
 from specclaw_ingest.costs import ConfigError, Pricing, load_rate_table, price
@@ -819,22 +817,3 @@ def run_ingest(tender_dir: Path, mode: str = "auto", progress: Callable[[str, in
     except ConfigError as exc:
         raise _failed(exc) from exc
     return _finish(arts, fingerprint, started, stage_log)
-
-
-def persist(result: IngestResult, db: Session, share_id: str | None = None) -> list[dict]:
-    """Save the tender; returns the founder overrides the re-ingest cleared, sorted by (param_id, vendor_id).
-
-    An override whose cell is unchanged (same evidence hash) survives the re-ingest; one whose
-    cell changed or vanished is cleared and returned here so the founder can enter it again.
-    `share_id` is used only if the tender is new; an existing tender keeps its share ID.
-    """
-    stats = result.stats
-    return TenderRepository(db).save_tender(
-        result.tender, result.documents, datetime.now(timezone.utc),
-        ingest_mode=stats["ingest_mode"], synthetic=stats["synthetic"],
-        ingest_stats={k: v for k, v in stats.items() if k != "stage_log"},
-        stage_log=stats["stage_log"],
-        share_id=share_id,
-        run={"run_id": stats["run_id"], "fingerprint": stats["run_fingerprint"],
-             "parts": result.fingerprint.get("parts", {}), "artifacts": result.artifacts} if result.artifacts else None,
-    )

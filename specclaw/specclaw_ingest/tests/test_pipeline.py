@@ -17,10 +17,10 @@ from specclaw_ingest.pipeline import (
     STAGES,
     IngestFailed,
     UnknownTender,
-    persist,
     run_ingest,
     tender_dir_for,
 )
+from specclaw_service import persist
 from specclaw_ingest.tests.fakes import PACK, AnswerKeyLocator, load_expected
 
 VOLTSWITCH = "Bid_vendor-b_VoltSwitch.pdf"

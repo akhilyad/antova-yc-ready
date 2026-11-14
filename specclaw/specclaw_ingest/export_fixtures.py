@@ -24,7 +24,7 @@ from specclaw_db import TenderMeta
 from specclaw_engine import Override, SensitivitySettings, TenderPackage, evaluate_vendor_financials
 from specclaw_ingest.dev_seed import founder_resolution
 from specclaw_ingest.pipeline import STAGES, run_ingest
-from specclaw_ingest.tests.fakes import PACK, AnswerKeyLocator, load_expected
+from specclaw_ingest.answer_key import PACK, AnswerKeyLocator, load_expected
 from specclaw_models import JobStatus, JobStatusResponse
 from specclaw_review import _override_entries, brief_payload, open_items, public_brief_payload
 

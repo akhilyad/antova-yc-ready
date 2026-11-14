@@ -12,7 +12,8 @@ from specclaw_db import SessionLocal, TenderRepository
 from specclaw_ingest import artifacts, extract, ontology
 from specclaw_ingest.extract import ClaudeLocator, ReplayMiss, ResponseStore
 from specclaw_ingest.parse import parse_document, load_manifest
-from specclaw_ingest.pipeline import persist, rerun_from, run_ingest
+from specclaw_ingest.pipeline import rerun_from, run_ingest
+from specclaw_service import persist
 from specclaw_ingest.tests.fakes import PACK, AnswerKeyLocator, load_expected
 
 VOLTSWITCH = "Bid_vendor-b_VoltSwitch.pdf"

@@ -19,7 +19,8 @@ from specclaw_auth import REVIEW_HEADER
 from specclaw_db import SessionLocal, TenderRepository
 from specclaw_ingest import run as cli
 from specclaw_ingest.parse import load_manifest, parse_document
-from specclaw_ingest.pipeline import persist, run_ingest
+from specclaw_ingest.pipeline import run_ingest
+from specclaw_service import persist
 from specclaw_ingest.tests.fakes import AnswerKeyLocator
 from specclaw_ingest.verify import compare_to_answer_key
 
