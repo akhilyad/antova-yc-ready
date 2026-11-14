@@ -253,11 +253,16 @@ def test_the_pipeline_runs_on_this_model_and_matches_the_answer_key(tmp_path, ex
 
 def test_the_provider_follows_the_settings(tmp_path, monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", "")
-    assert extract.locate_provider() == "explabs"  # only an Experiential Labs key is set
+    assert extract.locate_provider() == "explabs"  # an Experiential Labs key is set
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
-    assert extract.locate_provider() == "anthropic"  # both: Claude, unless told otherwise
+    assert extract.locate_provider() == "explabs"  # an Anthropic key in the environment does not change that
+    monkeypatch.setenv("SPECCLAW_LOCATE_PROVIDER", "anthropic")
+    assert extract.locate_provider() == "anthropic"  # only an explicit choice selects Claude
     monkeypatch.setenv("SPECCLAW_LOCATE_PROVIDER", "explabs")
     assert extract.locate_provider() == "explabs"
+    monkeypatch.delenv("SPECCLAW_LOCATE_PROVIDER")
+    monkeypatch.setenv("EXPLABS_API_KEY", "")
+    assert extract.locate_provider() == "anthropic"  # no Experiential Labs key: Claude
     monkeypatch.setenv("SPECCLAW_LOCATE_PROVIDER", "gemini")
     with pytest.raises(ValueError, match="SPECCLAW_LOCATE_PROVIDER"):
         extract.locate_provider()

@@ -24,6 +24,8 @@ import sys
 from decimal import Decimal
 from pathlib import Path
 
+import anthropic
+
 from specclaw_ingest import extract, verify
 from specclaw_ingest.extract import ClaudeLocator, ExtractError, LocateOutcome, Locator, ResponseStore
 from specclaw_ingest.ontology import PARAMETERS
@@ -127,8 +129,9 @@ def score_pack(tender_dir: Path, locator: Locator) -> dict:
         ideal = expected["ideal_locate"].get(entry.file)
         try:
             outcome = remembering.locate(doc)
-        except ExtractError as exc:
-            missing.append({"file": entry.file, "reason": f"{type(exc).__name__}: {exc}"})
+        except (ExtractError, anthropic.APIError) as exc:
+            first_line = (str(exc).splitlines() or [""])[0][:300]
+            missing.append({"file": entry.file, "reason": f"{type(exc).__name__}: {first_line}"})
             continue
         if ideal is not None:
             documents.append(score_document(doc, ideal, outcome, getattr(locator, "prices", None)))
@@ -148,7 +151,7 @@ def score_pack(tender_dir: Path, locator: Locator) -> dict:
             per_param.setdefault(pid, [0, 0])
             per_param[pid][0] += hit
             per_param[pid][1] += want
-    return {"tender": tender_dir.name, "documents": documents, "missing": missing,
+    return {"tender": tender_dir.name, "locator": getattr(locator, "model", "?"), "documents": documents, "missing": missing,
             "per_param": {pid: {"matched": h, "expected": w} for pid, (h, w) in sorted(per_param.items())},
             "cost_usd": str(sum((Decimal(d["cost_usd"]) for d in documents), Decimal("0"))),
             "pipeline": run}
@@ -166,7 +169,7 @@ def _pct(value) -> str:
 def format_report(packs: list[dict]) -> str:
     lines = []
     for pack in packs:
-        lines.append(f"## {pack['tender']}")
+        lines.append(f"## {pack['tender']}  (locator model: {pack['locator']})")
         for m in pack["missing"]:
             lines.append(f"- not scored: {m['file']}: {m['reason']}")
         if pack["documents"]:

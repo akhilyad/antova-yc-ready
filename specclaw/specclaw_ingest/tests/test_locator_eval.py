@@ -116,3 +116,19 @@ def test_the_report_and_json_forms(tmp_path, ideal, capsys):
     assert locator_eval.main([str(folder), "--json"]) == 0
     data = json.loads(capsys.readouterr().out)
     assert data[0]["tender"] == PACK.name and data[0]["pipeline"]["ran"]
+
+
+def test_an_api_error_is_reported_per_document_not_raised(tmp_path, capsys):
+    import anthropic
+    import httpx
+
+    class Failing:
+        model = "claude-opus-5-5"
+
+        def locate(self, doc):
+            raise anthropic.APIConnectionError(request=httpx.Request("POST", "https://api.example.test"))
+
+    folder = _pack(tmp_path)
+    pack = locator_eval.score_pack(folder, Failing())
+    assert len(pack["missing"]) == 4 and "APIConnectionError" in pack["missing"][0]["reason"]
+    assert pack["locator"] == "claude-opus-5-5" and pack["pipeline"]["ran"] is False
