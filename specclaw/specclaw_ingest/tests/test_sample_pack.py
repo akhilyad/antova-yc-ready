@@ -7,6 +7,7 @@ from pathlib import Path
 import fitz  # PyMuPDF
 
 from samples.generate_sample_pack import generate
+from samples.pdf_compare import content_form
 
 PACK = Path(__file__).resolve().parents[2] / "samples" / "TENDER-2026-402"
 PDFS = [
@@ -59,7 +60,10 @@ def test_generation_is_byte_identical(tmp_path):
 def test_committed_pack_matches_generator(tmp_path):
     generate(tmp_path)
     for name in FILES:
-        assert (tmp_path / name).read_bytes() == (PACK / name).read_bytes(), name
+        made, committed = (tmp_path / name).read_bytes(), (PACK / name).read_bytes()
+        if name.endswith(".pdf"):  # compressed streams differ between zlib builds; the content must not
+            made, committed = content_form(made), content_form(committed)
+        assert made == committed, name
 
 
 def test_every_page_has_synthetic_footer():
